@@ -1,0 +1,17 @@
+/* CSS Document */
+body{ background-color:#999; text-align:center;}
+.body{width:300px; display:inline-block; text-align:left; background-color:#fff; margin:auto; margin-top:100px; -webkit-border-radius:5px; -webkit-box-shadow:0 0 5px rgba(0,0,0,1);}
+.add{width:100%; padding:10px;}
+.add input{height:30px;}
+.list{width:90%; display:inline-block; padding:5%;list-style:none;}
+.list li{width:90%; margin-left:5%; background-color:#CCC; margin-top:5px; border:#CCC solid 1px;}
+.list li a{text-decoration:none; float:right;font-size:12px; line-height:20px;}
+.list li a:hover{color:red;}
+.clear{width:100px; height:30px; line-height:30px; display:inline-block; text-align:center; background-color:#090; color:#FFF; font-weight:bold; float:right;}
+
+
+
+
+
+
+
