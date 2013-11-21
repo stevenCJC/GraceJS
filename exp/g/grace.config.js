@@ -1,12 +1,14 @@
 
 
 (function(window){
+
 	var G=window.G=window.G||{};
-	var $=window.jQuery;
+	
+	G.DEBUG=true;
 	
 	
-	 
+	
+	
 	
 }(window))
 
- 
