@@ -3,24 +3,20 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>无标题文档</title>
-<script type="text/javascript" src="jquery-2.0.0.min.js"></script>
+<script type="text/javascript" src="old/jquery-2.0.0.min.js"></script>
+<script type="text/javascript" src="demo/utils/$.js"></script>
+<script type="text/javascript" src="demo/utils/chzn.js"></script>
 </head>
 <body>
 
 
-<div id="333" data-util="chosen"></div>
+<div id="333" data-util="chosen">1111111111</div>
 
-
+<input id="inp" type="text" />
 
 </body>
 </html>
 <script type="text/javascript">
-alert($('#333').data('util'));
-$('#333').data('util','chosen:inited');
-alert($('#333').data('util'));
-
-
-
-
-
+var g=G.$('#inp');
+g.chznSet('chznSeted!!!!!!');
 </script>
