@@ -1,5 +1,3 @@
-
-
 //抽象定义
 G.Widget('paginglist',
 	function(id){
