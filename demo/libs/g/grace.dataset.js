@@ -1,4 +1,5 @@
 
+	//DataSet管理类，无依赖
 	
 	function DataSet(){
 		this.dataset={};

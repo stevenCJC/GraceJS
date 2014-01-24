@@ -35,7 +35,7 @@ G.Widget('paginglist',
 );
 
 
-G.$(function(){
+$(function(){
 	
 	var pl=G.newWidget('paginglist','DDDDDDDDDDDDD');
 	var pl2=G.newWidget('paginglist','FFFFFFFFFFFF');

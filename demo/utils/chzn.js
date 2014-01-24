@@ -1,27 +1,40 @@
 
+//为初始化后的组件提供操作方法
 
 G.Util({
 	
-	//使用data-util进行初始化
-	'util:chzn':function(el,p){},
-	'util:chzn-multi':function(el,p){},
+	//自动初始化
+	//不提供$$内部环境，仅提供两个参数
+	
+	'chzn':function(el,d){
+		el.html('行了吗？');
+	},
+	
+	'chzn-multi':function(el,d){
+		
+	},
 	
 },{
 	
-	//为初始化后的组件提供操作方法
+	
 	chznSet:function(value){
-		//这里使用底层库实现代码
-		if(!this.inited){
-			//$(this).chosen();
-			this.inited=true;
-		}
-		$(this).val(value).change()//.trigger('list:update');
+		
+		return this.each(function(el){
+			if(!this.inited){
+				//$(this).chosen();
+				this.inited=true;
+			}
+			$(this).val(value).change()//.trigger('list:update');
+		})
 	},
+	
+	
 	chznText:function(value){
-		$(this).text(value+' ------------chznText')//.trigger('list:update');
+		this.html(value+' --------<div data-util="chzn"></div>----chznText')//.trigger('list:update');
 	},
+	
+	
 	chznUpdate:function(value){
-		//这里使用底层库实现代码
 		//$(this).val(value).change().trigger('list:update');
 	},
 	

@@ -1,60 +1,84 @@
-	G.$=function(s){
-		return new Engine(s);
-	};
-	$Engine=Engine;
-	function Engine(s){
-		/*底层依赖库相关对象*/
-		var jq=this.jq=$(s);
-		/*/底层依赖库相关对象*/
-		
+G.Engine({
+	
+	$:function(s){
+		if(this.core)
+			this.core=this.core.find(s);
+		else this.core=$(s);
 		/*dom元素模拟数组的方式使用*/
 		var i=0;
-		while(jq[i]){this[i]=jq[i];i++}
-		this.length=jq.length;
-		i=null;
-		/*/dom元素模拟数组的方式使用*/
-		
-		/*设定GraceJS内部使用方法*/
-		var methods=['find','html','val','text','remove','css','attr','addClass','data','on','append'];
-		var m
-		while(m=methods.pop()) (function(m,that){
-			//绑定底层库方法
-			Engine.prototype[m]=function(){
-				//调用底层库方法，apply效率可能不够高
-				var d=this.jq[m].apply(this.jq,arguments);
-				//如果返回底层库对象，则返回G.$对象
-				if(this.jq.constructor==d.constructor) return that;
-				//否则返回数据
-				else return d;
-			};
-		})(m,this);
-		
-		
-		
-	}
+		var core=this.core;
+		while(core[i]){this[i]=core[i];i++;}
+		this.length=core.length;
+		return this;
+	},
 	
-	/*定义GraceJS内部使用方法*/
-	Engine.prototype={
-		off:function(){},
-	}
+	off:function(){return this;},
 	
-	G.$.extend=function(data){
+	each:function(func){
+		this.core.each(function(){
+			func(new Engine(this));
+		});
+		return this;
+	},
+	
+	html:function(t,u){
+		this.core.html(t);
+		u&&this.util();
+		return this;
+	},
+	
+	util:function(t){
+		var du=$$.dataUtils;
+		for(var x in du){
+			var t=du[x];
+			this.$('[data-'+x+']').each(function(el){
+				var u=el.data(x);
+				if(!el[0].inited&&t[u]){
+					t[u](el,el.data('set'));
+					el[0].inited=true;
+				}
+			});
+		}
+		return this;
+	},
+	
+},{
+	
+	extend:function(data){
 		for(var x in data)
 			(function(name,func){
-				$.fn[name]=function(){
-					var args=arguments;
-					return this.each(function(){
-						func.apply(this,args);
-					});
-				};
-				Engine.prototype[name]=function(){
-					var d=this.jq[name].apply(this.jq,arguments);
-					if(this.jq.constructor==d.constructor) return this;
-					else return d;
-				}
+				Engine.prototype[name]=func;
 			})(x,data[x]);
-		}
+	},
+	
+});
 
+
+
+
+/*设定GraceJS内部使用方法*/
+var enginePrototype=['find','val','text','remove','css','attr','addClass','data','on','append'];
+var m
+while(m=enginePrototype.pop()) (function(m){
+	//绑定底层库方法
+	Engine.prototype[m]=function(){
+		//调用底层库方法，apply效率可能不够高
+		var d=this.core[m].apply(this.core,arguments);
+		if(typeof d=='undefined')return this;
+		//如果返回底层库对象，则返回G.$对象
+		if(this.core.constructor==d.constructor) return this;
+		//否则返回数据
+		else return d;
+	};
+})(m);
+	
+	
+	
+	
+
+
+	
+	
 
 
 
