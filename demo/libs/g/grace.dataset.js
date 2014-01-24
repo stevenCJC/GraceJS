@@ -76,7 +76,7 @@
 		},
 		
 	}
-
+	
 	function getObjByPath(path,obj,create){
 		path=path.replace(/(^\s*)|(\s*$)/g,'');
 		var tmp;
