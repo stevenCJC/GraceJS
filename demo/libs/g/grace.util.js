@@ -23,7 +23,41 @@ G.Extend('grace',{
 
 
 
-
+G.Engine({
+	
+	util:function(utils){
+		var du=$$.dataUtils;
+		if(utils){
+			utils=utils.replace(/\s/ig,'').split(',');
+			var u;
+			var uts=du['util'];
+			while(u=utils.pop()){
+				var func=uts[u];
+				this.$('[data-util="'+u+'"]').each(function(el){
+					if(!el[0].inited&&func){
+						func(el,el.data('set'));
+						el[0].inited=true;
+					}
+				});
+			}
+		
+		}else{
+			
+			for(var x in du){
+				var t=du[x];
+				this.$('[data-'+x+']').each(function(el){
+					var u=el.data(x);
+					if(!el[0].inited&&t[u]){
+						t[u](el,el.data('set'));
+						el[0].inited=true;
+					}
+				});
+			}
+		}
+		return this;
+	},
+	
+});
 
 
 

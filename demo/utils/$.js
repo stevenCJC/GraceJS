@@ -21,26 +21,13 @@ G.Engine({
 		return this;
 	},
 	
-	html:function(t,u){
+	html:function(t,utils){
 		this.core.html(t);
-		u&&this.util();
+		this.util(utils);
 		return this;
 	},
 	
-	util:function(t){
-		var du=$$.dataUtils;
-		for(var x in du){
-			var t=du[x];
-			this.$('[data-'+x+']').each(function(el){
-				var u=el.data(x);
-				if(!el[0].inited&&t[u]){
-					t[u](el,el.data('set'));
-					el[0].inited=true;
-				}
-			});
-		}
-		return this;
-	},
+	
 	
 },{
 	
