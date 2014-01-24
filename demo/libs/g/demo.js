@@ -12,7 +12,7 @@ G.Widget('paginglist',
 			'PLinit{id}':'action',
 		},
 		util:{
-			pagingList:function(el,p){},
+			'util:PL':function(el,p){alert('util:PL!!!!');},
 		},
 		event:{
 			'click body@#{id}':'clickThis',

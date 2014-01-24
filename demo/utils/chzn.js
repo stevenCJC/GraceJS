@@ -7,7 +7,7 @@ G.Util({
 	//不提供$$内部环境，仅提供两个参数
 	
 	'chzn':function(el,d){
-		el.html('行了吗？');
+		el.html('行了吗？',1);
 	},
 	
 	'chzn-multi':function(el,d){
@@ -30,7 +30,7 @@ G.Util({
 	
 	
 	chznText:function(value){
-		this.html(value+' --------<div data-util="chzn"></div>----chznText')//.trigger('list:update');
+		this.html(value+' --------<div data-util="chzn"></div>-<div data-util="PL">这是？</div>----chznText','chzn,PL')//.trigger('list:update');
 	},
 	
 	

@@ -4,13 +4,17 @@ G.Engine({
 		if(this.core)
 			this.core=this.core.find(s);
 		else this.core=$(s);
-		/*dom元素模拟数组的方式使用*/
-		var i=0;
-		var core=this.core;
-		while(core[i]){this[i]=core[i];i++;}
-		this.length=core.length;
+		this.z_freshCore();
 		return this;
 	},
+	
+	end:function(){
+		this.core=this.core.end();
+		this.z_freshCore();
+		return this;
+	},
+	
+	
 	
 	off:function(){return this;},
 	
@@ -23,7 +27,7 @@ G.Engine({
 	
 	html:function(t,utils){
 		this.core.html(t);
-		this.util(utils);
+		utils&&this.util(utils);
 		return this;
 	},
 	

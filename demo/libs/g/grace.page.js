@@ -4,6 +4,8 @@
 		
 		Page:function(path,cons,inte,init,func){
 			
+			utils(inte.util);
+			
 			var DS=this.DS;
 			var root=this;
 			
@@ -41,7 +43,7 @@
 			if(message)G.MD.publish(channel,message);
 			else G.MD.publish(channel);
 		},
-	})
+	});
 	
 	
 	function runPageInit(that,x,callback){

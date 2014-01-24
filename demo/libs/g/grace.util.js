@@ -16,7 +16,6 @@ G.Extend('grace',{
 			
 		}
 		
-		
 	},
 	
 });
@@ -27,7 +26,7 @@ G.Engine({
 	
 	util:function(utils){
 		var du=$$.dataUtils;
-		if(utils){
+		if(utils&&utils.constructor==String){
 			utils=utils.replace(/\s/ig,'').split(',');
 			var u;
 			var uts=du['util'];
@@ -38,10 +37,10 @@ G.Engine({
 						func(el,el.data('set'));
 						el[0].inited=true;
 					}
-				});
+				}).end();
 			}
 		
-		}else{
+		}else if((typeof utils !='undefined')&&utils){
 			
 			for(var x in du){
 				var t=du[x];
@@ -51,11 +50,15 @@ G.Engine({
 						t[u](el,el.data('set'));
 						el[0].inited=true;
 					}
-				});
+				}).end();
 			}
 		}
 		return this;
 	},
+	
+},{
+	
+	dataUtils:{},
 	
 });
 

@@ -4,6 +4,8 @@
 		
 		Widget:function(path,cons,inte,func){
 			
+			utils(inte.util);
+			
 			var DS=this.DS;
 			var root=this;
 			function Widget(){
@@ -44,6 +46,16 @@
 		},
 		
 	})
+	
+	
+	function utils(d){
+		var func={},util={};
+		for(var x in d){
+			if(x.indexOf(':')>-1) util[x]=d[x];
+			else func[x]=d[x];
+		}
+		G.Util(util,func);
+	}
 	
 	
 	function subscribe(that,path){
