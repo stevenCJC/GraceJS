@@ -47,5 +47,3 @@ G.Widget('paginglist',
 		},
 	}
 );
-
-	

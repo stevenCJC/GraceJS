@@ -14,6 +14,8 @@
 		//存储widget类
 		this.widget={};
 		//存储不同的扩展函数
+		this.page={};
+		//存储不同的扩展函数
 		this.extend={};
 		//初始化数据岛对象
 		this.DS=new DataSet();

@@ -10,16 +10,13 @@
 		//path:路径
 		//ds:数据
 		//that:数据源对象
-		initData:function(path,ds,that){
+		initData:function(path,ds){
 			if(ds){
 				ds=clone(ds);//深克隆
 				var dso= getObjByPath(path,this.dataset,1);//获得对象，强制生成
 				if(ds.constructor==Array) {
 					//如果是数组，说明对象是可以初始化多个实例，影响也有所区别，所以需要解析路径，此处应该把路径的解析独立处理
-					var k=ds[0].replace(/(^\s*)|(\s*$)/g,'').replace(/\{.*?\}/ig,function(m){
-						return that[m.replace(/\{|\}/ig,'')];
-					});
-					dso[k]=ds[1];
+					dso[ds[0]]=ds[1];
 				}else if(ds.constructor==Object){
 					//如果是对象，即只需初始化一个实例即可
 					for(var x in ds)if(ds.hasOwnProperty(x)) dso[x]=ds[x];
@@ -37,7 +34,7 @@
 		//当前路径
 		this.path=path;
 		//返回数据树相应的数据节点
-		this._dataset_=getObjByPath(path,ds);
+		this._dataset_=getObjByPath(path,ds,1);
 	}
 	DS.prototype={
 		get:function(path){
@@ -74,7 +71,13 @@
 		bind:function(){
 			
 		},
-		
+	}
+	
+	
+	function fixPath(path,obj){
+		return path.replace(/(^\s*)|(\s*$)/g,'').replace(/\{.*?\}/ig,function(m){
+			return obj[m.replace(/\{|\}/ig,'')];
+		});
 	}
 	
 	function getObjByPath(path,obj,create){

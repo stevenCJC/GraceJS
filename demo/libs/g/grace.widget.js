@@ -4,14 +4,25 @@
 		
 		Widget:function(path,cons,inte,func){
 			
-			utils(inte.util);
+			
 			
 			var DS=this.DS;
 			var root=this;
+			
 			function Widget(){
+				
+				utils(inte.util,this);
+				
 				cons.apply(this,arguments);
-				DS.initData(path,inte.dataset,this);
+				
+				var dataset=clone(inte.dataset);
+				
+				if(dataset.constructor==Array) dataset[0]=fixPath(dataset[0],this);
+				
+				DS.initData(path,dataset);
+				
 				for(var x in inte.event) bind(this,x);
+				
 				for(var x in inte.subscribe) subscribe(this,x);
 			}
 			
@@ -34,7 +45,7 @@
 	});
 	
 	
-	G.Extend('widget',{
+	G.Extend('widget,page',{
 		DS:function(path){
 			return G.DS.getDS(path);
 		},
@@ -47,10 +58,26 @@
 		
 	})
 	
+	G.Extend('widget/event,page/event',{
+		LS:function(path){
+			
+		},
+		
+		event:function(that,path,key){
+			var index=path.indexOf(' ');
+			var etype=path.substr(0,index);
+			var dom=path.substr(index+1).split('@');
+			$$(dom[0]).on(etype,dom[1],function(e){
+				that[key]($$(this),e);
+			});
+		},
+	})
 	
-	function utils(d){
+	
+	function utils(d,that){
 		var func={},util={};
 		for(var x in d){
+			x=fixPath(x,that);//为了少用一个for循环
 			if(x.indexOf(':')>-1) util[x]=d[x];
 			else func[x]=d[x];
 		}
@@ -60,9 +87,9 @@
 	
 	function subscribe(that,path){
 		var srcPath=path;
-		path=path.replace(/(^\s*)|(\s*$)/g,'').replace(/\{.*?\}/ig,function(m){
-			return that[m.replace(/\{|\}/ig,'')];
-		});
+		
+		path=fixPath(path,that);
+		
 		var key='zzS_'+srcPath;
 		if(that[key].constructor==String) key=that[key];
 		G.MD.subscribe(path,function(message){
@@ -71,20 +98,21 @@
 	}
 	
 	function bind(that,path){
-		var srcPath=path;
-		path=path.replace(/(^\s*)|(\s*$)/g,'').replace(/\{.*?\}/ig,function(m){
-			return that[m.replace(/\{|\}/ig,'')];
-		});
-		var index=path.indexOf(' ');
-		var type=path.substr(0,index);
-		var dom=path.substr(index+1).split('@');
-		var $el=$$(dom[0]);
+		var key='zzE_'+path;
+		if(that[key].constructor==String)key=that[key];
 		
-		$el.on(type,dom[1],function(e){
-			var key='zzE_'+srcPath;
-			if(that[key].constructor==String)key=that[key];
-			that[key]($$(this),e);
-		});
+		path=fixPath(path,that);
+		
+		var index=path.indexOf(' ');
+		var index2=path.indexOf(':');
+		
+		if(index>0&&(index2>0&&index<index2||index2==-1)){//冒号在后面或者没有冒号，一定有空格
+			var type="event";
+		}else if(index2>0&&(index>0&&index2<index||index==-1)){//冒号在前面或者没有空格，一定有冒号
+			var type=path.substr(0,index2);
+			var path=path.substr(index2+1);
+		}
+		G.extend['widget/event'][type](that,path,key);
 		
 	}
 	
