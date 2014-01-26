@@ -2,37 +2,47 @@
 	
 	G.Extend('grace',{
 		
-		Widget:function(path,cons,inte,func){
+		Widget:function(path,cons,inte,proto){
 			
 			
 			
-			var DS=this.DS;
 			var root=this;
 			
 			function Widget(){
 				
-				utils(inte.util,this);
 				
+				//{id}变量问题未解决
 				cons.apply(this,arguments);
 				
-				var dataset=clone(inte.dataset);
 				
-				if(dataset.constructor==Array) dataset[0]=fixPath(dataset[0],this);
 				
-				DS.initData(path,dataset);
 				
-				for(var x in inte.event) bind(this,x);
+				for(var x in inte) {
+					var f=G.extend['widget/interface'][x]
+					if(f){
+						f=f[0];
+						if(f)f.call(this,path,inte[x],root);
+					}
+				}
 				
-				for(var x in inte.subscribe) subscribe(this,x);
+				//执行初始化
+				
+				
 			}
 			
-			func.PATH=path;
+			proto.PATH=path;
 			var extend=this.extend.widget;
-			for(var x in extend) func[x]=extend[x];
-			for(var x in inte.event) func['zzE_'+x]=inte.event[x];
-			for(var x in inte.subscribe) func['zzS_'+x]=inte.subscribe[x];
+			for(var x in extend) proto[x]=extend[x];
 			
-			var w=this.widget[path]=Compose(Widget,func);
+			for(var x in inte) {
+				var f=G.extend['widget/interface'][x];
+				if(f){
+					f=f[1];
+					if(f)f.call(this,path,inte[x],proto);
+				}
+			}
+				
+			var w=this.widget[path]=Compose(Widget,proto);
 			
 		},
 		
@@ -58,7 +68,38 @@
 		
 	})
 	
-	G.Extend('widget/event,page/event',{
+	
+	G.Extend('widget/interface,page/interface',{
+		
+		dataset:[function(path,dataset,root){
+			var DS=root.DS;
+			dataset=clone(dataset);
+			if(dataset.constructor==Array) dataset[0]=fixPath(dataset[0],this);
+			DS.initData(path,dataset);
+		},function(){
+			
+		}],
+		
+		util:[function(path,util,root){
+			utils(util,this);
+		},function(path,util,proto){
+			
+		}],
+		
+		event:[function(path,event,root){
+			for(var x in event) bind(this,x);
+		},function(path,event,proto){
+			for(var x in event) proto['zzE_'+x]=event[x];
+		}],
+		
+		subscribe:[function(path,subs,root){
+			for(var x in subs) subscribe(this,x);
+		},function(path,subs,proto){
+			for(var x in subs) proto['zzS_'+x]=subs[x];
+		}],
+	})
+	
+	G.Extend('widget/interface/event,page/interface/event',{
 		LS:function(path){
 			
 		},
@@ -112,7 +153,7 @@
 			var type=path.substr(0,index2);
 			var path=path.substr(index2+1);
 		}
-		G.extend['widget/event'][type](that,path,key);
+		G.extend['widget/interface/event'][type](that,path,key);
 		
 	}
 	
