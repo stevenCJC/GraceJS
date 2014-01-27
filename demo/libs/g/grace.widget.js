@@ -2,47 +2,9 @@
 	
 	G.Extend('grace',{
 		
-		Widget:function(path,cons,inte,proto){
-			
-			
-			
-			var root=this;
-			
-			function Widget(){
-				
-				
-				//{id}变量问题未解决
-				cons.apply(this,arguments);
-				
-				
-				
-				
-				for(var x in inte) {
-					var f=G.extend['widget/interface'][x]
-					if(f){
-						f=f[0];
-						if(f)f.call(this,path,inte[x],root);
-					}
-				}
-				
-				//执行初始化
-				
-				
-			}
-			
-			proto.PATH=path;
-			var extend=this.extend.widget;
-			for(var x in extend) proto[x]=extend[x];
-			
-			for(var x in inte) {
-				var f=G.extend['widget/interface'][x];
-				if(f){
-					f=f[1];
-					if(f)f.call(this,path,inte[x],proto);
-				}
-			}
-				
-			var w=this.widget[path]=Compose(Widget,proto);
+		Widget:function(path,cons,interface,init,proto){
+			//cons内不可
+			this.widget[path]=makeWidget.call(this,path,cons,interface,init,proto);
 			
 		},
 		
@@ -55,7 +17,7 @@
 	});
 	
 	
-	G.Extend('widget,page',{
+	G.Extend('widget',{
 		DS:function(path){
 			return G.DS.getDS(path);
 		},
@@ -69,7 +31,7 @@
 	})
 	
 	
-	G.Extend('widget/interface,page/interface',{
+	G.Extend('widget/interface',{
 		
 		dataset:[function(path,dataset,root){
 			var DS=root.DS;
@@ -99,7 +61,7 @@
 		}],
 	})
 	
-	G.Extend('widget/interface/event,page/interface/event',{
+	G.Extend('widget/interface/event',{
 		LS:function(path){
 			
 		},
@@ -114,6 +76,16 @@
 		},
 	})
 	
+	G.Extend('widget/init',{
+		
+		dom:function(that,target,callback){
+			var t=$$(target);
+			var set=t.data('set');
+			if(set.constructor==String) set=G.DS.getDS(set);
+			callback.call(that,t,set);
+		},
+		
+	});
 	
 	function utils(d,that){
 		var func={},util={};
@@ -158,4 +130,54 @@
 	}
 	
 
+	function runPageInit(that,x,callback){
+		
+		if(x.indexOf(':')>-1){
+			var index=x.indexOf(':');
+			var type=x.substr(0,index);
+			var target=x.substr(index+1);
+			var init=G.extend['widget/init'][type];
+			if(init) init(that,target,callback);
+			else G.extend['widget/init']['dom'](that,x,callback);
+		}else{
+			G.extend['widget/init']['dom'](that,x,callback);
+		}
+		
+		
+	}
 
+	function makeWidget(path,cons,interface,init,proto){
+		
+		var root=this;
+		
+		function Widget(){
+			
+			cons.apply(this,arguments);
+			
+			for(var x in interface) {
+				var f=G.extend['widget/interface'][x]
+				if(f){
+					f=f[0];
+					if(f)f.call(this,path,interface[x],root);
+				}
+			}
+			
+			//执行初始化
+			for(var x in init) runPageInit(this,fixPath(x,this),init[x]);
+			
+		}
+		
+		proto.PATH=path;
+		var extend=this.extend.widget;
+		for(var x in extend) proto[x]=extend[x];
+		
+		for(var x in interface) {
+			var f=G.extend['widget/interface'][x];
+			if(f){
+				f=f[1];
+				if(f)f.call(this,path,interface[x],proto);
+			}
+		}
+		return Compose(Widget,proto);
+			
+	}

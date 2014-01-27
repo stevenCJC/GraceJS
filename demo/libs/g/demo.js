@@ -3,7 +3,7 @@ G.Widget('paginglist',
 	function(id){
 		this.PLObj={};//私有不公开的属性
 		this.id=id;
-		this.init();
+		//this.init();
 	},{
 		dataset:['{id}',{
 			Count:0,
@@ -11,18 +11,23 @@ G.Widget('paginglist',
 		subscribe:{
 			//订阅范围
 			'PLinit{id}':'action',
+			init:function(m){
+				$('#'+this.id).html($('#'+this.id).html()+m);
+			},
 		},
 		util:{
 			'util:PL':function(el,p){alert('util:PL!!!!');},
 		},
 		event:{
-			'click body@#{id}':'clickThis',
+			//'click body@#{id}':'clickThis',
 		}
+	},{
+		'#init':function(){this.init();},
 	},{
 		loadPage:function(s,options){},
 		init:function(){
 			if(!this.$('#'+this.id).length)
-				this.$('body').append('<button id="'+this.id+'">'+this.id+'</button>');
+				this.$('body').append('<br/><a  id="'+this.id+'" href="#PLinit'+this.id+':'+this.id+'/init:OK?????">'+this.id+'</a>');
 		},
 		clickThis:function(el,e,ds){
 			this.publish('PLinit'+this.id,this.id);
@@ -46,21 +51,24 @@ G.Page('header',
 		}],
 		subscribe:{
 			'PLinit{id}':'action',
+			init:function(m){
+				$('#'+this.id).html($('#'+this.id).html()+m);
+			},
 		},
 		util:{
 			'util:PL':function(el,p){},
 		},
 		event:{
-			'click body@#{id}':'clickThis',
+			//'click body@#{id}':'clickThis',
 		}
 	},{
 		'#{id}':function(el,ds){
-			if(!el.length) this.$('body').append('<button id="'+this.id+'">'+this.id+'</button>');
+			if(!el.length) this.$('body').append('<br/><a id="'+this.id+'" href="#PLinit'+this.id+':'+this.id+'/init:OOOOOO?????">'+this.id+'</a><br/><a id="'+this.id+'" href="#PLinit'+this.id+':'+this.id+'/init:OOOOOO?????">'+this.id+'</a>');
 		},
 	},{
 		loadPage:function(s,options){},
 		init:function(){
-			
+			$('#'+this.id).html('OKOKOKOK!!');
 		},
 		clickThis:function(el,e,ds){
 			this.publish('PLinit'+this.id,this.id);
@@ -76,6 +84,6 @@ G.Page('header',
 
 $(function(){
 	
-	var pl=G.newWidget('paginglist','DDDDDDDDDDDDD');
-	var pl2=G.newPage('header','HHHHHHHHHHHHH');
+	var pl=G.newWidget('paginglist','DD');
+	var pl2=G.newPage('header','GG');
 })

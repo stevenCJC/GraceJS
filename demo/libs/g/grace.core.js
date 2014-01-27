@@ -21,6 +21,8 @@
 		this.DS=new DataSet();
 		//初始化中介对象
 		this.MD=new Mediator();
+		//初始化路由对象
+		this.R=new Router();
 	}
 	
 	Grace.prototype={
