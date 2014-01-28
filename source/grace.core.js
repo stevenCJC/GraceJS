@@ -22,14 +22,27 @@
 		//初始化中介对象
 		this.MD=new Mediator();
 		//初始化路由对象
-		this.R=new Router();
+		new Router();
 		//初始化调试对象
 		this.__=new Debug();
 		
 	}
 	
 	Grace.prototype={
-		
+		/*
+			grace					Grace模块扩展
+			widget					Widget原型扩展
+			widget/init				Widget初始化key解析扩展
+			widget/interface		Widget定义的接口扩展
+			widget/interface/event	Widget定义的事件类型接口扩展
+			page					Page原型扩展
+			page/init				Page初始化key解析扩展
+			page/interface			Page定义的接口扩展
+			page/interface/event	Page定义的事件类型接口扩展
+			
+			
+			
+		*/
 		Extend:function(target,ex){
 			//过滤空白符
 			if(!target||!(target=target.replace(/\s/ig,'')))return;

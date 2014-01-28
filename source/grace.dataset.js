@@ -4,6 +4,7 @@
 	function DataSet(){
 		//数据岛的数据树
 		this.dataset={};
+		this.handlers={};
 	}
 	
 	DataSet.prototype={
@@ -32,7 +33,7 @@
 	//数据树节点定义
 	function DS(path,ds){
 		//当前路径
-		this.path=path;
+		this.PATH=path;
 		//返回数据树相应的数据节点
 		this._dataset_=getObjByPath(path,ds,1);
 	}
@@ -65,10 +66,75 @@
 				obj[path]=value;
 			}
 		},
-		delete:function(key){
+		//要考虑尾部为 / 的情况，对子元素的操作，和事件
+		delete:function(path){
+			var srcPath=this.PATH+'/'+srcPath;
+			path=path.replace(/\s/ig,'').split('/');
+			var p=path.pop();
+			path=path.join('/');
+			if(path){
+				if(path.indexOf('/')>-1){
+					delete getObjByPath(path,this._dataset_)[p];
+					event(this.handlers[srcPath],srcPath);
+				}else {
+					delete this._dataset_[path][p];
+				}
+			}else {
+				delete this._dataset_[p];
+			}
+			
+			function event(h,path){
+				if(h){
+					for(var x in h){
+						if(x.indexOf('delete')==0||x.indexOf('all')==0){
+							h[x]();
+						}
+					}
+				}
+				
+			}
 			
 		},
-		bind:function(){
+		// update delete create
+		// dataset/count/
+		bind:function(path,event,handlers){
+			if(path.constructor==Function) {
+				callback=path;
+				path=this.PATH;
+				event='all';
+			}else if(event.constructor==Function){
+				callback=event;
+				if('|update|delete|create|'.indexOf('|'+path.split('.')[0]+'|')>-1){
+					event=path;
+					path=this.PATH;
+				}else{
+					event='all';
+					path=this.PATH+'/'+path;
+				}
+			}
+			for(var x in handlers){
+				var h=this.handlers[path]=this.handlers[path]||{};
+				h=h[event]=h[event]||[];
+				h.push(handlers);
+			}
+		},
+		//未完成
+		unbind:function(path,event){
+			if('|update|delete|create|'.indexOf('|'+path.split('.')[0]+'|')>-1){
+				event=path;
+				path=this.PATH;
+			}else{
+				event='all';
+				path=this.PATH+'/'+path;
+			}
+			
+			if(event=='all'){
+				delete this.handlers[path];
+			}else{
+				var h=this.handlers[path];
+				for(var x in h)
+					if(x.indexOf(event)==0) delete h[x];
+			}
 			
 		},
 	}

@@ -1,11 +1,11 @@
 
 	
-	window.DEBUG=-1;// 0 no debug, 1 debug, -1 console;
+	//window.DEBUG=-1;// 0 no debug, 1 debug, -1 console;
 	
 	
 	
 	function Debug(){
-		this.D=window.DEBUG;
+		this.D=1;
 		if(this.D==1){
 			this._time={};
 		}

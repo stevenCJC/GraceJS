@@ -73,6 +73,11 @@
 		},function(path,subs,proto){
 			for(var x in subs) proto['zzS_'+x]=subs[x];
 		}],
+		
+		
+		
+		
+		
 	})
 	
 	G.Extend('widget/interface/event,page/interface/event',{

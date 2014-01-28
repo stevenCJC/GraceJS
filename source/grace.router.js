@@ -6,13 +6,6 @@
 		},false);
 	}
 	
-	Router.prototype={
-		add:function(routers){
-			for(var x in routers)
-				G.MD.subscribe(x,routers);
-		},
-	};
-	
 	
 	function hashRouter(e){
 		
