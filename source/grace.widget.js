@@ -8,10 +8,7 @@
 			
 		},
 		
-		newWidget:function(path,p){
-			var w=new this.widget[path](p);
-			return w;
-		},
+		
 		
 		
 	});
@@ -26,6 +23,11 @@
 		publish:function(channel,message){
 			if(message)G.MD.publish(channel,message);
 			else G.MD.publish(channel);
+		},
+		
+		new:function(path,p){
+			if(this.PATH.split('/')[0]==path.split('/')[0])
+				return new this.widget[path](p);
 		},
 		
 	})
@@ -86,6 +88,8 @@
 		},
 		
 	});
+	
+	
 	
 	function utils(d,that){
 		var func={},util={};

@@ -84,6 +84,6 @@ G.Page('header',
 
 $(function(){
 	
-	var pl=G.newWidget('paginglist','DD');
+	//var pl=G.newWidget('paginglist','DD');
 	var pl2=G.newPage('header','GG');
 })
