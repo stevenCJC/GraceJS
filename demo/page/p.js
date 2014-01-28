@@ -23,7 +23,7 @@ G.Page('header',
 		}
 	},{
 		'#{id}':function(el,ds){
-			G.__.open(1);
+			//G.__.open(1);
 			G.__.log('<br/><a id="'+this.id+'" href="#PLinit'+this.id+':'+this.id+'/init:OOOOOO?????">'+this.id+'</a><br/><a id="'+this.id+'" href="#PLinit'+this.id+':'+this.id+'/init:OOOOOO?????">'+this.id+'</a>');
 			if(!el.length) 
 				this.$('body').append('<br/><a id="'+this.id+'" href="#PLinit'+this.id+':'+this.id+'/init:OOOOOO?????">'+this.id+'</a><br/><a id="'+this.id+'" href="#PLinit'+this.id+':'+this.id+'/init:OOOOOO?????">'+this.id+'</a>');

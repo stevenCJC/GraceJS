@@ -1,6 +1,6 @@
 
 	
-	window.DEBUG=1;// 0 no debug, 1 debug, -1 console;
+	window.DEBUG=-1;// 0 no debug, 1 debug, -1 console;
 	
 	
 	
