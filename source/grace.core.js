@@ -23,6 +23,9 @@
 		this.MD=new Mediator();
 		//初始化路由对象
 		this.R=new Router();
+		//初始化调试对象
+		this.__=new Debug();
+		
 	}
 	
 	Grace.prototype={

@@ -3,9 +3,8 @@
 	G.Extend('grace',{
 		
 		Widget:function(path,cons,interface,init,proto){
-			//cons内不可
+			proto.TYPE='widget';
 			this.widget[path]=makeWidget.call(this,path,cons,interface,init,proto);
-			
 		},
 		
 		
@@ -14,10 +13,12 @@
 	});
 	
 	
-	G.Extend('widget',{
+	G.Extend('widget,page',{
+		
 		DS:function(path){
 			return G.DS.getDS(path);
 		},
+		
 		$:function(s){ return $$(s); },
 		
 		publish:function(channel,message){
@@ -26,14 +27,25 @@
 		},
 		
 		new:function(path,p){
-			if(this.PATH.split('/')[0]==path.split('/')[0])
-				return new this.widget[path](p);
+			var w=this.widget[path];
+			if(this.TYPE=='widget'&&w&&this.PATH.split('/')[0]==path.split('/')[0]||this.TYPE=='page'&&w)
+				return new w(p);
 		},
 		
 	})
 	
+	G.Extend('widget',{
+		
+		new:function(path,p){
+			var w=this.widget[path];
+			if(w&&this.PATH.split('/')[0]==path.split('/')[0])
+				return new w(p);
+		},
+		
+		
+	})
 	
-	G.Extend('widget/interface',{
+	G.Extend('widget/interface,page/interface',{
 		
 		dataset:[function(path,dataset,root){
 			var DS=root.DS;
@@ -63,7 +75,7 @@
 		}],
 	})
 	
-	G.Extend('widget/interface/event',{
+	G.Extend('widget/interface/event,page/interface/event',{
 		LS:function(path){
 			
 		},
@@ -78,7 +90,7 @@
 		},
 	})
 	
-	G.Extend('widget/init',{
+	G.Extend('widget/init,page/init',{
 		
 		dom:function(that,target,callback){
 			var t=$$(target);
@@ -129,7 +141,7 @@
 			var type=path.substr(0,index2);
 			var path=path.substr(index2+1);
 		}
-		G.extend['widget/interface/event'][type](that,path,key);
+		G.extend[that.TYPE+'/interface/event'][type](that,path,key);
 		
 	}
 	
@@ -140,11 +152,11 @@
 			var index=x.indexOf(':');
 			var type=x.substr(0,index);
 			var target=x.substr(index+1);
-			var init=G.extend['widget/init'][type];
+			var init=G.extend['page/init'][type];
 			if(init) init(that,target,callback);
-			else G.extend['widget/init']['dom'](that,x,callback);
+			else G.extend['page/init']['dom'](that,x,callback);
 		}else{
-			G.extend['widget/init']['dom'](that,x,callback);
+			G.extend['page/init']['dom'](that,x,callback);
 		}
 		
 		
@@ -159,7 +171,7 @@
 			cons.apply(this,arguments);
 			
 			for(var x in interface) {
-				var f=G.extend['widget/interface'][x]
+				var f=G.extend[proto.TYPE+'/interface'][x]
 				if(f){
 					f=f[0];
 					if(f)f.call(this,path,interface[x],root);
@@ -167,16 +179,16 @@
 			}
 			
 			//执行初始化
-			for(var x in init) runPageInit(this,fixPath(x,this),init[x]);
+			if(proto.TYPE=='page') for(var x in init) runPageInit(this,fixPath(x,this),init[x]);
 			
 		}
 		
 		proto.PATH=path;
-		var extend=this.extend.widget;
+		var extend=this.extend[proto.TYPE];//需要跟page分开扩展
 		for(var x in extend) proto[x]=extend[x];
 		
 		for(var x in interface) {
-			var f=G.extend['widget/interface'][x];
+			var f=G.extend[proto.TYPE+'/interface'][x];
 			if(f){
 				f=f[1];
 				if(f)f.call(this,path,interface[x],proto);

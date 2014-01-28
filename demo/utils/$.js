@@ -1,9 +1,7 @@
 G.Engine({
 	
 	$:function(s){
-		if(this.core)
-			this.core=this.core.find(s);
-		else this.core=$(s);
+		this.core=$(s);
 		this.z_freshCore();
 		return this;
 	},

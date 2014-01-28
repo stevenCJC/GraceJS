@@ -1,6 +1,4 @@
 
-(function(window){
-	
 	
 	window.DEBUG=1;// 0 no debug, 1 debug, -1 console;
 	
@@ -10,7 +8,6 @@
 		this.D=window.DEBUG;
 		if(this.D==1){
 			this._time={};
-			init();
 		}
 	}
 	
@@ -19,16 +16,17 @@
 		constructor:Debug,
 		open:function(type){
 			this.D=type;
-			if(this.D==1)init();
+			if(this.D==1)debugInit();
 		},
 		close:function(){
 			this.D=0;
 			document.getElementsByTagName('body')[0].removeChild(document.getElementById('Debug-box'));
 		},
 		clear:function(){
-			if(this.D==1)
-				document.getElementsByTagName('body')[0].innHTML='';
-			else if(this.D==-1)
+			if(this.D==1){
+				debugInit();
+				document.getElementById('Debug-box').innerHTML='';
+			}else if(this.D==-1)
 				console.clear();
 		},
 		log:function(text){
@@ -37,6 +35,7 @@
 				console.log(text);
 				return;
 			}
+			debugInit();
 			var el=document.createElement('p');
 			el.innerHTML=text;
 			document.getElementById('Debug-box').appendChild(el);
@@ -96,25 +95,20 @@
 			this.log('<i> '+mark+' </i> : <b> '+(getTimer()-this._time[mark])+'</b>');
 		},
 		
-		tmp:function(){if(!this.D)return;},
 		
 	}
 	
-	function init(){
+	function debugInit(){
 		var box=document.getElementById('Debug-box');
 		if(!box&&window.DEBUG){
 			var el=document.createElement('div');
 			el.id='Debug-box';
 			el.className='Debug-box';
-			document.getElementsByTagName('body')[0].appendChild(el);
+			if(document.getElementsByTagName('body')[0]){
+				document.getElementsByTagName('body')[0].appendChild(el);
+			}
 		}
 	}
-	
-	document.addEventListener('readystatechange',function(e){
-		if(document.readyState=="complete"){
-			window.Debug=new Debug();
-		}
-	});
 	
 	function getTimer(){
 		var d=new Date();
@@ -123,12 +117,6 @@
 	
 	
 	
-	
-	
-	
-})(window)
-
-
 
 
 

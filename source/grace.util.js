@@ -32,7 +32,7 @@ G.Engine({
 			var uts=du['util'];
 			while(u=utils.pop()){
 				var func=uts[u];
-				this.$('[data-util="'+u+'"]').each(function(el){
+				this.find('[data-util="'+u+'"]').each(function(el){
 					if(!el[0].inited&&func){
 						func(el,el.data('set'));
 						el[0].inited=true;
@@ -44,7 +44,7 @@ G.Engine({
 			
 			for(var x in du){
 				var t=du[x];
-				this.$('[data-'+x+']').each(function(el){
+				this.find('[data-'+x+']').each(function(el){
 					var u=el.data(x);
 					if(!el[0].inited&&t[u]){
 						t[u](el,el.data('set'));
