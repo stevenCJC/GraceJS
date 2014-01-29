@@ -67,6 +67,7 @@
 			}
 		},
 		//要考虑尾部为 / 的情况，对子元素的操作，和事件
+		//事件要伴随变化前数据和变化后数据
 		delete:function(path){
 			var srcPath=this.PATH+'/'+srcPath;
 			path=path.replace(/\s/ig,'').split('/');
