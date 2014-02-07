@@ -7,9 +7,6 @@
 			this.widget[path]=makeWidget.call(this,path,cons,interface,init,proto);
 		},
 		
-		
-		
-		
 	});
 	
 	
