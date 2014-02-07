@@ -8,9 +8,9 @@
 	}
 	
 	DataSet.prototype={
-		//path:路径
-		//ds:数据
-		//that:数据源对象
+		//path:	路径
+		//ds:	数据
+		//that:	数据源对象
 		initData:function(path,ds){
 			if(ds){
 				ds=clone(ds);//深克隆
@@ -27,6 +27,10 @@
 		getDS:function(path){
 			//返回新的数据树节点实例
 			return new DS(path,this.dataset);
+		},
+		//启动事件触发
+		trigger:function(path,type,newData,oldData){
+			
 		},
 	}
 	
@@ -98,29 +102,35 @@
 		// 提供绑定事件类型有 update delete create all
 		// 这里需要支持末尾为/的绑定，绑定指向末尾的所有数据包括其各级子数据
 		// 事件触发要伴随变化前数据和变化后数据
+		// 需要支持命名空间
 		bind:function(path,event,handlers){
 			if(path.constructor==Function) {
 				//如果参数只有一个函数，则对当前路径进行绑定
 				callback=path;
 				path=this.PATH;
 				event='all';
-			}else if(event.constructor==Function){
+			}else if(event.constructor==Function){//如果第二个参数为函数
 				callback=event;
+				//如果path为事件名称，则使用当前PATH，以及path作为event
+				//.后面作为事件命名空间
 				if('|update|delete|create|'.indexOf('|'+path.split('.')[0]+'|')>-1){
 					event=path;
 					path=this.PATH;
 				}else{
+					//否则认为path参数不为event
 					event='all';
-					path=this.PATH+'/'+path;
+					path=this.PATH+'/'+path;//连接成完整的path
 				}
 			}
 			for(var x in handlers){
+				//这里应该使用时间管理类进行管理
 				var h=this.handlers[path]=this.handlers[path]||{};
 				h=h[event]=h[event]||[];
 				h.push(handlers);
 			}
 		},
-		//未完成
+		//需要事件管理类
+		//删除数据事件绑定
 		unbind:function(path,event){
 			if('|update|delete|create|'.indexOf('|'+path.split('.')[0]+'|')>-1){
 				event=path;
@@ -140,19 +150,23 @@
 			
 		},
 		//启动事件触发
-		trigger:function(path,type,newData,oldData){
+		trigger:function(type,newData,oldData){
 			
 			
 		},
 	}
 	
-	
+	//替换path里面的变量，如{id}
 	function fixPath(path,obj){
 		return path.replace(/(^\s*)|(\s*$)/g,'').replace(/\{.*?\}/ig,function(m){
 			return obj[m.replace(/\{|\}/ig,'')];
 		});
 	}
 	
+	//根据路径返回对象
+	//path		数据路径
+	//obj		基础对象
+	//create	是否进行创建路径，如果否，返回null
 	function getObjByPath(path,obj,create){
 		path=path.replace(/(^\s*)|(\s*$)/g,'');
 		var tmp;
@@ -183,7 +197,7 @@
 	}
 	
 
-	
+	//深克隆函数
 	function clone(item) { 
 		if (!item) { return item; } // null, undefined values check 
 	 

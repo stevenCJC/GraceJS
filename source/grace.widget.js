@@ -78,9 +78,6 @@
 	})
 	
 	G.Extend('widget/interface/event,page/interface/event',{
-		LS:function(path){
-			
-		},
 		
 		event:function(that,path,key){
 			var index=path.indexOf(' ');
