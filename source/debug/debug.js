@@ -5,7 +5,7 @@
 	
 	
 	function Debug(){
-		this.D=1;
+		this.D=-1;
 		if(this.D==1){
 			this._time={};
 		}

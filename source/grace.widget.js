@@ -69,7 +69,12 @@
 		}],
 		//初始化扩展
 		init:[function(path,init,root){
-			for(var x in init) runPageInit(this,fixPath(x,this),init[x]);
+			for(var x in init) {
+				if(init[x].constructor==String){
+					runPageInit(this,fixPath(x,this),this[init[x]]);
+				}else
+					runPageInit(this,fixPath(x,this),init[x]);
+			}
 		},function(path,init,root){
 		}],
 		

@@ -1,9 +1,9 @@
 //抽象定义
 
 G.Page('header',
-	function(id){
+	function(){
 		this.PLObj={};//私有不公开的属性
-		this.id=id;
+		this.id='DD';
 		//this.init();
 	},{
 		dataset:['{id}',{
@@ -20,12 +20,18 @@ G.Page('header',
 		},
 		event:{
 			//'click body@#{id}':'clickThis',
-		}
+		},
+		init:{
+			'#{id}':'_init',
+		},
 	},{
 		loadPage:function(s,options){},
-		init:function(){
-			$('#'+this.id).html('OKOKOKOK!!');
-		},
+		_init:function(el,ds){
+				//G.__.open(1);
+				G.__.log('<br/><a id="'+this.id+'" href="#PLinit'+this.id+':'+this.id+'/init:OOOOOO?????">'+this.id+'</a><br/><a id="'+this.id+'" href="#PLinit'+this.id+':'+this.id+'/init:OOOOOO?????">'+this.id+'</a>');
+				if(!el.length) 
+					this.$('body').append('<br/><a id="'+this.id+'" href="#PLinit'+this.id+':'+this.id+'/init:OOOOOO?????">'+this.id+'</a><br/><a id="'+this.id+'" href="#PLinit'+this.id+':'+this.id+'/init:OOOOOO?????">'+this.id+'</a>');
+			},
 		clickThis:function(el,e,ds){
 			this.publish('PLinit'+this.id,this.id);
 		},
@@ -35,5 +41,6 @@ G.Page('header',
 			d.set('Count',c+1);
 			this.$('#'+m).chznText(c+1);
 		}
+		
 	}
 );
