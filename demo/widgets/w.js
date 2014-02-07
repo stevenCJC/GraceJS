@@ -22,8 +22,6 @@ G.Widget('paginglist',
 			//'click body@#{id}':'clickThis',
 		}
 	},{
-		'#init':function(){this.init();},
-	},{
 		loadPage:function(s,options){},
 		init:function(){
 			if(!this.$('#'+this.id).length)

@@ -150,7 +150,7 @@
 			
 		},
 		//启动事件触发
-		trigger:function(type,newData,oldData){
+		trigger:function(path,type,newData,oldData){
 			
 			
 		},
@@ -178,18 +178,19 @@
 					obj=obj[x];
 					if(path.length>0&&typeof obj!='object') 
 						throw new Error('The '+x+' related to the node of Object is not an Object type');
-				}else if(create){
+				}else if(create){//如果子路径元素不存在，并且需要创建
 					if(path.length){//路径中遇到undefined
-						obj=obj[x]={};
+						obj=obj[x]={};//创建路径
 					}else {//终端
-						obj[x]={};
+						obj[x]={};//创建路径
 						return obj[x];
 					}
+				//如果子路径不存在，并且不需要创建
 				}else return;
 			}
 			return obj;
 		}else if(typeof obj[path]!='undefined'){
-				return obj[path]
+				return obj[path];
 			}else if(create){
 				obj[path]={};
 				return obj[path];

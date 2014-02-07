@@ -1,5 +1,5 @@
 
-G.App(['header'],function(){
+G.App(function(){
 	
 	
 	

@@ -2,11 +2,11 @@
 	
 	G.Extend('grace',{
 		
-		Page:function(path,cons,interface,init,proto){
+		Page:function(path,cons,behavior,proto){
 			
 			proto.TYPE='page';
 			//调用makeWidget函数生成page插件
-			this.page[path]=makeWidget.call(this,path,cons,interface,init,proto);
+			this.page[path]=makeWidget.call(this,path,cons,behavior,proto);
 			//if(path.indexOf('/')==-1) 
 			//	new p('DDDD');
 		},

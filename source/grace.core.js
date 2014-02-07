@@ -33,12 +33,12 @@
 			grace					Grace模块扩展
 			widget					Widget原型扩展
 			widget/init				Widget初始化key解析扩展
-			widget/interface		Widget定义的接口扩展
-			widget/interface/event	Widget定义的事件类型接口扩展
+			widget/behavior		Widget定义的接口扩展
+			widget/behavior/event	Widget定义的事件类型接口扩展
 			page					Page原型扩展
 			page/init				Page初始化key解析扩展
-			page/interface			Page定义的接口扩展
-			page/interface/event	Page定义的事件类型接口扩展
+			page/behavior			Page定义的接口扩展
+			page/behavior/event	Page定义的事件类型接口扩展
 			
 			
 			
