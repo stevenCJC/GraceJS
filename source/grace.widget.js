@@ -154,11 +154,11 @@
 			var index=x.indexOf(':');
 			var type=x.substr(0,index);
 			var target=x.substr(index+1);
-			var init=G.extend['page/init'][type];
+			var init=G.extend[that.TYPE+'/init'][type];
 			if(init) init(that,target,callback);
-			else G.extend['page/init']['dom'](that,x,callback);
+			else G.extend[that.TYPE+'/init']['dom'](that,x,callback);
 		}else{
-			G.extend['page/init']['dom'](that,x,callback);
+			G.extend[that.TYPE+'/init']['dom'](that,x,callback);
 		}
 		
 		

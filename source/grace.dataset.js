@@ -45,6 +45,8 @@
 				else return this._dataset_[path];
 			}else return this._dataset_;
 		},
+		
+		//这里可能会引起update和create事件的触发
 		set:function(path,value){
 			var obj;
 			if(value.constructor==Object){
@@ -66,8 +68,7 @@
 				obj[path]=value;
 			}
 		},
-		//要考虑尾部为 / 的情况，对子元素的操作，和事件
-		//事件要伴随变化前数据和变化后数据
+		//这里可能会引起delete事件的触发
 		delete:function(path){
 			var srcPath=this.PATH+'/'+srcPath;
 			path=path.replace(/\s/ig,'').split('/');
@@ -92,14 +93,14 @@
 						}
 					}
 				}
-				
 			}
-			
 		},
-		// update delete create
-		// dataset/count/
+		// 提供绑定事件类型有 update delete create all
+		// 这里需要支持末尾为/的绑定，绑定指向末尾的所有数据包括其各级子数据
+		// 事件触发要伴随变化前数据和变化后数据
 		bind:function(path,event,handlers){
 			if(path.constructor==Function) {
+				//如果参数只有一个函数，则对当前路径进行绑定
 				callback=path;
 				path=this.PATH;
 				event='all';
@@ -136,6 +137,11 @@
 				for(var x in h)
 					if(x.indexOf(event)==0) delete h[x];
 			}
+			
+		},
+		//启动事件触发
+		trigger:function(path,type,newData,oldData){
+			
 			
 		},
 	}
