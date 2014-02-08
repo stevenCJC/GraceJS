@@ -28,7 +28,7 @@
 			//返回新的数据树节点实例
 			return new DS(path,this.dataset);
 		},
-		//启动事件触发
+		//Dataset事件触发
 		trigger:function(path,type,newData,oldData){
 			
 		},
@@ -149,7 +149,7 @@
 			}
 			
 		},
-		//启动事件触发
+		//Dataset事件触发
 		trigger:function(path,type,newData,oldData){
 			
 			

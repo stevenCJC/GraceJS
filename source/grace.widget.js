@@ -137,7 +137,7 @@
 		});
 	}
 	
-	//事件函数执行
+	//事件函数绑定执行
 	function bind(that,path){
 		var key='zzE_'+path;
 		if(that[key].constructor==String)key=that[key];
