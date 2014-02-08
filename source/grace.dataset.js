@@ -4,6 +4,7 @@
 	function DataSet(){
 		//数据岛的数据树
 		this.dataset={};
+		//数据事件把柄
 		this.handlers={};
 	}
 	
@@ -42,6 +43,8 @@
 		this._dataset_=getObjByPath(path,ds,1);
 	}
 	DS.prototype={
+		
+		//应该具备解析字符串值作为数据来源的功能，如 dom:#id.val,DS:path/path/Count
 		get:function(path){
 			path=path.replace(/\s/ig,'');
 			if(path){
@@ -50,7 +53,7 @@
 			}else return this._dataset_;
 		},
 		
-		//这里可能会引起update和create事件的触发
+		//这里会引起update或create事件的触发
 		set:function(path,value){
 			var obj;
 			if(value.constructor==Object){
@@ -74,7 +77,7 @@
 		},
 		//这里可能会引起delete事件的触发
 		delete:function(path){
-			var srcPath=this.PATH+'/'+srcPath;
+			var srcPath=this.PATH+'/'+path;
 			path=path.replace(/\s/ig,'').split('/');
 			var p=path.pop();
 			path=path.join('/');
@@ -130,8 +133,9 @@
 			}
 		},
 		//需要事件管理类
-		//删除数据事件绑定
+		//删除数据事件绑定  		//  采用dom事件委托方式
 		unbind:function(path,event){
+			//.后面作为事件命名空间
 			if('|update|delete|create|'.indexOf('|'+path.split('.')[0]+'|')>-1){
 				event=path;
 				path=this.PATH;
