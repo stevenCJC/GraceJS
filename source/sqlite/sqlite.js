@@ -35,6 +35,7 @@
 		scalar:function(table, field,condition,options,success,error){
 			scalar(this.db,table, field,condition,options,success,error);
 		},
+		//exist:function(){},
 		
 		dropTable:function(table,success,error){
 			dropTable(this.db,table,success,error);
