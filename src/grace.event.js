@@ -18,7 +18,6 @@ EventManager.prototype={
 			type=type.substr(index+1);
 		}
 		
-		
 	},
 	unbind:function(delegat,target,type){},
 	trigger:function(delegat,target,type){},
