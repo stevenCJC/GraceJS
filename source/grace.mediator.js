@@ -8,7 +8,7 @@
 		publish:function(channel,message){
 			//根据路径获取对象
 			var cn=getObjByPath(channel,this.channels);
-			if(!cn||!cn.channels||!cn.channels.length)return;
+			if(!cn||!cn.channels||!cn.channels.length) return;
 			var sbcr=cn.channels;
 			var wdg;
 			for(var i=0;i<sbcr.length;i++){
