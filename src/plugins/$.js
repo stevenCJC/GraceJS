@@ -12,8 +12,8 @@ G.Engine({
 		this.z_freshCore();
 		return this;
 	},
-	
-	
+		
+
 	
 	off:function(){return this;},
 	

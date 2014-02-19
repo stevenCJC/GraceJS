@@ -6,6 +6,6 @@
 			module.exports = factory(); // CommonJS environment, like NodeJS
 		//	require("./configure");
 		}else{
-			window.Compose = factory(); // raw script, assign to Compose global
+			window.G = factory(); // raw script, assign to Compose global
 		}
 	});
