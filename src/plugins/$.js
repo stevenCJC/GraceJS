@@ -1,3 +1,4 @@
+define(["./core",'engine/Engine','jquery','./engine'], function(G,Engine,$) {
 G.Engine({
 	
 	$:function(s){
@@ -63,7 +64,7 @@ while(m=enginePrototype.pop()) (function(m){
 	
 	
 	
-	
+});	
 
 
 	

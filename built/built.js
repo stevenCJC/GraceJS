@@ -22,11 +22,11 @@ module.exports = function( grunt ) {
 			// Avoid breaking semicolons inserted by r.js
 			skipSemiColonInsertion: true,
 			wrap: {
-				startFile: "src/intro.js",
-				endFile: "src/outro.js"
+				startFile: "src/wrap/intro.js",
+				endFile: "src/wrap/outro.js"
 			},
 			paths: {
-				//sizzle: "sizzle/dist/sizzle"
+				
 			},
 			rawText: {},
 			onBuildWrite: convert
@@ -85,7 +85,7 @@ module.exports = function( grunt ) {
 	}
 
 	grunt.registerMultiTask(
-		"sf",
+		"built",
 		"Concatenate source, remove sub AMD definitions, (include/exclude modules with +/- flags), embed date/version",
 	function() {
 		var flag, index,
@@ -264,6 +264,6 @@ module.exports = function( grunt ) {
 
 		grunt.log.writeln( "Creating custom build...\n" );
 
-		grunt.task.run([ "sf:*:*" + (modules ? ":" + modules : ""), "uglify" ]);
+		grunt.task.run([ "built:*:*" + (modules ? ":" + modules : ""), "uglify" ]);
 	});
 };

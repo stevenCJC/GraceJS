@@ -1,4 +1,4 @@
-define(["./mediator","./dataset","./debug/debug"], function(Mediator,DataSet,Debug) {
+define(["./mediator","./dataset"], function(Mediator,DataSet) {
 	function Grace(){
 		//存储widget类
 		this.widget={};
@@ -12,9 +12,6 @@ define(["./mediator","./dataset","./debug/debug"], function(Mediator,DataSet,Deb
 		this.MD=new Mediator();
 		//初始化路由对象
 		new Router();
-		//初始化调试对象
-		this.__=new Debug();
-		
 	}
 	
 	Grace.prototype={
@@ -53,7 +50,9 @@ define(["./mediator","./dataset","./debug/debug"], function(Mediator,DataSet,Deb
 		
 	}
 	
-	var G=window.G=new Grace();
+	if(!window.G)window.G=new Grace();
+	var G=window.G;
+	
 	
 	return G;
 });

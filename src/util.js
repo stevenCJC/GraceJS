@@ -1,4 +1,4 @@
-define(["./core"], function(G) {
+define(["./core",'engine/$$'], function(G,$$) {
 
 G.Extend('grace',{
 	//domUtils	对dom操作自动处理扩展

@@ -44,7 +44,7 @@ function DSEvent(){
 					else for(var x in hs){
 						delete hs[x][namespace];
 					}
-				else	if(namespace=='none') delete hs[event]
+				else	if(namespace=='none') delete hs[event];
 						else hs[event]&&delete hs[event][namespace];
 			}
 			

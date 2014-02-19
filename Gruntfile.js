@@ -10,64 +10,106 @@
 
 module.exports = function(grunt) {
 
-  // Project configuration.
-  grunt.initConfig({
-    jshint: {
-      all: [
-        'Gruntfile.js',
-        'tasks/*.js',
-        '<%= nodeunit.tests %>',
-      ],
-      options: {
-        jshintrc: '.jshintrc',
-      },
-    },
+	function readOptionalJSON( filepath ) {
+		var data = {};
+		try {
+			data = grunt.file.readJSON( filepath );
+		} catch ( e ) {}
+		return data;
+	}
 
-    // Before generating any new files, remove any previously-created files.
-    clean: {
-      tests: ['tmp'],
-    },
+	var gzip = require( "gzip-js" ),
+		srcHintOptions = readOptionalJSON( "src/.jshintrc" );
 
-    // Configuration to be run (and then tested).
-    GraceJS: {
-      default_options: {
-        options: {
-        },
-        files: {
-          'tmp/default_options': ['test/fixtures/testing', 'test/fixtures/123'],
-        },
-      },
-      custom_options: {
-        options: {
-          separator: ': ',
-          punctuation: ' !!!',
-        },
-        files: {
-          'tmp/custom_options': ['test/fixtures/testing', 'test/fixtures/123'],
-        },
-      },
-    },
+	// The concatenated file won't pass onevar
+	// But our modules can
+	delete srcHintOptions.onevar;
 
-    // Unit tests.
-    nodeunit: {
-      tests: ['test/*_test.js'],
-    },
+	grunt.initConfig({
+		pkg: grunt.file.readJSON( "package.json" ),
+		dst: readOptionalJSON( "dist/.destination.json" ),
+		
+		built: {
+			all: {
+				dest: "dist/grace.js",
+				minimum: [
+					"grace",
+				],
+				removeWith: {
+					//ajax: [ "manipulation/_evalUrl" ],
+					//callbacks: [ "deferred" ],
+					//css: [ "effects", "dimensions", "offset" ],
+					//sizzle: [ "css/hiddenVisibleSelectors", "effects/animatedSelector" ]
+				}
+			}
+		},
+		
+		jshint: {
+			dist: {
+				//src: "dist/grace.js",
+				//options: srcHintOptions
+			}
+		},
+		
+		watch: {
+			files: "src/**/*.js",
+			tasks: "dev"
+		},
+		uglify: {
+			all: {
+				files: {
+					"dist/grace.min.js": [ "dist/grace.js" ]
+				},
+				options: {
+					preserveComments: false,
+					sourceMap: "dist/grace.min.map",
+					sourceMappingURL: "grace.min.map",
+					report: "min",
+					beautify: {
+						ascii_only: true
+					},
+					banner: "/*! grace v<%= pkg.version %> | " +
+						"(c) 2005, <%= grunt.template.today('yyyy') %> grace Foundation, Inc. | " +
+						"grace.org/license */",
+					compress: {
+						hoist_funs: false,
+						loops: false,
+						unused: false
+					}
+				}
+			},
+			b: {
+				files: {
+					"dist/grace.js": [ "dist/grace.js" ]
+				},
+				options: {
+					mangle:false,
+					preserveComments: true,
+					beautify: true,
+					"ascii_only":true,
+					semicolons:true,
+					"preserve_line":true,
+					width:80,
+					"quote_keys":true,
+					indent_level:4,
+					compress:false,
+					bracketize:true,
+				}
+			},
+		}
+	});
 
-  });
+	// Load grunt tasks from NPM packages
+	require( "load-grunt-tasks" )( grunt );
 
-  // Actually load this plugin's task(s).
-  grunt.loadTasks('tasks');
+	// Integrate grace specific tasks
+	grunt.loadTasks( "built" );
 
-  // These plugins provide necessary tasks.
-  grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-contrib-nodeunit');
+	// Short list as a high frequency watch task
+	grunt.registerTask( "dev", [ "built:*:*:-jquery",'uglify' ,'jshint' ] );
 
-  // Whenever the "test" task is run, first clean the "tmp" dir, then run this
-  // plugin's task(s), then test the result.
-  grunt.registerTask('test', ['clean', 'GraceJS', 'nodeunit']);
-
-  // By default, lint and run all tests.
-  grunt.registerTask('default', ['jshint', 'test']);
+	// Default grunt
+	grunt.registerTask( "default", [  "dev", "uglify" ,"watch"] );
+  
 
 };

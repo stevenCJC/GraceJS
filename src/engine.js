@@ -1,4 +1,4 @@
-define(["./core"], function(G) {
+define(["./core",'engine/Engine'], function(G,Engine) {
 
 //不依赖任何dom操作框架
 G.Extend('grace',{
@@ -8,24 +8,11 @@ G.Extend('grace',{
 	// extend	属性方法扩展
 	Engine:function(proto,extend){
 		if(proto)for(var x in proto) Engine.prototype[x]=proto[x];
-		if(extend)for(var x in extend) $$[x]=extend[x];
+		if(extend)for(var x in extend) $[x]=extend[x];
 	},
+	$:function(s){return new Engine(s);},
 	
 })
-
-
-//全局操作函数，返回封装了操作核心的dom操作对象
-$$=function(s){
-	return new Engine(s);
-};
-
-function Engine(s){
-	this.core=null;//初始化后将存储操作核心
-	this.length=0;
-	this.$(s);
-}
-
-
 
 G.Engine({
 	//引擎内部初始化
@@ -38,7 +25,6 @@ G.Engine({
 		this.length=core.length;
 	},
 })
-
 
 });
 

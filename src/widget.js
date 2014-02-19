@@ -1,4 +1,4 @@
-define(['./core','./compose'], function(G,Compose) {
+define(['./core','./compose','function/fixPath','engine/$$'], function(G,Compose,fixPath,$$) {
 	
 	G.Extend('grace',{
 		
