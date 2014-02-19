@@ -1,5 +1,4 @@
-// JavaScript Document
-
+define([], function() {
 function EventManager(type){
 	var h=this.handles={};
 	this.events=type=type.split(',');
@@ -27,4 +26,4 @@ EventManager.prototype={
 
 
 
-
+});

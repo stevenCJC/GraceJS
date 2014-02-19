@@ -2,9 +2,7 @@
  * ComposeJS, object composition for JavaScript, featuring
 * JavaScript-style prototype inheritance and composition, multiple inheritance, 
 * mixin and traits-inspired conflict resolution and composition  
- */
-(function(define){
-"use strict";
+ */ 
 define([], function(){
 	// function for creating instances from a prototype
 	function Create(){
@@ -278,13 +276,3 @@ define([], function(){
 	// returning the export of the module
 	return Compose;
 });
-})(typeof define != "undefined" ?
-	define: // AMD/RequireJS format if available
-	function(deps, factory){
-		if(typeof module !="undefined"){
-			module.exports = factory(); // CommonJS environment, like NodeJS
-		//	require("./configure");
-		}else{
-			Compose = factory(); // raw script, assign to Compose global
-		}
-	});

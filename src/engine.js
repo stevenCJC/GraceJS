@@ -1,3 +1,5 @@
+define(["./core"], function(G) {
+
 //不依赖任何dom操作框架
 G.Extend('grace',{
 	//扩展grace的Engine扩展功能
@@ -38,8 +40,7 @@ G.Engine({
 })
 
 
-
-
+});
 
 
 

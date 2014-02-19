@@ -1,5 +1,7 @@
-//深克隆函数
-	function clone(item) { 
+define([], function() {
+		
+	//深克隆函数
+	function deepClone(item) { 
 		if (!item) { return item; } // null, undefined values check 
 	 
 		var types = [ Number, String, Boolean ],  
@@ -51,7 +53,7 @@
 		} 
 	 
 		return result; 
-	} 
-	
-	
+	}
+	return deepClone;
+});
 	

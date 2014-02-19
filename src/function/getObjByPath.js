@@ -1,4 +1,4 @@
-
+define([], function() {
 	//根据路径返回对象
 	//path		数据路径
 	//obj		基础对象
@@ -33,5 +33,5 @@
 			}else return;
 	}
 	
-
-	
+return getObjByPath;
+});

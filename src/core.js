@@ -1,15 +1,4 @@
-/*
-
-
-	$			定义
-	util		定义
-	widget		定义
-	page		定义
-	page init	执行
-
-
-*/
-
+define(["./mediator","./dataset","./debug/debug"], function(Mediator,DataSet,Debug) {
 	function Grace(){
 		//存储widget类
 		this.widget={};
@@ -40,8 +29,6 @@
 			page/behavior			Page定义的接口扩展
 			page/behavior/event	Page定义的事件类型接口扩展
 			
-			
-			
 		*/
 		Extend:function(target,ex){
 			//过滤空白符
@@ -68,8 +55,8 @@
 	
 	var G=window.G=new Grace();
 	
-	
-	
+	return G;
+});
 	
 
 

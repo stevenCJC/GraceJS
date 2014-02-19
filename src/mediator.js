@@ -1,4 +1,4 @@
-
+define([], function() {
 	function Mediator(){
 		this.channels={};
 	}
@@ -23,3 +23,5 @@
 			cn.push(callback);
 		},
 	}
+	return DataSet;
+});

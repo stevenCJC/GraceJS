@@ -1,3 +1,5 @@
+define([], function() {
+	
 function DSEvent(){
 		this.handle={
 			//仅当前节点的更新会触发事件
@@ -72,24 +74,24 @@ function DSEvent(){
 		
 
 	};
-function _trigger(handles,path,event,namespace){
-	var hs=handles[path];
-	var es,ns,x,y;
-	if(hs){
-		if(event=='all')
-			if(namespace=='none'){
-				for(y in hs)if(ns=hs[y])for(x in ns) ns[x].forEach(function(fn){fn(path,event)});
-			}else{
-				(ns=hs['delete'])&&ns[namespace]&&ns[namespace].forEach(function(fn){fn(path,event)});
-			}
-		else if(namespace=='none') if(ns=hs[event])
-										for(x in ns) ns[x].forEach(function(fn){fn(path,event)});
-			else if(ns=hs[event]) ns[namespace]&&ns[namespace].forEach(function(fn){fn(path,event)});
+	function _trigger(handles,path,event,namespace){
+		var hs=handles[path];
+		var es,ns,x,y;
+		if(hs){
+			if(event=='all')
+				if(namespace=='none'){
+					for(y in hs)if(ns=hs[y])for(x in ns) ns[x].forEach(function(fn){fn(path,event)});
+				}else{
+					(ns=hs['delete'])&&ns[namespace]&&ns[namespace].forEach(function(fn){fn(path,event)});
+				}
+			else if(namespace=='none') if(ns=hs[event])
+											for(x in ns) ns[x].forEach(function(fn){fn(path,event)});
+				else if(ns=hs[event]) ns[namespace]&&ns[namespace].forEach(function(fn){fn(path,event)});
+		}
 	}
-}
 
-
-
+	return DSEvent;
+});
 
 
 

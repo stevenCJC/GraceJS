@@ -1,4 +1,4 @@
-
+define(['./core','./compose'], function(G,Compose) {
 	
 	G.Extend('grace',{
 		
@@ -211,3 +211,4 @@
 		return Compose(Widget,proto);
 			
 	}
+});

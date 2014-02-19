@@ -1,5 +1,4 @@
-
-	//DataSet管理类，无依赖
+define(['./dataset/DS','./dataset/DSEvent','./function/deepClone','./function/getObjByPath'], function(DS,DSEvent,deepClone,getObjByPath) {
 	
 	function DataSet(){
 		//数据岛的数据树
@@ -14,7 +13,7 @@
 		//that:	数据源对象
 		initData:function(path,ds){
 			if(ds){
-				ds=clone(ds);//深克隆
+				ds=deepClone(ds);//深克隆
 				var dso= getObjByPath(path,this.dataset,1);//获得对象，强制生成
 				if(ds.constructor==Array) {
 					//如果是数组，说明对象是可以初始化多个实例，影响也有所区别，所以需要解析路径，此处应该把路径的解析独立处理
@@ -35,6 +34,7 @@
 		},
 	}
 	
-	
+	return DataSet;
+});
 	
 	

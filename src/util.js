@@ -1,3 +1,5 @@
+define(["./core"], function(G) {
+
 G.Extend('grace',{
 	//domUtils	对dom操作自动处理扩展
 	//funcUtils	为engine添加prototype函数扩展
@@ -65,6 +67,6 @@ G.Engine({
 });
 
 
-
+});
 
 

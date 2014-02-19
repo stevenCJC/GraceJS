@@ -1,4 +1,4 @@
-
+define(["./core"], function(G) {
 	
 	G.Extend('grace',{
 		
@@ -27,3 +27,4 @@
 		},
 		
 	})
+});

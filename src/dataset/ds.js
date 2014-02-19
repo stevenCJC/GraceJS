@@ -1,4 +1,5 @@
-
+define(['./dataset/DS','./dataset/DSEvent','./function/getObjByPath'], function(DS,DSEvent,getObjByPath) {
+	
 	//数据树节点定义
 	function DS(path,ds){
 		//当前路径
@@ -123,3 +124,6 @@
 			
 		},
 	}
+	
+	return DataSet;
+});
