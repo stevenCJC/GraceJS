@@ -7,7 +7,7 @@ G.Extend('grace',{
 	// proto	原型扩展
 	// extend	属性方法扩展
 	Engine:function(proto,extend){
-		if(proto)for(var x in proto) Engine.prototype[x]=proto[x];
+		if(proto)for(var x in proto) G.Engine.prototype[x]=proto[x];
 		if(extend)for(var x in extend) $[x]=extend[x];
 	},
 	$:function(s){return new Engine(s);},
