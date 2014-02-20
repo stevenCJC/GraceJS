@@ -1,4 +1,4 @@
-define(['dataset/DSEvent','function/getObjByPath'], function(DSEvent,getObjByPath) {
+define(['dataset/dsevent','function/getObjByPath'], function(dsevent,getObjByPath) {
 	
 	//数据树节点定义
 	function DS(path,ds){
@@ -125,5 +125,5 @@ define(['dataset/DSEvent','function/getObjByPath'], function(DSEvent,getObjByPat
 		},
 	}
 	
-	return DataSet;
+	return DS;
 });
