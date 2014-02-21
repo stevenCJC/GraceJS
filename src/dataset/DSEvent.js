@@ -89,8 +89,19 @@ function DSEvent(){
 				else if(ns=hs[event]) ns[namespace]&&ns[namespace].forEach(function(fn){fn(path,event)});
 		}
 	}
-
-	return DSEvent;
+	
+	
+	/*ExcludeStart*/
+	if(window.dsevent) return window.dsevent;
+	else {
+	/*ExcludeEnd*/
+		var dsevent=new DSEvent();
+		/*ExcludeStart*/
+		window.dsevent=dsevent
+		return dsevent;
+	}
+	/*ExcludeEnd*/
+	
 });
 
 
