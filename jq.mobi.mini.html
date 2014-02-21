@@ -6,18 +6,13 @@
 <script src="jq.mobi.mini.js"></script>
 </head>
 <body>
-<ul><li></li><li></li><li></li><li></li><li></li></ul>
+<ul><form><input type="tel" name="23"></form><li></li><li></li><li></li><li></li><li></li></ul>
 
 </body>
 </html>
 <script type="text/javascript">
-
 $(function(){
-	console.log($('ul').find('li').html('sdf'));
-	['a'].forEach(function(){
-		var a= arguments;
-	})
+	console.log($('ul').find('form').parseForm());
 })
-
 
 </script>

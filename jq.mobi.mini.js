@@ -11,12 +11,7 @@
 
 
 if (!window.jq || typeof (jq) !== "function") {
-    /**
-     *  This is our master jq object that everything is built upon.
-     * $ is a pointer to this object
-     * @title jqMobi
-     * @api private
-     */
+    
     var jq = (function(window) {
         var undefined, document = window.document, 
         emptyArray = [], 
@@ -31,11 +26,7 @@ if (!window.jq || typeof (jq) !== "function") {
         _propCache={};
         
         
-        /**
-         * internal function to use domfragments for insertion
-         *
-         * @api private
-        */
+        
         function _insertFragments(jqm,container,insert){
             var frag=document.createDocumentFragment();
             if(insert){
@@ -57,12 +48,7 @@ if (!window.jq || typeof (jq) !== "function") {
                 
           
        
-        /**
-         * Internal function that returns a array of unique elements
-         * @param {Array} array to compare against
-         * @return {Array} array of unique elements
-         * @api private
-         */
+        
         function unique(arr) {
             for (var i = 0; i < arr.length; i++) {
                 if (arr.indexOf(arr[i]) != i) {
@@ -73,14 +59,7 @@ if (!window.jq || typeof (jq) !== "function") {
             return arr;
         }
 
-        /**
-         * Given a set of nodes, it returns them as an array.  Used to find
-         * siblings of an element
-         * @param {Nodelist} Node list to search
-         * @param {Object} [element] to find siblings off of
-         * @return {Array} array of sibblings
-         * @api private
-         */
+        
         function siblings(nodes, element) {
             var elems = [];
             if (nodes == undefined)
@@ -94,12 +73,7 @@ if (!window.jq || typeof (jq) !== "function") {
             return elems;
         }
 
-        /**
-         * This is the internal jqMobi object that gets extended and added on to it
-         * This is also the start of our query selector engine
-         * @param {String|Element|Object|Array} selector
-         * @param {String|Element|Object} [context]
-         */
+        
         var $jqm = function(toSelect, what) {
             this.length = 0;
 			this.elems=[];
@@ -140,21 +114,12 @@ if (!window.jq || typeof (jq) !== "function") {
             
         };
 
-        /**
-         * This calls the $jqm function
-         * @param {String|Element|Object|Array} selector
-         * @param {String|Element|Object} [context]
-         */
+        
         var $ = function(selector, what) {
             return new $jqm(selector, what);
         };
 
-        /**
-         * this is the query selector library for elements
-         * @param {String} selector
-         * @param {String|Element|Object} [context]
-         * @api private
-         */
+        
  		function _selectorAll(selector, what){
  			try{
  				return what.querySelectorAll(selector);
@@ -193,41 +158,20 @@ if (!window.jq || typeof (jq) !== "function") {
 				obj.length=nodes.length;
 			}else if(nodes.length){
 				nodes.constructor==Array&&(obj.elems=obj.elems.concat(nodes));
-				for(var i=0,len=nodes.length;i<len;i++) obj.elems.push(nodes[i]);
+				obj.elems=slice.call(nodes);
+				//for(var i=0,len=nodes.length;i<len;i++) obj.elems.push(nodes[i]);
 				obj.length=nodes.length;
 			}else for(var x in nodes) nodes[x]&&nodes[x].nodeType&&(obj.elems[obj.length++]=nodes[x]);
         }
-        /**
-        * Checks to see if the parameter is a $jqm object
-            ```
-            var foo=$('#header');
-            $.is$(foo);
-            ```
-
-        * @param {Object} element
-        * @return {Boolean}
-        * @title $.is$(param)
-        */
+        
 		$.is$ = function(obj){return obj instanceof $jqm;}
         
-        /**
-        * Iterates through elements and executes a callback.  Returns if false
-        ```
-        $.each([1,2],function(ind){console.log(ind);});
-        ```
-
-        * @param {Array|Object} elements
-        * @param {Function} callback
-        * @return {Array} elements
-        * @title $.each(elements,callback)
-        */
+        
         $.each = function(elements, callback) {
             var i, key;
             if ($.isArray(elements))
-                elements.forEach(function(it,i){
-					if (callback(i, it) === false)
-                        return elements;
-				})
+                for(var i=0,len=elements.length;i<len;i++)
+					if (callback(i, elements[i]) === false) return elements;
             else if ($.isObject(elements))
                 for (key in elements) {
                     if (!elements.hasOwnProperty(key))
@@ -238,98 +182,46 @@ if (!window.jq || typeof (jq) !== "function") {
             return elements;
         };
 
-        /**
-        * Extends an object with additional arguments
-            ```
-            $.extend({foo:'bar'});
-            $.extend(element,{foo:'bar'});
-            ```
-
-        * @param {Object} [target] element
-        * @param any number of additional arguments
-        * @return {Object} [target]
-        * @title $.extend(target,{params})
-        */
+        
         $.extend = function(target) {
             if (target == undefined)
                 target = this;
-            if (arguments.length === 1) {
+            if (arguments.length === 1) { 
                 for (var key in target)
                     this[key] = target[key];
                 return this;
             } else {
-                slice.call(arguments, 1).forEach(function(source) {
-                    for (var key in source)
-                        target[key] = source[key];
-                });
+				var a= slice.call(arguments, 1);
+				for(var i=0,len=a.length;i<len;i++)
+                    for (var key in a[i])
+                        target[key] = a[i][key];
             }
             return target;
         };
 
-        /**
-        * Checks to see if the parameter is an array
-            ```
-            var arr=[];
-            $.isArray(arr);
-            ```
-
-        * @param {Object} element
-        * @return {Boolean}
-        * @example $.isArray([1]);
-        * @title $.isArray(param)
-        */
+        
         $.isArray = function(obj) {
             return obj instanceof Array && obj['push'] != undefined; //ios 3.1.3 doesn't have Array.isArray
         };
 
-        /**
-        * Checks to see if the parameter is a function
-            ```
-            var func=function(){};
-            $.isFunction(func);
-            ```
-
-        * @param {Object} element
-        * @return {Boolean}
-        * @title $.isFunction(param)
-        */
+        
         $.isFunction = function(obj) {
             return typeof obj === "function" && !(obj instanceof RegExp);
         };
-        /**
-        * Checks to see if the parameter is a object
-            ```
-            var foo={bar:'bar'};
-            $.isObject(foo);
-            ```
-
-        * @param {Object} element
-        * @return {Boolean}
-        * @title $.isObject(param)
-        */
+        
         $.isObject = function(obj) {
             return typeof obj === "object";
         };
 
-        /**
-         * Prototype for jqm object.  Also extens $.fn
-         */
         $.fn = $jqm.prototype = {
             constructor: $jqm,
-            forEach: emptyArray.forEach,
             reduce: emptyArray.reduce,
             push: emptyArray.push,
             indexOf: emptyArray.indexOf,
             concat: emptyArray.concat,
             selector: _selector,
             oldElement: undefined,
-            slice: emptyArray.slice,
-            /**
-             * This is a utility function for .end()
-             * @param {Object} params
-             * @return {Object} a jqMobi with params.oldElement set to this
-             * @api private
-             */
+            
             setupOld: function(params) {
                 if (params == undefined)
                     return $();
@@ -337,16 +229,7 @@ if (!window.jq || typeof (jq) !== "function") {
                 return params;
             
             },
-            /**
-            * This is a wrapper to $.map on the selected elements
-                ```
-                $().map(function(){this.value+=ind});
-                ```
-
-            * @param {Function} callback
-            * @return {Object} a jqMobi object
-            * @title $().map(function)
-            */
+            
             map: function(fn) {
                 var value, values = [], i;
                 for (i = 0; i < this.length; i++) {
@@ -356,32 +239,14 @@ if (!window.jq || typeof (jq) !== "function") {
                 }
                 return $([values]);
             },
-            /**
-            * Iterates through all elements and applys a callback function
-                ```
-                $().each(function(){console.log(this.value)});
-                ```
-
-            * @param {Function} callback
-            * @return {Object} a jqMobi object
-            * @title $().each(function)
-            */
+            
             each: function(callback) {
-                this.forEach(function(el, idx) {
-                    callback.call(el, idx, el);
-                });
+				var el=this.elems;
+				for(var i=0,len=el.length;i<len;i++)
+                    callback.call(el[i], i, el);
                 return this;
             },
-            /**
-            * This is executed when DOMContentLoaded happens, or after if you've registered for it.
-                ```
-                $(document).ready(function(){console.log('I'm ready');});
-                ```
-
-            * @param {Function} callback
-            * @return {Object} a jqMobi object
-            * @title $().ready(function)
-            */
+            
             
             ready: function(callback) {
                 if (document.readyState === "complete" || document.readyState === "loaded"||(!$.os.ie&&document.readyState==="interactive")) //IE10 fires interactive too early
@@ -390,25 +255,13 @@ if (!window.jq || typeof (jq) !== "function") {
                     document.addEventListener("DOMContentLoaded", callback, false);
                 return this;
             },
-            /**
-            * Searches through the collection and reduces them to elements that match the selector
-                ```
-                $("#foo").find('.bar');
-                $("#foo").find($('.bar'));
-                $("#foo").find($('.bar').get());
-                ```
-
-            * @param {String|Object|Array} selector
-            * @return {Object} a jqMobi object filtered
-            * @title $().find(selector)
-
-            */
+            
             find: function(sel) {
                 if (this.length === 0)
                     return this;
                 var elems = [];
                 var tmpElems;
-                for (var i = 0; i < this.length; i++) {
+                for (var i = 0,len=this.length; i <len ; i++) {
                     tmpElems = ($(sel, this.elems[i]).elems);
                     
                     for (var j = 0; j < tmpElems.length; j++) {
@@ -417,27 +270,14 @@ if (!window.jq || typeof (jq) !== "function") {
                 }
                 return $(unique(elems));
             },
-            /**
-            * Gets or sets the innerHTML for the collection.
-            * If used as a get, the first elements innerHTML is returned
-                ```
-                $("#foo").html(); //gets the first elements html
-                $("#foo").html('new html');//sets the html
-                $("#foo").html('new html',false); //Do not do memory management cleanup
-                ```
-
-            * @param {String} html to set
-            * @param {Bool} [cleanup] - set to false for performance tests and if you do not want to execute memory management cleanup
-            * @return {Object} a jqMobi object
-            * @title $().html([html])
-            */
+            
             html: function(html,cleanup) {
                 if (this.length === 0)
                     return this;
                 if (html === undefined)
                     return this.elems[0].innerHTML;
 
-                for (var i = 0; i < this.length; i++) {
+                for (var i = 0,len=this.length; i <len ; i++) {
                     if(cleanup!==false)
                         $.cleanUpContent(this.elems[i], false, true);
                     this.elems[i].innerHTML = html;
@@ -445,42 +285,17 @@ if (!window.jq || typeof (jq) !== "function") {
                 return this;
             },
 
-
-            /**
-            * Gets or sets the innerText for the collection.
-            * If used as a get, the first elements innerText is returned
-                ```
-                $("#foo").text(); //gets the first elements text;
-                $("#foo").text('new text'); //sets the text
-                ```
-
-            * @param {String} text to set
-            * @return {Object} a jqMobi object
-            * @title $().text([text])
-            */
             text: function(text) {
                 if (this.length === 0)
                     return this;
                 if (text === undefined)
                     return this.elems[0].textContent;
-                for (var i = 0; i < this.length; i++) {
+                for (var i = 0,len=this.length; i <len ; i++) {
                     this.elems[i].textContent = text;
                 }
                 return this;
             },
-            /**
-            * Gets or sets a css property for the collection
-            * If used as a get, the first elements css property is returned
-                ```
-                $().css("background"); // Gets the first elements background
-                $().css("background","red")  //Sets the elements background to red
-                ```
-
-            * @param {String} attribute to get
-            * @param {String} value to set as
-            * @return {Object} a jqMobi object
-            * @title $().css(attribute,[value])
-            */
+            
             css: function(attribute, value, obj) {
                 var toAct = obj != undefined ? obj : this.elems[0];
                 if (this.length === 0)
@@ -489,7 +304,7 @@ if (!window.jq || typeof (jq) !== "function") {
                     var styles = window.getComputedStyle(toAct);
                     return  toAct.style[attribute] ? toAct.style[attribute]: window.getComputedStyle(toAct)[attribute] ;
                 }
-                for (var i = 0; i < this.length; i++) {
+                for (var i = 0,len=this.length; i <len ; i++) {
                     if ($.isObject(attribute)) {
                         for (var j in attribute) {
                             this.elems[i].style[j] = attribute[j];
@@ -500,52 +315,23 @@ if (!window.jq || typeof (jq) !== "function") {
                 }
                 return this;
             },
-            /**
-             * Gets or sets css vendor specific css properties
-            * If used as a get, the first elements css property is returned
-                ```
-                $().css("background"); // Gets the first elements background
-                $().css("background","red")  //Sets the elements background to red
-                ```
-
-            * @param {String} attribute to get
-            * @param {String} value to set as
-            * @return {Object} a jqMobi object
-            * @title $().css(attribute,[value])
-            */
+            
             vendorCss:function(attribute,value,obj){
                 return this.css($.feat.cssPrefix+attribute,value,obj);
             },
-            /**
-            * Sets the innerHTML of all elements to an empty string
-                ```
-                $().empty();
-                ```
-
-            * @return {Object} a jqMobi object
-            * @title $().empty()
-            */
+            
             empty: function() {
-                for (var i = 0; i < this.length; i++) {
+                for (var i = 0,len=this.length; i <len ; i++) {
                     $.cleanUpContent(this.elems[i], false, true);
                     this.elems[i].innerHTML = '';
                 }
                 return this;
             },
-            /**
-            * Sets the elements display property to "none".
-            * This will also store the old property into an attribute for hide
-                ```
-                $().hide();
-                ```
-
-            * @return {Object} a jqMobi object
-            * @title $().hide()
-            */
+            
             hide: function() {
                 if (this.length === 0)
                     return this;
-                for (var i = 0; i < this.length; i++) {
+                for (var i = 0,len=this.length; i <len ; i++) {
                     if (this.css("display", null, this.elems[i]) != "none") {
                         this.elems[i].setAttribute("jqmOldStyle", this.css("display", null, this.elems[i]));
                         this.elems[i].style.display = "none";
@@ -553,20 +339,11 @@ if (!window.jq || typeof (jq) !== "function") {
                 }
                 return this;
             },
-            /**
-            * Shows all the elements by setting the css display property
-            * We look to see if we were retaining an old style (like table-cell) and restore that, otherwise we set it to block
-                ```
-                $().show();
-                ```
-
-            * @return {Object} a jqMobi object
-            * @title $().show()
-            */
+            
             show: function() {
                 if (this.length === 0)
                     return this;
-                for (var i = 0; i < this.length; i++) {
+                for (var i = 0,len=this.length; i <len ; i++) {
                     if (this.css("display", null, this.elems[i]) == "none") {
                         this.elems[i].style.display = this.elems[i].getAttribute("jqmOldStyle") ? this.elems[i].getAttribute("jqmOldStyle") : 'block';
                         this.elems[i].removeAttribute("jqmOldStyle");
@@ -574,20 +351,10 @@ if (!window.jq || typeof (jq) !== "function") {
                 }
                 return this;
             },
-            /**
-            * Toggle the visibility of a div
-                ```
-                $().toggle();
-                $().toggle(true); //force showing
-                ```
-
-            * @param {Boolean} [show] -force the hiding or showing of the element
-            * @return {Object} a jqMobi object
-            * @title $().toggle([show])
-            */
+            
             toggle: function(show) {
                 var show2 = show === true ? true : false;
-                for (var i = 0; i < this.length; i++) {
+                for (var i = 0,len=this.length; i <len ; i++) {
                     if (window.getComputedStyle(this.elems[i])['display'] !== "none" || (show !== undefined && show2 === false)) {
                         this.elems[i].setAttribute("jqmOldStyle", this.elems[i].style.display)
                         this.elems[i].style.display = "none";
@@ -598,42 +365,18 @@ if (!window.jq || typeof (jq) !== "function") {
                 }
                 return this;
             },
-            /**
-            * Gets or sets an elements value
-            * If used as a getter, we return the first elements value.  If nothing is in the collection, we return undefined
-                ```
-                $().value; //Gets the first elements value;
-                $().value="bar"; //Sets all elements value to bar
-                ```
-
-            * @param {String} [value] to set
-            * @return {String|Object} A string as a getter, jqMobi object as a setter
-            * @title $().val([value])
-            */
+            
             val: function(value) {
                 if (this.length === 0)
                     return (value === undefined) ? undefined : this;
                 if (value == undefined)
                     return this.elems[0].value;
-                for (var i = 0; i < this.length; i++) {
+                for (var i = 0,len=this.length; i <len ; i++) {
                     this.elems[i].value = value;
                 }
                 return this;
             },
-            /**
-            * Gets or sets an attribute on an element
-            * If used as a getter, we return the first elements value.  If nothing is in the collection, we return undefined
-                ```
-                $().attr("foo"); //Gets the first elements 'foo' attribute
-                $().attr("foo","bar");//Sets the elements 'foo' attribute to 'bar'
-                $().attr("foo",{bar:'bar'}) //Adds the object to an internal cache
-                ```
-
-            * @param {String|Object} attribute to act upon.  If it's an object (hashmap), it will set the attributes based off the kvp.
-            * @param {String|Array|Object|function} [value] to set
-            * @return {String|Object|Array|Function} If used as a getter, return the attribute value.  If a setter, return a jqMobi object
-            * @title $().attr(attribute,[value])
-            */
+            
             attr: function(attr, value) {
                 if (this.length === 0)
                     return (value === undefined) ? undefined : this;            
@@ -641,7 +384,7 @@ if (!window.jq || typeof (jq) !== "function") {
                     var val = (this.elems[0].jqmCacheId&&_attrCache[this.elems[0].jqmCacheId][attr])?(this.elems[0].jqmCacheId&&_attrCache[this.elems[0].jqmCacheId][attr]):this.elems[0].getAttribute(attr);
                     return val;
                 }
-                for (var i = 0; i < this.length; i++) {
+                for (var i = 0,len=this.length; i <len ; i++) {
                     if ($.isObject(attr)) {
                         for (var key in attr) {
                             $(this.elems[i]).attr(key,attr[key]);
@@ -669,42 +412,22 @@ if (!window.jq || typeof (jq) !== "function") {
                 }
                 return this;
             },
-            /**
-            * Removes an attribute on the elements
-                ```
-                $().removeAttr("foo");
-                ```
-
-            * @param {String} attributes that can be space delimited
-            * @return {Object} jqMobi object
-            * @title $().removeAttr(attribute)
-            */
+            
             removeAttr: function(attr) {
-                var that = this;
-                for (var i = 0; i < this.length; i++) {
-                    attr.split(/\s+/g).forEach(function(param) {
-                        that[i].removeAttribute(param);
-                        if(that[i].jqmCacheId&&_attrCache[that[i].jqmCacheId][attr])
-                            delete _attrCache[that[i].jqmCacheId][attr];
-                    });
+                var attrs=attr.split(/\s+|\,/g),el,at;
+                for (var i = 0,len=this.length; i <len ; i++) {
+					el=this.elems[i];
+                    for(var j=0,lem=attrs.length;j<lem;j++){
+						at=attrs[j];
+                        el.removeAttribute(at);
+                        if(el.jqmCacheId&&_attrCache[el.jqmCacheId][at])
+                            delete _attrCache[el.jqmCacheId][at];
+                    }
                 }
                 return this;
             },
 
-            /**
-            * Gets or sets a property on an element
-            * If used as a getter, we return the first elements value.  If nothing is in the collection, we return undefined
-                ```
-                $().prop("foo"); //Gets the first elements 'foo' property
-                $().prop("foo","bar");//Sets the elements 'foo' property to 'bar'
-                $().prop("foo",{bar:'bar'}) //Adds the object to an internal cache
-                ```
-
-            * @param {String|Object} property to act upon.  If it's an object (hashmap), it will set the attributes based off the kvp.
-            * @param {String|Array|Object|function} [value] to set
-            * @return {String|Object|Array|Function} If used as a getter, return the property value.  If a setter, return a jqMobi object
-            * @title $().prop(property,[value])
-            */
+            
             prop: function(prop, value) {
                 if (this.length === 0)
                     return (value === undefined) ? undefined : this;          
@@ -713,7 +436,7 @@ if (!window.jq || typeof (jq) !== "function") {
                     var val = (this.elems[0].jqmCacheId&&_propCache[this.elems[0].jqmCacheId][prop])?(this.elems[0].jqmCacheId&&_propCache[this.elems[0].jqmCacheId][prop]):!(res=this.elems[0][prop])&&prop in this.elems[0]?this.elems[0][prop]:res;
                     return val;
                 }
-                for (var i = 0; i < this.length; i++) {
+                for (var i = 0,len=this.length; i <len ; i++) {
                     if ($.isObject(prop)) {
                         for (var key in prop) {
                             $(this.elems[i]).prop(key,prop[key]);
@@ -739,101 +462,58 @@ if (!window.jq || typeof (jq) !== "function") {
                 }
                 return this;
             },
-            /**
-            * Removes a property on the elements
-                ```
-                $().removeProp("foo");
-                ```
-
-            * @param {String} properties that can be space delimited
-            * @return {Object} jqMobi object
-            * @title $().removeProp(attribute)
-            */
+            
             removeProp: function(prop) {
-                var that = this;
-                for (var i = 0; i < this.length; i++) {
-                    prop.split(/\s+/g).forEach(function(param) {
-                        if(that[i][param])
-                            delete that[i][param];
-                        if(that[i].jqmCacheId&&_propCache[that[i].jqmCacheId][prop]){
-                                delete _propCache[that[i].jqmCacheId][prop];
+                var p=prop.split(/\s+/g),el,pr;
+                for (var i = 0,len=this.length; i <len ; i++) {
+					el=this.elems[i];
+                    for (var j = 0,lem=p.length; j <lem ; j++) {
+						pr=p[j];
+                        if(el[pr])
+                            delete el[pr];
+                        if(el.jqmCacheId&&_propCache[el.jqmCacheId][pr]){
+                                delete _propCache[el.jqmCacheId][pr];
                         }
-                    });
+                    }
                 }
                 return this;
             },
 
-            /**
-            * Removes elements based off a selector
-                ```
-                $().remove();  //Remove all
-                $().remove(".foo");//Remove off a string selector
-                var element=$("#foo").get();
-                $().remove(element); //Remove by an element
-                $().remove($(".foo"));  //Remove by a collection
-
-                ```
-
-            * @param {String|Object|Array} selector to filter against
-            * @return {Object} jqMobi object
-            * @title $().remove(selector)
-            */
+            
             remove: function(selector) {
-                var elems = $(this).filter(selector);
+                var elems = $(this).filter(selector).elems;
                 if (elems == undefined)
                     return this;
-                for (var i = 0; i < elems.length; i++) {
+                for (var i = 0,len=elems.length; i <len ; i++) {
                     $.cleanUpContent(elems[i], true, true);
                     elems[i].parentNode.removeChild(elems[i]);
                 }
                 return this;
             },
-            /**
-            * Adds a css class to elements.
-                ```
-                $().addClass("selected");
-                ```
-
-            * @param {String} classes that are space delimited
-            * @return {Object} jqMobi object
-            * @title $().addClass(name)
-            */
+            
             addClass: function(name) {
-                for (var i = 0; i < this.length; i++) {
+                for (var i = 0,len=this.length; i <len ; i++) {
                     var cls = this.elems[i].className;
                     var classList = [];
-                    var that = this;
-                    name.split(/\s+/g).forEach(function(cname) {
-                        if (!that.hasClass(cname, that[i]))
-                            classList.push(cname);
-                    });
+                    var names = name.split(/\s+|\,/g);
+                    for(var j=0,lem=names.length;j<lem;j++)
+                        if (!this.hasClass(names[j], this.elems[i])) classList.push(names[j]);
                     
                     this.elems[i].className += (cls ? " " : "") + classList.join(" ");
                     this.elems[i].className = this.elems[i].className.trim();
                 }
                 return this;
             },
-            /**
-            * Removes a css class from elements.
-                ```
-                $().removeClass("foo"); //single class
-                $().removeClass("foo selected");//remove multiple classess
-                ```
-
-            * @param {String} classes that are space delimited
-            * @return {Object} jqMobi object
-            * @title $().removeClass(name)
-            */
+            
             removeClass: function(name) {
-                for (var i = 0; i < this.length; i++) {
+                for (var i = 0,len=this.length; i <len ; i++) {
                     if (name == undefined) {
                         this.elems[i].className = '';
                         return this;
                     }
-                    var classList = this.elems[i].className;
-                    name.split(/\s+/g).forEach(function(cname) {
-                        classList = classList.replace(classRE(cname), " ");
-                    });
+                    var classList = this.elems[i].className,names=name.split(/\s+|\,/g);
+                    for(var j=0,lem=names.length;j<lem;j++)
+                        classList = classList.replace(classRE(names[j]), " ");
                     if (classList.length > 0)
                         this.elems[i].className = classList.trim();
                     else
@@ -841,19 +521,9 @@ if (!window.jq || typeof (jq) !== "function") {
                 }
                 return this;
             },
-            /**
-            * Replaces a css class on elements.
-                ```
-                $().replaceClass("on", "off");
-                ```
-
-            * @param {String} classes that are space delimited
-			* @param {String} classes that are space delimited
-            * @return {Object} jqMobi object
-            * @title $().replaceClass(old, new)
-            */
+            
             replaceClass: function(name, newName) {
-                for (var i = 0; i < this.length; i++) {
+                for (var i = 0,len=this.length; i <len ; i++) {
                     if (name == undefined) {
                         this.elems[i].className = newName;
                         continue;
@@ -870,18 +540,7 @@ if (!window.jq || typeof (jq) !== "function") {
                 }
                 return this;
             },
-            /**
-            * Checks to see if an element has a class.
-                ```
-                $().hasClass('foo');
-                $().hasClass('foo',element);
-                ```
-
-            * @param {String} class name to check against
-            * @param {Object} [element] to check against
-            * @return {Boolean}
-            * @title $().hasClass(name,[element])
-            */
+            
             hasClass: function(name, element) {
                 if (this.length === 0)
                     return false;
@@ -889,21 +548,7 @@ if (!window.jq || typeof (jq) !== "function") {
                     element = this.elems[0];
                 return classRE(name).test(element.className);
             },
-            /**
-            * Appends to the elements
-            * We boil everything down to a jqMobi object and then loop through that.
-            * If it's HTML, we create a dom element so we do not break event bindings.
-            * if it's a script tag, we evaluate it.
-                ```
-                $().append("<div></div>"); //Creates the object from the string and appends it
-                $().append($("#foo")); //Append an object;
-                ```
-
-            * @param {String|Object} Element/string to add
-            * @param {Boolean} [insert] insert or append
-            * @return {Object} jqMobi object
-            * @title $().append(element,[insert])
-            */
+            
             append: function(element, insert) {
                 if (element && element.length != undefined && element.length === 0)
                     return this;
@@ -933,59 +578,23 @@ if (!window.jq || typeof (jq) !== "function") {
                 }
                 return this;
             },
-             /**
-            * Appends the current collection to the selector
-                ```
-                $().appendTo("#foo"); //Append an object;
-                ```
-
-            * @param {String|Object} Selector to append to
-            * @param {Boolean} [insert] insert or append
-            * @title $().appendTo(element,[insert])
-            */
+            
             appendTo:function(selector,insert){
                 var tmp=$(selector);
                 tmp.append(this);
                 return this;
             },
-             /**
-            * Prepends the current collection to the selector
-                ```
-                $().prependTo("#foo"); //Prepend an object;
-                ```
-
-            * @param {String|Object} Selector to prepent to
-            * @title $().prependTo(element)
-            */
+            
             prependTo:function(selector){
                 var tmp=$(selector);
                 tmp.append(this,true);
                 return this;
             },
-            /**
-            * Prepends to the elements
-            * This simply calls append and sets insert to true
-                ```
-                $().prepend("<div></div>");//Creates the object from the string and appends it
-                $().prepend($("#foo")); //Prepends an object
-                ```
-
-            * @param {String|Object} Element/string to add
-            * @return {Object} jqMobi object
-            * @title $().prepend(element)
-            */
+            
             prepend: function(element) {
                 return this.append(element, 1);
             },
-            /**
-             * Inserts collection before the target (adjacent)
-                ```
-                $().insertBefore(jq("#target"));
-                ```
-             
-             * @param {String|Object} Target
-             * @title $().insertBefore(target);
-             */
+            
             insertBefore: function(target, after) {
                 if (this.length == 0)
                     return this;
@@ -998,43 +607,18 @@ if (!window.jq || typeof (jq) !== "function") {
                 }
                 return this;
             },
-            /**
-             * Inserts collection after the target (adjacent)
-                ```
-                $().insertAfter(jq("#target"));
-                ```
-             * @param {String|Object} target
-             * @title $().insertAfter(target);
-             */
+            
             insertAfter: function(target) {
                 this.insertBefore(target, true);
             },
-            /**
-            * Returns the raw DOM element.
-                ```
-                $().get(); //returns the first element
-                $().get(2);// returns the third element
-                ```
-
-            * @param {Int} [index]
-            * @return {Object} raw DOM element
-            * @title $().get([index])
-            */
+            
             get: function(index) {
                 index = index == undefined ? 0 : index;
                 if (index < 0)
                     index += this.length;
                 return (this.elems[index]) ? this.elems[index] : undefined;
             },
-            /**
-            * Returns the offset of the element, including traversing up the tree
-                ```
-                $().offset();
-                ```
-
-            * @return {Object} with left, top, width and height properties
-            * @title $().offset()
-            */
+            
             offset: function() {
                 if (this.length === 0)
                     return this;
@@ -1058,14 +642,7 @@ if (!window.jq || typeof (jq) !== "function") {
                     height: obj.bottom-obj.top
                 };
             },
-             /**
-             * returns the height of the element, including padding on IE
-               ```
-               $().height();
-               ```
-             * @return {string} height
-             * @title $().height()
-             */
+            
             height:function(val){
                 if (this.length === 0)
                     return this;
@@ -1083,14 +660,7 @@ if (!window.jq || typeof (jq) !== "function") {
                         return this.offset().height;
                 }
             },
-            /**
-             * returns the width of the element, including padding on IE
-               ```
-               $().width();
-               ```
-             * @return {string} width
-             * @title $().width()
-             */
+            
             width:function(val){
                 if (this.length === 0)
                     return this;
@@ -1108,23 +678,12 @@ if (!window.jq || typeof (jq) !== "function") {
 					   return this.offset().width;
                 }
             },
-            /**
-            * Returns the parent nodes of the elements based off the selector
-                ```
-                $("#foo").parent('.bar');
-                $("#foo").parent($('.bar'));
-                $("#foo").parent($('.bar').get());
-                ```
-
-            * @param {String|Array|Object} [selector]
-            * @return {Object} jqMobi object with unique parents
-            * @title $().parent(selector)
-            */
+            
             parent: function(selector,recursive) {
                 if (this.length == 0)
                     return this;
                 var elems = [];
-                for (var i = 0; i < this.length; i++) {
+                for (var i = 0,len=this.length; i <len ; i++) {
                     var tmp=this.elems[i];
                     while(tmp.parentNode&&tmp.parentNode!=document){
                         elems.push(tmp.parentNode);
@@ -1136,79 +695,34 @@ if (!window.jq || typeof (jq) !== "function") {
                 }
                 return this.setupOld($(unique(elems)).filter(selector));
             },
-             /**
-            * Returns the parents of the elements based off the selector (traversing up until html document)
-                ```
-                $("#foo").parents('.bar');
-                $("#foo").parents($('.bar'));
-                $("#foo").parents($('.bar').get());
-                ```
-
-            * @param {String|Array|Object} [selector]
-            * @return {Object} jqMobi object with unique parents
-            * @title $().parents(selector)
-            */
+            
             parents: function(selector) {
                 return this.parent(selector,true);
             },
-            /**
-            * Returns the child nodes of the elements based off the selector
-                ```
-                $("#foo").children('.bar'); //Selector
-                $("#foo").children($('.bar')); //Objects
-                $("#foo").children($('.bar').get()); //Single element
-                ```
-
-            * @param {String|Array|Object} [selector]
-            * @return {Object} jqMobi object with unique children
-            * @title $().children(selector)
-            */
+            
             children: function(selector) {
                 
                 if (this.length == 0)
                     return this;
                 var elems = [];
-                for (var i = 0; i < this.length; i++) {
+                for (var i = 0,len=this.length; i <len ; i++) {
                     elems = elems.concat(siblings(this.elems[i].firstChild));
                 }
                 return this.setupOld($((elems)).filter(selector));
             
             },
-            /**
-            * Returns the siblings of the element based off the selector
-                ```
-                $("#foo").siblings('.bar'); //Selector
-                $("#foo").siblings($('.bar')); //Objects
-                $("#foo").siblings($('.bar').get()); //Single element
-                ```
-
-            * @param {String|Array|Object} [selector]
-            * @return {Object} jqMobi object with unique siblings
-            * @title $().siblings(selector)
-            */
+            
             siblings: function(selector) {
                 if (this.length == 0)
                     return this;
                 var elems = [];
-                for (var i = 0; i < this.length; i++) {
+                for (var i = 0,len=this.length; i <len ; i++) {
                     if (this.elems[i].parentNode)
                         elems = elems.concat(siblings(this.elems[i].parentNode.firstChild, this.elems[i]));
                 }
                 return this.setupOld($(elems).filter(selector));
             },
-            /**
-            * Returns the closest element based off the selector and optional context
-                ```
-                $("#foo").closest('.bar'); //Selector
-                $("#foo").closest($('.bar')); //Objects
-                $("#foo").closest($('.bar').get()); //Single element
-                ```
-
-            * @param {String|Array|Object} selector
-            * @param {Object} [context]
-            * @return {Object} Returns a jqMobi object with the closest element based off the selector
-            * @title $().closest(selector,[context]);
-            */
+            
             closest: function(selector, context) {
                 if (this.length == 0)
                     return this;
@@ -1224,18 +738,7 @@ if (!window.jq || typeof (jq) !== "function") {
                 return $(cur);
             
             },
-            /**
-            * Filters elements based off the selector
-                ```
-                $("#foo").filter('.bar'); //Selector
-                $("#foo").filter($('.bar')); //Objects
-                $("#foo").filter($('.bar').get()); //Single element
-                ```
-
-            * @param {String|Array|Object} selector
-            * @return {Object} Returns a jqMobi object after the filter was run
-            * @title $().filter(selector);
-            */
+           
             filter: function(selector) {
                 if (this.length == 0)
                     return this;
@@ -1243,170 +746,69 @@ if (!window.jq || typeof (jq) !== "function") {
                 if (selector == undefined)
                     return this;
                 var elems = [];
-                for (var i = 0; i < this.length; i++) {
+                for (var i = 0,len=this.length; i <len ; i++) {
                     var val = this.elems[i];
                     if (val.parentNode && $(selector, val.parentNode).indexOf(val) >= 0)
                         elems.push(val);
                 }
                 return this.setupOld($(unique(elems)));
             },
-            /**
-            * Basically the reverse of filter.  Return all elements that do NOT match the selector
-                ```
-                $("#foo").not('.bar'); //Selector
-                $("#foo").not($('.bar')); //Objects
-                $("#foo").not($('.bar').get()); //Single element
-                ```
-
-            * @param {String|Array|Object} selector
-            * @return {Object} Returns a jqMobi object after the filter was run
-            * @title $().not(selector);
-            */
+            
             not: function(selector) {
                 if (this.length == 0)
                     return this;
                 var elems = [];
-                for (var i = 0; i < this.length; i++) {
+                for (var i = 0,len=this.length; i <len ; i++) {
                     var val = this.elems[i];
                     if (val.parentNode && $(selector, val.parentNode).indexOf(val) == -1)
                         elems.push(val);
                 }
                 return this.setupOld($(unique(elems)));
             },
-            /**
-            * Gets or set data-* attribute parameters on elements
-            * When used as a getter, it's only the first element
-                ```
-                $().data("foo"); //Gets the data-foo attribute for the first element
-                $().data("foo","bar"); //Sets the data-foo attribute for all elements
-                $().data("foo",{bar:'bar'});//object as the data
-                ```
-
-            * @param {String} key
-            * @param {String|Array|Object} value
-            * @return {String|Object} returns the value or jqMobi object
-            * @title $().data(key,[value]);
-            */
+            
             data: function(key, value) {
                 return this.attr('data-' + key, value);
             },
-            /**
-            * Rolls back the jqMobi elements when filters were applied
-            * This can be used after .not(), .filter(), .children(), .parent()
-                ```
-                $().filter(".panel").end(); //This will return the collection BEFORE filter is applied
-                ```
-
-            * @return {Object} returns the previous jqMobi object before filter was applied
-            * @title $().end();
-            */
+            
             end: function() {
                 return this.oldElement != undefined ? this.oldElement : $();
             },
-            /**
-            * Clones the nodes in the collection.
-                ```
-                $().clone();// Deep clone of all elements
-                $().clone(false); //Shallow clone
-                ```
-
-            * @param {Boolean} [deep] - do a deep copy or not
-            * @return {Object} jqMobi object of cloned nodes
-            * @title $().clone();
-            */
+            
             clone: function(deep) {
                 deep = deep === false ? false : true;
                 if (this.length == 0)
                     return this;
                 var elems = [];
-                for (var i = 0; i < this.length; i++) {
+                for (var i = 0,len=this.length; i < len; i++) {
                     elems.push(this.elems[i].cloneNode(deep));
                 }
                 
                 return $(elems);
             },
-            /**
-            * Returns the number of elements in the collection
-                ```
-                $().size();
-                ```
-
-            * @return {Int}
-            * @title $().size();
-            */
-            size: function() {
-                return this.length;
-            },
-            /**
-             * Serailizes a form into a query string
-               ```
-               $().serialize();
-               ```
-             * @return {String}
-             * @title $().serialize()
-             */
-            serialize: function() {
+            
+            parseForm: function() {
                 if (this.length == 0)
                     return "";
-                var params = [];
-                for (var i = 0; i < this.length; i++) 
-                {
-                    this.slice.call(this.elems[i].elements).forEach(function(elem) {
-                        var type = elem.getAttribute("type");
-                        if (elem.nodeName.toLowerCase() != "fieldset" && !elem.disabled && type != "submit" 
-                        && type != "reset" && type != "button" && ((type != "radio" && type != "checkbox") || elem.checked))
-                        {
-
-                            if(elem.getAttribute("name")){
-                                if(elem.type=="select-multiple"){
-                                    for(var j=0;j<elem.options.length;j++){
-                                        if(elem.options[j].selected)
-                                            params.push(elem.getAttribute("name")+"="+encodeURIComponent(elem.options[j].value))
-                                    }
-                                }
-                                else
-                                    params.push(elem.getAttribute("name")+"="+encodeURIComponent(elem.value))
-                            }
-                        }
-                    });
+                var params = {},elems;
+				for (var i = 0,len=this.length; i <len ; i++) {
+					if(elems= this.elems[i].elements){
+						for(var j=0,lem=elems.length;j<lem;j++)
+						//需要过滤部分情况
+							elems[j].name&&(params[elems[j].name]=elems[j].value);
+					}
                 }
-                return params.join("&");
+                return params;
             },
 
-            /* added in 1.2 */
-            /**
-             * Reduce the set of elements based off index
-                ```
-               $().eq(index)
-               ```
-             * @param {Int} index - Index to filter by. If negative, it will go back from the end
-             * @return {Object} jqMobi object
-             * @title $().eq(index)
-             */
+           
             eq:function(ind){
                 return $(this.get(ind));
             },
-            /**
-             * Returns the index of the selected element in the collection
-               ```
-               $().index(elem)
-               ```
-             * @param {String|Object} element to look for.  Can be a selector or object
-             * @return integer - index of selected element
-             * @title $().index(elem)
-             */
+            
             index:function(elem){
-                return elem?this.indexOf($(elem)[0]):this.parent().children().indexOf(this.elems[0]);
+                return elem?this.elems.indexOf($(elem)[0]):this.parent().children().elems.indexOf(this.elems[0]);
             },
-            /**
-              * Returns boolean if the object is a type of the selector
-              ```
-              $().is(selector)
-              ```
-             * param {String|Object|Function} selector to act upon
-             * @return boolean
-             * @title $().is(selector)
-             */
+            
             is:function(selector){
                 return !!selector&&this.filter(selector).length>0;
             }
@@ -1428,18 +830,7 @@ if (!window.jq || typeof (jq) !== "function") {
             timeout: 0,
             crossDomain: null
         };
-        /**
-        * Execute a jsonP call, allowing cross domain scripting
-        * options.url - URL to call
-        * options.success - Success function to call
-        * options.error - Error function to call
-            ```
-            $.jsonP({url:'mysite.php?callback=?&foo=bar',success:function(){},error:function(){}});
-            ```
-
-        * @param {Object} options
-        * @title $.jsonP(options)
-        */
+        
         $.jsonP = function(options) {
             var callbackName = 'jsonp_callback' + (++_jsonPID);
             var abortTimeout = "", 
@@ -1472,32 +863,7 @@ if (!window.jq || typeof (jq) !== "function") {
             return {};
         };
 
-        /**
-        * Execute an Ajax call with the given options
-        * options.type - Type of request
-        * options.beforeSend - function to execute before sending the request
-        * options.success - success callback
-        * options.error - error callback
-        * options.complete - complete callback - callled with a success or error
-        * options.timeout - timeout to wait for the request
-        * options.url - URL to make request against
-        * options.contentType - HTTP Request Content Type
-        * options.headers - Object of headers to set
-        * options.dataType - Data type of request
-        * options.data - data to pass into request.  $.param is called on objects
-            ```
-            var opts={
-            type:"GET",
-            success:function(data){},
-            url:"mypage.php",
-            data:{bar:'bar'},
-            }
-            $.ajax(opts);
-            ```
-
-        * @param {Object} options
-        * @title $.ajax(options)
-        */
+        
         $.ajax = function(opts) {
             var xhr;
             try {
@@ -1634,34 +1000,14 @@ if (!window.jq || typeof (jq) !== "function") {
         };
         
         
-        /**
-        * Shorthand call to an Ajax GET request
-            ```
-            $.get("mypage.php?foo=bar",function(data){});
-            ```
-
-        * @param {String} url to hit
-        * @param {Function} success
-        * @title $.get(url,success)
-        */
+        
         $.get = function(url, success) {
             return this.ajax({
                 url: url,
                 success: success
             });
         };
-        /**
-        * Shorthand call to an Ajax POST request
-            ```
-            $.post("mypage.php",{bar:'bar'},function(data){});
-            ```
-
-        * @param {String} url to hit
-        * @param {Object} [data] to pass in
-        * @param {Function} success
-        * @param {String} [dataType]
-        * @title $.post(url,[data],success,[dataType])
-        */
+        
         $.post = function(url, data, success, dataType) {
             if (typeof (data) === "function") {
                 success = data;
@@ -1677,17 +1023,7 @@ if (!window.jq || typeof (jq) !== "function") {
                 success: success
             });
         };
-        /**
-        * Shorthand call to an Ajax request that expects a JSON response
-            ```
-            $.getJSON("mypage.php",{bar:'bar'},function(data){});
-            ```
-
-        * @param {String} url to hit
-        * @param {Object} [data]
-        * @param {Function} [success]
-        * @title $.getJSON(url,data,success)
-        */
+        
         $.getJSON = function(url, data, success) {
             if (typeof (data) === "function") {
                 success = data;
@@ -1701,21 +1037,6 @@ if (!window.jq || typeof (jq) !== "function") {
             });
         };
 
-        /**
-        * Converts an object into a key/value par with an optional prefix.  Used for converting objects to a query string
-            ```
-            var obj={
-            foo:'foo',
-            bar:'bar'
-            }
-            var kvp=$.param(obj,'data');
-            ```
-
-        * @param {Object} object
-        * @param {String} [prefix]
-        * @return {String} Key/value pair representation
-        * @title $.param(object,[prefix];
-        */
         $.param = function(obj, prefix) {
             var str = [];
             if (obj instanceof $jqm) {
@@ -1733,70 +1054,18 @@ if (!window.jq || typeof (jq) !== "function") {
             }
             return str.join("&");
         };
-        /**
-        * Used for backwards compatibility.  Uses native JSON.parse function
-            ```
-            var obj=$.parseJSON("{\"bar\":\"bar\"}");
-            ```
-
-        * @params {String} string
-        * @return {Object}
-        * @title $.parseJSON(string)
-        */
+        
         $.parseJSON = function(string) {
             return JSON.parse(string);
         };
-        /**
-        * Helper function to convert XML into  the DOM node representation
-            ```
-            var xmlDoc=$.parseXML("<xml><foo>bar</foo></xml>");
-            ```
-
-        * @param {String} string
-        * @return {Object} DOM nodes
-        * @title $.parseXML(string)
-        */
+       
         $.parseXML = function(string) {
             return (new DOMParser).parseFromString(string, "text/xml");
         };
-        /**
-         * Helper function to parse the user agent.  Sets the following
-         * .os.webkit
-         * .os.android
-         * .os.ipad
-         * .os.iphone
-         * .os.webos
-         * .os.touchpad
-         * .os.blackberry
-         * .os.opera
-         * .os.fennec
-         * .os.ie
-         * .os.ieTouch
-         * .os.supportsTouch
-         * .os.playbook
-         * .feat.nativetouchScroll
-         * @api private
-         */
+        
         function detectUA($, userAgent) {
             $.os = {};
-            $.os.webkit = userAgent.match(/WebKit\/([\d.]+)/) ? true : false;
-            $.os.android = userAgent.match(/(Android)\s+([\d.]+)/) || userAgent.match(/Silk-Accelerated/) ? true : false;
-			$.os.androidICS = $.os.android && userAgent.match(/(Android)\s4/) ? true : false;
-            $.os.ipad = userAgent.match(/(iPad).*OS\s([\d_]+)/) ? true : false;
-            $.os.iphone = !$.os.ipad && userAgent.match(/(iPhone\sOS)\s([\d_]+)/) ? true : false;
-            $.os.webos = userAgent.match(/(webOS|hpwOS)[\s\/]([\d.]+)/) ? true : false;
-            $.os.touchpad = $.os.webos && userAgent.match(/TouchPad/) ? true : false;
-            $.os.ios = $.os.ipad || $.os.iphone;
-			$.os.playbook = userAgent.match(/PlayBook/) ? true : false;
-            $.os.blackberry = $.os.playbook || userAgent.match(/BlackBerry/) ? true : false;
-			$.os.blackberry10 = $.os.blackberry && userAgent.match(/Safari\/536/) ? true : false;
-            $.os.chrome = userAgent.match(/Chrome/) ? true : false;
-			$.os.opera = userAgent.match(/Opera/) ? true : false;
-            $.os.fennec = userAgent.match(/fennec/i) ? true :userAgent.match(/Firefox/)?true: false;
-            $.os.ie = userAgent.match(/MSIE 10.0/i)?true:false;
-            $.os.ieTouch=$.os.ie&&userAgent.toLowerCase().match(/touch/i)?true:false;
-            $.os.supportsTouch = ((window.DocumentTouch && document instanceof window.DocumentTouch) || 'ontouchstart' in window);
-            //features
+            
             $.feat = {};
             var head=document.documentElement.getElementsByTagName("head")[0];
             $.feat.nativeTouchScroll =  typeof(head.style["-webkit-overflow-scrolling"])!=="undefined"&&$.os.ios;
@@ -1809,23 +1078,16 @@ if (!window.jq || typeof (jq) !== "function") {
 
         detectUA($, navigator.userAgent);
         $.__detectUA = detectUA; //needed for unit tests
+		
         if (typeof String.prototype.trim !== 'function') {
-            /**
-             * Helper function for iOS 3.1.3
-             */
+            
             String.prototype.trim = function() {
                 this.replace(/(\r\n|\n|\r)/gm, "").replace(/^\s+|\s+$/, '');
                 return this
             };
         }
         
-        /**
-         * Utility function to create a psuedo GUID
-           ```
-           var id= $.uuid();
-           ```
-         * @title $.uuid
-         */
+        
         $.uuid = function () {
             var S4 = function () {
                 return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
@@ -1833,62 +1095,17 @@ if (!window.jq || typeof (jq) !== "function") {
             return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
         };
 
-        /**
-         * Gets the css matrix, or creates a fake one
-           ```
-           $.getCssMatrix(domElement)
-           ```
-           @returns matrix with postion
-           */
-        $.getCssMatrix=function(ele){
-            if(ele==undefined) return window.WebKitCSSMatrix||window.MSCSSMatrix|| {a:0,b:0,c:0,d:0,e:0,f:0};
-            try{
-                if(window.WebKitCSSMatrix)
-                    return new WebKitCSSMatrix(window.getComputedStyle(ele).webkitTransform)
-                else if(window.MSCSSMatrix)
-                    return new MSCSSMatrix(window.getComputedStyle(ele).transform);
-                else {
-                    //fake css matrix
-                    var mat = window.getComputedStyle(ele)[$.feat.cssPrefix+'Transform'].replace(/[^0-9\-.,]/g, '').split(',');
-                    return {a:+mat[0],b:+mat[1],c:+mat[2],d:+mat[3], e: +mat[4], f:+mat[5]};
-                }
-            }
-            catch(e){
-                return {a:0,b:0,c:0,d:0,e:0,f:0};
-            }
-        }
+        
+        
 
         
-        /**
-         Zepto.js events
-         @api private
-         */
-
-        //The following is modified from Zepto.js / events.js
-        //We've removed depricated jQuery events like .live and allow anonymous functions to be removed
         var handlers = {}, 
         _jqmid = 1;
-        /**
-         * Gets or sets the expando property on a javascript element
-         * Also increments the internal counter for elements;
-         * @param {Object} element
-         * @return {Int} jqmid
-         * @api private
-         */
+        
         function jqmid(element) {
             return element._jqmid || (element._jqmid = _jqmid++);
         }
-        /**
-         * Searches through a local array that keeps track of event handlers for proxying.
-         * Since we listen for multiple events, we match up the event, function and selector.
-         * This is used to find, execute, remove proxied event functions
-         * @param {Object} element
-         * @param {String} [event]
-         * @param {Function} [function]
-         * @param {String|Object|Array} [selector]
-         * @return {Function|null} handler function or false if not found
-         * @api private
-         */
+        
         function findHandlers(element, event, fn, selector) {
             event = parse(event);
             if (event.ns)
@@ -1897,12 +1114,7 @@ if (!window.jq || typeof (jq) !== "function") {
                 return handler && (!event.e || handler.e == event.e) && (!event.ns || matcher.test(handler.ns)) && (!fn || handler.fn == fn || (typeof handler.fn === 'function' && typeof fn === 'function' && "" + handler.fn === "" + fn)) && (!selector || handler.sel == selector);
             });
         }
-        /**
-         * Splits an event name by "." to look for namespaces (e.g touch.click)
-         * @param {String} event
-         * @return {Object} an object with the event name and namespace
-         * @api private
-         */
+        
         function parse(event) {
             var parts = ('' + event).split('.');
             return {
@@ -1910,43 +1122,24 @@ if (!window.jq || typeof (jq) !== "function") {
                 ns: parts.slice(1).sort().join(' ')
             };
         }
-        /**
-         * Regular expression checker for event namespace checking
-         * @param {String} namespace
-         * @return {Regex} regular expression
-         * @api private
-         */
+        
         function matcherFor(ns) {
             return new RegExp('(?:^| )' + ns.replace(' ', ' .* ?') + '(?: |$)');
         }
 
-        /**
-         * Utility function that will loop through events that can be a hash or space delimited and executes the function
-         * @param {String|Object} events
-         * @param {Function} fn
-         * @param {Iterator} [iterator]
-         * @api private
-         */
+        
         function eachEvent(events, fn, iterator) {
             if ($.isObject(events))
                 $.each(events, iterator);
-            else
-                events.split(/\s/).forEach(function(type) {
-                    iterator(type, fn)
-                });
+            else{
+                var e=events.split(/\s|\,/);
+				for(var i=0,len=e.length;i<len;i++){
+                    iterator(e[i], fn);
+                };
+			}
         }
 
-        /**
-         * Helper function for adding an event and creating the proxy handler function.
-         * All event handlers call this to wire event listeners up.  We create proxy handlers so they can be removed then.
-         * This is needed for delegate/on
-         * @param {Object} element
-         * @param {String|Object} events
-         * @param {Function} function that will be executed when event triggers
-         * @param {String|Array|Object} [selector]
-         * @param {Function} [getDelegate]
-         * @api private
-         */
+        
         function add(element, events, fn, selector, getDelegate) {
             var id = jqmid(element), 
             set = (handlers[id] || (handlers[id] = []));
@@ -1972,23 +1165,16 @@ if (!window.jq || typeof (jq) !== "function") {
             //element=null;
         }
 
-        /**
-         * Helper function to remove event listeners.  We look through each event and then the proxy handler array to see if it exists
-         * If found, we remove the listener and the entry from the proxy array.  If no function is specified, we remove all listeners that match
-         * @param {Object} element
-         * @param {String|Object} events
-         * @param {Function} [fn]
-         * @param {String|Array|Object} [selector]
-         * @api private
-         */
+        
         function remove(element, events, fn, selector) {
             
             var id = jqmid(element);
             eachEvent(events || '', fn, function(event, fn) {
-                findHandlers(element, event, fn, selector).forEach(function(handler) {
-                    delete handlers[id][handler.i];
+                var hdl=findHandlers(element, event, fn, selector)
+				for(var i=0,len=hdl.length;i<len;i++){
+                    delete hdl[i][id][hdl[i].i];
                     element.removeEventListener(handler.e, handler.proxy, false);
-                });
+                };
             });
         }
         
@@ -1997,53 +1183,22 @@ if (!window.jq || typeof (jq) !== "function") {
             remove: remove
         }
 
-        /**
-        * Binds an event to each element in the collection and executes the callback
-            ```
-            $().bind('click',function(){console.log('I clicked '+this.id);});
-            ```
-
-        * @param {String|Object} event
-        * @param {Function} callback
-        * @return {Object} jqMobi object
-        * @title $().bind(event,callback)
-        */
+        
         $.fn.bind = function(event, callback) {
-            for (var i = 0; i < this.length; i++) {
+            for (var i = 0,len=this.length; i <len ; i++) {
                 add(this.elems[i], event, callback);
             }
             return this;
         };
-        /**
-        * Unbinds an event to each element in the collection.  If a callback is passed in, we remove just that one, otherwise we remove all callbacks for those events
-            ```
-            $().unbind('click'); //Unbinds all click events
-            $().unbind('click',myFunc); //Unbinds myFunc
-            ```
-
-        * @param {String|Object} event
-        * @param {Function} [callback]
-        * @return {Object} jqMobi object
-        * @title $().unbind(event,[callback]);
-        */
+        
         $.fn.unbind = function(event, callback) {
-            for (var i = 0; i < this.length; i++) {
+            for (var i = 0,len=this.length; i <len ; i++) {
                 remove(this.elems[i], event, callback);
             }
             return this;
         };
 
-        /**
-        * Binds an event to each element in the collection that will only execute once.  When it executes, we remove the event listener then right away so it no longer happens
-            ```
-            $().one('click',function(){console.log('I was clicked once');});
-            ```
-
-        * @param {String|Object} event
-        * @param {Function} [callback]
-        * @return jqMobi object
-        * @title $().one(event,callback);
-        */
+        
         $.fn.one = function(event, callback) {
             return this.each(function(i, element) {
                 add(this, event, callback, null, function(fn, type) {
@@ -2056,10 +1211,7 @@ if (!window.jq || typeof (jq) !== "function") {
             });
         };
         
-         /**
-         * internal variables
-         * @api private
-         */
+         
         
         var returnTrue = function() {
             return true
@@ -2072,13 +1224,7 @@ if (!window.jq || typeof (jq) !== "function") {
             stopImmediatePropagation: 'isImmediatePropagationStopped',
             stopPropagation: 'isPropagationStopped'
         };
-        /**
-         * Creates a proxy function for event handlers. 
-		 * As "some" browsers dont support event.stopPropagation this call is bypassed if it cant be found on the event object.
-         * @param {String} event
-         * @return {Function} proxy
-         * @api private
-         */
+        
         function createProxy(event) {
             var proxy = $.extend({
                 originalEvent: event
@@ -2098,20 +1244,9 @@ if (!window.jq || typeof (jq) !== "function") {
             return proxy;
         }
 
-        /**
-        * Delegate an event based off the selector.  The event will be registered at the parent level, but executes on the selector.
-            ```
-            $("#div").delegate("p",'click',callback);
-            ```
-
-        * @param {String|Array|Object} selector
-        * @param {String|Object} event
-        * @param {Function} callback
-        * @return {Object} jqMobi object
-        * @title $().delegate(selector,event,callback)
-        */
+        
         $.fn.delegate = function(selector, event, callback) {
-            for (var i = 0; i < this.length; i++) {
+            for (var i = 0,len=this.length; i <len ; i++) {
                 var element = this.elems[i];
                 add(element, event, callback, selector, function(fn) {
                     return function(e) {
@@ -2129,88 +1264,34 @@ if (!window.jq || typeof (jq) !== "function") {
             return this;
         };
 
-        /**
-        * Unbinds events that were registered through delegate.  It acts upon the selector and event.  If a callback is specified, it will remove that one, otherwise it removes all of them.
-            ```
-            $("#div").undelegate("p",'click',callback);//Undelegates callback for the click event
-            $("#div").undelegate("p",'click');//Undelegates all click events
-            ```
-
-        * @param {String|Array|Object} selector
-        * @param {String|Object} event
-        * @param {Function} callback
-        * @return {Object} jqMobi object
-        * @title $().undelegate(selector,event,[callback]);
-        */
         $.fn.undelegate = function(selector, event, callback) {
-            for (var i = 0; i < this.length; i++) {
+            for (var i = 0,len=this.length; i <len ; i++) {
                 remove(this.elems[i], event, callback, selector);
             }
             return this;
         }
 
-        /**
-        * Similar to delegate, but the function parameter order is easier to understand.
-        * If selector is undefined or a function, we just call .bind, otherwise we use .delegate
-            ```
-            $("#div").on("click","p",callback);
-            ```
-
-        * @param {String|Array|Object} selector
-        * @param {String|Object} event
-        * @param {Function} callback
-        * @return {Object} jqMobi object
-        * @title $().on(event,selector,callback);
-        */
+        
         $.fn.on = function(event, selector, callback) {
             return selector === undefined || $.isFunction(selector) ? this.bind(event, selector) : this.delegate(selector, event, callback);
         };
-        /**
-        * Removes event listeners for .on()
-        * If selector is undefined or a function, we call unbind, otherwise it's undelegate
-            ```
-            $().off("click","p",callback); //Remove callback function for click events
-            $().off("click","p") //Remove all click events
-            ```
-
-        * @param {String|Object} event
-        * @param {String|Array|Object} selector
-        * @param {Sunction} callback
-        * @return {Object} jqMobi object
-        * @title $().off(event,selector,[callback])
-        */
+       
         $.fn.off = function(event, selector, callback) {
             return selector === undefined || $.isFunction(selector) ? this.unbind(event, selector) : this.undelegate(selector, event, callback);
         };
 
-        /**
-        This triggers an event to be dispatched.  Usefull for emulating events, etc.
-        ```
-        $().trigger("click",{foo:'bar'});//Trigger the click event and pass in data
-        ```
-
-        * @param {String|Object} event
-        * @param {Object} [data]
-        * @return {Object} jqMobi object
-        * @title $().trigger(event,data);
-        */
+        
         $.fn.trigger = function(event, data, props) {
             if (typeof event == 'string')
                 event = $.Event(event, props);
             event.data = data;
-            for (var i = 0; i < this.length; i++) {
+            for (var i = 0,len=this.length; i <len ; i++) {
                 this.elems[i].dispatchEvent(event)
             }
             return this;
         };
 
-        /**
-         * Creates a custom event to be used internally.
-         * @param {String} type
-         * @param {Object} [properties]
-         * @return {event} a custom event that can then be dispatched
-         * @title $.Event(type,props);
-         */
+        
         
         $.Event = function(type, props) {
             var event = document.createEvent('Events'), 
@@ -2223,16 +1304,7 @@ if (!window.jq || typeof (jq) !== "function") {
         };
 		
         /* The following are for events on objects */
-		/**
-         * Bind an event to an object instead of a DOM Node 
-           ```
-           $.bind(this,'event',function(){});
-           ```
-         * @param {Object} object
-         * @param {String} event name
-         * @param {Function} function to execute
-         * @title $.bind(object,event,function);
-         */
+		
 		$.bind = function(obj, ev, f){
 			if(!obj.__events) obj.__events = {};
 			if(!$.isArray(ev)) ev = [ev];
@@ -2242,16 +1314,7 @@ if (!window.jq || typeof (jq) !== "function") {
 			}
 		};
 
-        /**
-         * Trigger an event to an object instead of a DOM Node 
-           ```
-           $.trigger(this,'event',arguments);
-           ```
-         * @param {Object} object
-         * @param {String} event name
-         * @param {Array} arguments
-         * @title $.trigger(object,event,argments);
-         */
+        
 		$.trigger = function(obj, ev, args){
 			var ret = true;
 			if(!obj.__events) return ret;
@@ -2267,16 +1330,7 @@ if (!window.jq || typeof (jq) !== "function") {
 			}
 			return ret;
 		};
-        /**
-         * Unbind an event to an object instead of a DOM Node 
-           ```
-           $.unbind(this,'event',function(){});
-           ```
-         * @param {Object} object
-         * @param {String} event name
-         * @param {Function} function to execute
-         * @title $.unbind(object,event,function);
-         */
+        
         $.unbind = function(obj, ev, f){
 			if(!obj.__events) return;
 			if(!$.isArray(ev)) ev = [ev];
@@ -2296,26 +1350,7 @@ if (!window.jq || typeof (jq) !== "function") {
 		};
 		
         
-        /**
-         * Creates a proxy function so you can change the 'this' context in the function
-		 * Update: now also allows multiple argument call or for you to pass your own arguments
-         ```
-            var newObj={foo:bar}
-            $("#main").bind("click",$.proxy(function(evt){console.log(this)},newObj);
-			
-			or 
-			
-			( $.proxy(function(foo, bar){console.log(this+foo+bar)}, newObj) )('foo', 'bar');
-			
-			or 
-			
-			( $.proxy(function(foo, bar){console.log(this+foo+bar)}, newObj, ['foo', 'bar']) )();
-         ```
-         
-         * @param {Function} Callback
-         * @param {Object} Context
-         * @title $.proxy(callback,context);
-         */
+        
 		$.proxy=function(f, c, args){
            	return function(){
 				if(args) return f.apply(c, args);	//use provided arguments
@@ -2324,14 +1359,7 @@ if (!window.jq || typeof (jq) !== "function") {
 		}
 
       
-         /**
-         * Removes listeners on a div and its children recursively
-            ```
-             cleanUpNode(node,kill)
-            ```
-         * @param {HTMLDivElement} the element to clean up recursively
-         * @api private
-         */
+         
 		function cleanUpNode(node, kill){
 			//kill it before it lays eggs!
 			if(kill && node.dispatchEvent){
@@ -2362,16 +1390,7 @@ if (!window.jq || typeof (jq) !== "function") {
             }	
 		}
 
-        /**
-         * Function to clean up node content to prevent memory leaks
-           ```
-           $.cleanUpContent(node,itself,kill)
-           ```
-         * @param {HTMLNode} node
-         * @param {Bool} kill itself
-         * @param {kill} Kill nodes
-         * @title $.cleanUpContent(node,itself,kill)
-         */
+        
         $.cleanUpContent = function(node, itself, kill){
             if(!node) return;
 			//cleanup children
@@ -2389,15 +1408,7 @@ if (!window.jq || typeof (jq) !== "function") {
 		var timeouts = [];
 		var contexts = [];
 		var params = [];
-        /**
-         * This adds a command to execute in the JS stack, but is faster then setTimeout
-           ```
-           $.asap(function,context,args)
-           ```
-         * @param {Function} function
-         * @param {Object} context
-         * @param {Array} arguments
-         */
+        
         $.asap = function(fn, context, args) {
 			if(!$.isFunction(fn)) throw "$.asap - argument is not a valid function";
             timeouts.push(fn);
@@ -2415,14 +1426,7 @@ if (!window.jq || typeof (jq) !== "function") {
             }
         }, true);
 
-        /**
-         * this function executes javascript in HTML.
-           ```
-           $.parseJS(content)
-           ```
-        * @param {String|DOM} content
-        * @title $.parseJS(content);
-        */
+        
         var remoteJSPages={};
         $.parseJS= function(div) {
             if (!div)
@@ -2449,19 +1453,12 @@ if (!window.jq || typeof (jq) !== "function") {
         };
 		
 
-        /**
-        //custom events since people want to do $().click instead of $().bind("click")
-        */
-
-        ["click","keydown","keyup","keypress","submit","load","resize","change","select","error"].forEach(function(event){
-            $.fn[event]=function(cb){
-                return cb?this.bind(event,cb):this.trigger(event);
+        
+        var eventtrigger=["click","keydown","keyup","keypress","submit","load","resize","change","select","error"];
+		for(var i=0,len=eventtrigger.length;i<len;i++)
+            $.fn[eventtrigger[i]]=function(cb){
+                return cb?this.bind(eventtrigger[i],cb):this.trigger(eventtrigger[i]);
             }
-        });
-         /**
-         * End of APIS
-         * @api private
-         */
         return $;
 
     })(window);
