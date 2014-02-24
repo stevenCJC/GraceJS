@@ -821,7 +821,8 @@ if (!window.jq || typeof (jq) !== "function") {
             },
             
 			_id:function(make){
-				return _id(this.elems[0]);
+				if(make)return _id(this.elems[0]);
+				return has_id(this.elems[0]);
 			},
 			
             is:function(selector){

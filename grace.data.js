@@ -23,17 +23,43 @@ if (!window._ || typeof (_) !== "function") {
             return new _ds(data, type);
         };
 		
-		_.fn=dt.prototype={
-			constructor:_,
-			filter:function(){},
-			where:function(){},
-			each:function(){},
-			get:function(path){},
-			set:function(data){},
-			
-			oldData:function(){},
+		_ds.prototype.constructor=_ds;
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		var mt=['each','filter','where']
+		for(var i=0,len=mt.lengthl;i<len;i++){
+			_ds.prototype[mt[i]]=function(){
+				switch(arguments.length=){
+				case 1:
+				_[mt[i]](this.src,arguments[0]);
+				break;
+				case 2:
+				_[mt[i]](this.src,arguments[0],arguments[1]);
+				break;
+				case 3:
+				_[mt[i]](this.src,arguments[0],arguments[2],arguments[3]);
+				break;
+			}
 		}
-        
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		
         var remoteJSPages={};
         _.parseJS= function(div) {
