@@ -5,6 +5,7 @@ define([
 	"./page",
 	"./util",
 	"./app",
+	"plugins/$"
 ], function(G) {
 
 	

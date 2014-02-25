@@ -1,4 +1,4 @@
-define(['grace','jquery'],function(G,$){
+define(['grace','jquery','utils/chzn'],function(G,$){
 	G.Page('header',
 		function(){
 			this.PLObj={};//私有不公开的属性
@@ -18,7 +18,7 @@ define(['grace','jquery'],function(G,$){
 				'util:PL':function(el,p){},
 			},
 			event:{
-				//'click body@#{id}':'clickThis',
+				'click body@#{id}':'clickThis',
 			},
 			init:{
 				'#{id}':'_init',
@@ -27,7 +27,7 @@ define(['grace','jquery'],function(G,$){
 			loadPage:function(s,options){},
 			_init:function(el,ds){
 					//G.__.open(1);
-					G.__.log('<br/><a id="'+this.id+'" href="#PLinit'+this.id+':'+this.id+'/init:OOOOOO?????">'+this.id+'</a><br/><a id="'+this.id+'" href="#PLinit'+this.id+':'+this.id+'/init:OOOOOO?????">'+this.id+'</a>');
+					//G.__.log('<br/><a id="'+this.id+'" href="#PLinit'+this.id+':'+this.id+'/init:OOOOOO?????">'+this.id+'</a><br/><a id="'+this.id+'" href="#PLinit'+this.id+':'+this.id+'/init:OOOOOO?????">'+this.id+'</a>');
 					if(!el.length) 
 						this.$('body').append('<br/><a id="'+this.id+'" href="#PLinit'+this.id+':'+this.id+'/init:OOOOOO?????">'+this.id+'</a><br/><a id="'+this.id+'" href="#PLinit'+this.id+':'+this.id+'/init:OOOOOO?????">'+this.id+'</a>');
 				},

@@ -1,4 +1,4 @@
-require(['page/p'],function(){
+require(['grace','pages/p'],function(G){
 	
 	$(function(){
 		G.App(function(){

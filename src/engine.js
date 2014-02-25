@@ -1,4 +1,4 @@
-define(["./core",'engine/Engine'], function(G,Engine) {
+define(["./core",'engine/$$'], function(G,$$) {
 
 //不依赖任何dom操作框架
 G.Extend('grace',{
@@ -7,10 +7,10 @@ G.Extend('grace',{
 	// proto	原型扩展
 	// extend	属性方法扩展
 	Engine:function(proto,extend){
-		if(proto)for(var x in proto) G.Engine.prototype[x]=proto[x];
-		if(extend)for(var x in extend) $[x]=extend[x];
+		if(proto)for(var x in proto) $$.fn[x]=proto[x];
+		if(extend)for(var x in extend) $$[x]=extend[x];
 	},
-	$:function(s){return new Engine(s);},
+	$:function(s){return $$(s);},
 	
 })
 

@@ -20,7 +20,7 @@ define([], function() {
 			if (Object.prototype.toString.call( item ) === "[object Array]") { 
 				result = []; 
 				item.forEach(function(child, index, array) {  
-					result[index] = clone( child ); 
+					result[index] = deepClone( child ); 
 				}); 
 			} else if (typeof item == "object") { 
 				// testign that this is DOM 
@@ -32,7 +32,7 @@ define([], function() {
 				//如果是个对象迭代的话，我们可以用for in 迭代来赋值 
 					result = {}; 
 					for (var i in item) { 
-						result[i] = clone( item[i] ); 
+						result[i] = deepClone( item[i] ); 
 					} 
 				} else { 
 					// depending what you would like here, 

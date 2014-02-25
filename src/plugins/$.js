@@ -1,4 +1,4 @@
-define(["./core",'engine/Engine','jquery','./engine'], function(G,Engine,$) {
+define(["../core",'jquery'], function(G,$) {
 G.Engine({
 	
 	$:function(s){
@@ -12,7 +12,7 @@ G.Engine({
 		this.z_freshCore();
 		return this;
 	},
-		
+	
 
 	
 	off:function(){return this;},
