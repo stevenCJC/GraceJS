@@ -20,9 +20,9 @@ define([], function() {
 		else return;//如果没有hash则停止执行
 		var subs,index,subs,param,h;
 		while(h=hashs.pop()){
-			if(h.indexOf(':')>-1) {
+			if(h.indexOf('!')>-1) {
 				//分拆订阅名称和参数
-				index=h.indexOf(':');
+				index=h.indexOf('!');
 				subs=h.substr(0,index);
 				param=h.substr(index+1);
 			}else{
@@ -38,7 +38,7 @@ define([], function() {
 		
 	}
 	
-	
+	return Router;
 	
 });
 	

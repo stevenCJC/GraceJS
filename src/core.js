@@ -1,4 +1,4 @@
-define(["./mediator","./dataset"], function(Mediator,DataSet) {
+define(["./mediator","./dataset","./router"], function(Mediator,DataSet,Router) {
 	function Grace(){
 		//存储widget类
 		this.widget={};

@@ -5,13 +5,13 @@ function DSEvent(){
 			//仅当前节点的更新会触发事件
 			'path1/path2':{
 				all:{
-					namespace:[callback1,callback2],
+					//namespace:[callback1,callback2],
 				},
 			},
 			//关联事件，关联所有子节点的更新
 			'path1/path2/':{
 				delete:{
-					namespace:[callback1,callback2],
+					//namespace:[callback1,callback2],
 				},
 			},
 		};

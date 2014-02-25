@@ -23,5 +23,5 @@ define([], function() {
 			cn.push(callback);
 		},
 	}
-	return DataSet;
+	return Mediator;
 });
