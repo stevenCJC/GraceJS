@@ -27,4 +27,5 @@ define(["./core",'function/makeWidget'], function(G,makeWidget) {
 		},
 		
 	})
+	return G;
 });

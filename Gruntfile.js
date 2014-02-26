@@ -36,7 +36,7 @@ module.exports = function(grunt) {
 					"grace",
 				],
 				removeWith: {
-					//ajax: [ "manipulation/_evalUrl" ],
+					pp: [ "jquery" ],
 					//callbacks: [ "deferred" ],
 					//css: [ "effects", "dimensions", "offset" ],
 					//sizzle: [ "css/hiddenVisibleSelectors", "effects/animatedSelector" ]
@@ -106,7 +106,7 @@ module.exports = function(grunt) {
 	grunt.loadTasks( "built" );
 
 	// Short list as a high frequency watch task
-	grunt.registerTask( "dev", [ "built:*:*:-jquery",'uglify' ,'jshint' ] );
+	grunt.registerTask( "dev", [ "built:*:*:-pp",'uglify' ,'jshint' ] );
 
 	// Default grunt
 	grunt.registerTask( "default", [  "dev", "uglify" ,"watch"] );

@@ -26,7 +26,8 @@ module.exports = function( grunt ) {
 				endFile: "src/wrap/outro.js"
 			},
 			paths: {
-				
+				jquery:'../jquery',
+				pp:'plugins/$',
 			},
 			rawText: {},
 			onBuildWrite: convert

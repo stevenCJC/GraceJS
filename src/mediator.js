@@ -3,7 +3,7 @@ define(['function/getObjByPath'], function(getObjByPath) {
 		this.channels={};
 	}
 	
-	Mediator.prototype={
+	Mediator.prototype={ 
 		constructor:Mediator,
 		publish:function(channel,message){
 			//根据路径获取对象

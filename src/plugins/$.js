@@ -1,19 +1,19 @@
-define(["../core",'jquery'], function(G,$) {
+define(["grace",'jquery'], function(G,$) {
 G.Engine({
 	
 	$:function(s){
 		this.core=$(s);
-		this.z_freshCore();
-		return this;
+		this.z_freshCore(); 
+		return this;  
 	},
-	
-	end:function(){
+	  
+	end:function(){ 
 		this.core=this.core.end();
 		this.z_freshCore();
 		return this;
 	},
 	
-
+ 
 	
 	off:function(){return this;},
 	
@@ -32,15 +32,6 @@ G.Engine({
 	
 	
 	
-},{
-	
-	extend:function(data){
-		for(var x in data)
-			(function(name,func){
-				Engine.prototype[name]=func;
-			})(x,data[x]);
-	},
-	
 });
 
 
@@ -51,7 +42,7 @@ var enginePrototype=['find','val','text','remove','css','attr','addClass','data'
 var m
 while(m=enginePrototype.pop()) (function(m){
 	//绑定底层库方法
-	Engine.prototype[m]=function(){
+	G.$.fn[m]=function(){
 		//调用底层库方法，apply效率可能不够高
 		var d=this.core[m].apply(this.core,arguments);
 		if(typeof d=='undefined')return this;

@@ -1,5 +1,40 @@
 (function(define) {
     define([], function() {
+        //根据路径返回对象
+        //path		数据路径
+        //obj		基础对象
+        //create	是否进行创建路径，如果否，返回null
+        function getObjByPath(path, obj, create) {
+            path = path.replace(/(^\s*)|(\s*$)/g, "");
+            var tmp;
+            if (path.indexOf("/") > -1) {
+                path = path.split("/");
+                var x;
+                while (x = path.shift()) {
+                    if (typeof obj[x] != "undefined") {
+                        obj = obj[x];
+                        if (path.length > 0 && typeof obj != "object") throw new Error("The " + x + " related to the node of Object is not an Object type");
+                    } else if (create) {
+                        //如果子路径元素不存在，并且需要创建
+                        if (path.length) {
+                            //路径中遇到undefined
+                            obj = obj[x] = {};
+                        } else {
+                            //终端
+                            obj[x] = {};
+                            //创建路径
+                            return obj[x];
+                        }
+                    } else return;
+                }
+                return obj;
+            } else if (typeof obj[path] != "undefined") {
+                return obj[path];
+            } else if (create) {
+                obj[path] = {};
+                return obj[path];
+            } else return;
+        }
         function Mediator() {
             this.channels = {};
         }
@@ -27,15 +62,11 @@
             this.handle = {
                 //仅当前节点的更新会触发事件
                 "path1/path2": {
-                    all: {
-                        namespace: [ callback1, callback2 ]
-                    }
+                    all: {}
                 },
                 //关联事件，关联所有子节点的更新
                 "path1/path2/": {
-                    "delete": {
-                        namespace: [ callback1, callback2 ]
-                    }
+                    "delete": {}
                 }
             };
         }
@@ -104,41 +135,7 @@
                 });
             }
         }
-        //根据路径返回对象
-        //path		数据路径
-        //obj		基础对象
-        //create	是否进行创建路径，如果否，返回null
-        function getObjByPath(path, obj, create) {
-            path = path.replace(/(^\s*)|(\s*$)/g, "");
-            var tmp;
-            if (path.indexOf("/") > -1) {
-                path = path.split("/");
-                var x;
-                while (x = path.shift()) {
-                    if (typeof obj[x] != "undefined") {
-                        obj = obj[x];
-                        if (path.length > 0 && typeof obj != "object") throw new Error("The " + x + " related to the node of Object is not an Object type");
-                    } else if (create) {
-                        //如果子路径元素不存在，并且需要创建
-                        if (path.length) {
-                            //路径中遇到undefined
-                            obj = obj[x] = {};
-                        } else {
-                            //终端
-                            obj[x] = {};
-                            //创建路径
-                            return obj[x];
-                        }
-                    } else return;
-                }
-                return obj;
-            } else if (typeof obj[path] != "undefined") {
-                return obj[path];
-            } else if (create) {
-                obj[path] = {};
-                return obj[path];
-            } else return;
-        }
+        var dsevent = new DSEvent();
         //数据树节点定义
         function DS(path, ds) {
             //当前路径
@@ -252,6 +249,84 @@
             //Dataset事件触发
             trigger: function(path, type, newData, oldData) {}
         };
+        function DSEvent() {
+            this.handle = {
+                //仅当前节点的更新会触发事件
+                "path1/path2": {
+                    all: {}
+                },
+                //关联事件，关联所有子节点的更新
+                "path1/path2/": {
+                    "delete": {}
+                }
+            };
+        }
+        DSEvent.prototype = {
+            constructor: DSEvent,
+            add: function(path, event, namespace, callback) {
+                if (arguments.length == 3) {
+                    callback = namespace;
+                    namespace = "none";
+                }
+                var hs = this.handle[path] = this.handle[path] || {};
+                var ev = hs[event] || {};
+                var ns = ev[namespace] || [];
+                ns.push(callback);
+            },
+            //删除委托事件
+            del: function(path, event, namespace) {
+                if (arguments.length == 2) {
+                    namespace = "none";
+                } else if (arguments.length == 1) {
+                    namespace = "none";
+                    event = "all";
+                }
+                var hs = this.handle[path];
+                if (hs) {
+                    if (event == "all") if (namespace == "none") delete this.handle[path]; else for (var x in hs) {
+                        delete hs[x][namespace];
+                    } else if (namespace == "none") delete hs[event]; else hs[event] && delete hs[event][namespace];
+                }
+            },
+            trigger: function(path, event, namespace) {
+                path = path.replace(/\s/gi, "");
+                if (arguments.length == 2) {
+                    namespace = "none";
+                } else if (arguments.length == 1) {
+                    namespace = "none";
+                    event = "all";
+                }
+                if (path.lastIndexOf("/") == path.length - 1) {
+                    _trigger(this.handle, path, event, namespace);
+                } else {
+                    var p = path.split("/");
+                    while (p.length) {
+                        _trigger(this.handle, p.join("/"), event, namespace);
+                        p.pop();
+                    }
+                }
+            }
+        };
+        function _trigger(handles, path, event, namespace) {
+            var hs = handles[path];
+            var es, ns, x, y;
+            if (hs) {
+                if (event == "all") if (namespace == "none") {
+                    for (y in hs) if (ns = hs[y]) for (x in ns) ns[x].forEach(function(fn) {
+                        fn(path, event);
+                    });
+                } else {
+                    (ns = hs["delete"]) && ns[namespace] && ns[namespace].forEach(function(fn) {
+                        fn(path, event);
+                    });
+                } else if (namespace == "none") if (ns = hs[event]) for (x in ns) ns[x].forEach(function(fn) {
+                    fn(path, event);
+                }); else if (ns = hs[event]) ns[namespace] && ns[namespace].forEach(function(fn) {
+                    fn(path, event);
+                });
+            }
+        }
+        var dsevent = new DSEvent();
         //深克隆函数
         function deepClone(item) {
             if (!item) {
@@ -271,7 +346,7 @@
                 if (Object.prototype.toString.call(item) === "[object Array]") {
                     result = [];
                     item.forEach(function(child, index, array) {
-                        result[index] = clone(child);
+                        result[index] = deepClone(child);
                     });
                 } else if (typeof item == "object") {
                     // testign that this is DOM 
@@ -284,7 +359,7 @@
                         //如果是个对象迭代的话，我们可以用for in 迭代来赋值 
                         result = {};
                         for (var i in item) {
-                            result[i] = clone(item[i]);
+                            result[i] = deepClone(item[i]);
                         }
                     } else {
                         // depending what you would like here, 
@@ -337,6 +412,36 @@
             //Dataset事件触发
             trigger: function(path, type, newData, oldData) {}
         };
+        function Router() {
+            this.routers = {};
+            //绑定hash改变事件
+            window.addEventListener("hashchange", function(e) {
+                hashRouter(e);
+            }, false);
+        }
+        function hashRouter(e) {
+            //下面两个变量暂无作用
+            var newURL = e.newURL;
+            var oldURL = e.oldURL;
+            //去除#，返回反编码后的路径
+            var hash;
+            if (window.location.hash) hash = decodeURI(window.location.hash).substr(1);
+            if (hash) var hashs = hash.split("/"); else return;
+            //如果没有hash则停止执行
+            var subs, index, subs, param, h;
+            while (h = hashs.pop()) {
+                if (h.indexOf("!") > -1) {
+                    //分拆订阅名称和参数
+                    index = h.indexOf("!");
+                    subs = h.substr(0, index);
+                    param = h.substr(index + 1);
+                } else {
+                    subs = h;
+                }
+                //这里需要扩展param的解析函数
+                G.MD.publish(subs, param);
+            }
+        }
         function Grace() {
             //存储widget类
             this.widget = {};
@@ -382,16 +487,18 @@
                 }
             }
         };
-        var G = window.G = new Grace();
+        if (!window.G) window.G = new Grace();
+        var G = window.G;
         function Engine(s) {
             this.core = null;
             //初始化后将存储操作核心
             this.length = 0;
             this.$(s);
         }
-        function $$(s) {
+        var $$ = function(s) {
             return new Engine(s);
-        }
+        };
+        $$.fn = Engine.prototype;
         //不依赖任何dom操作框架
         G.Extend("grace", {
             //扩展grace的Engine扩展功能
@@ -399,9 +506,10 @@
             // proto	原型扩展
             // extend	属性方法扩展
             Engine: function(proto, extend) {
-                if (proto) for (var x in proto) Engine.prototype[x] = proto[x];
-                if (extend) for (var x in extend) $[x] = extend[x];
-            }
+                if (proto) for (var x in proto) $$.fn[x] = proto[x];
+                if (extend) for (var x in extend) $$[x] = extend[x];
+            },
+            $: $$
         });
         G.Engine({
             //引擎内部初始化
@@ -415,6 +523,12 @@
                 }
                 //返回内部元素个数
                 this.length = core.length;
+            }
+        }, {
+            extend: function(data) {
+                for (var x in data) (function(name, func) {
+                    $$.fn[name] = func;
+                })(x, data[x]);
             }
         });
         /*
@@ -684,6 +798,40 @@
                 return obj[m.replace(/\{|\}/gi, "")];
             });
         }
+        //新组装一个插件
+        function makeWidget(path, cons, behavior, proto) {
+            var root = this;
+            function Widget() {
+                cons.apply(this, arguments);
+                for (var x in behavior) if (x != "init") {
+                    //循环各种行为的处理
+                    var f = G.extend[proto.TYPE + "/behavior"][x];
+                    if (f) {
+                        f = f[0];
+                        //返回初始化执行函数
+                        if (f) f.call(this, path, behavior[x], root);
+                    }
+                }
+                //执行初始化
+                var init = behavior.init;
+                if (proto.TYPE == "page") G.extend[proto.TYPE + "/behavior"]["init"][0].call(this, path, behavior["init"], root);
+            }
+            proto.PATH = path;
+            var extend = this.extend[proto.TYPE];
+            //需要跟page分开扩展
+            //对widget 和page的内部方法扩展
+            for (var x in extend) proto[x] = extend[x];
+            for (var x in behavior) {
+                var f = G.extend[proto.TYPE + "/behavior"][x];
+                if (f) {
+                    f = f[1];
+                    //返回初始化前执行函数 ，应该调整一下
+                    if (f) f.call(this, path, behavior[x], proto);
+                }
+            }
+            //返回组装类
+            return Compose(Widget, proto);
+        }
         G.Extend("grace", {
             Widget: function(path, cons, behavior, proto) {
                 proto.TYPE = "widget";
@@ -717,7 +865,7 @@
             //数据岛行为扩展
             dataset: [ function(path, dataset, root) {
                 var DS = root.DS;
-                dataset = clone(dataset);
+                dataset = deepClone(dataset);
                 if (dataset.constructor == Array) dataset[0] = fixPath(dataset[0], this);
                 DS.initData(path, dataset);
             }, function() {} ],
@@ -828,40 +976,6 @@
                 G.extend[that.TYPE + "/behavior/init"]["dom"](that, x, callback);
             }
         }
-        //新组装一个插件
-        function makeWidget(path, cons, behavior, proto) {
-            var root = this;
-            function Widget() {
-                cons.apply(this, arguments);
-                for (var x in behavior) if (x != "init") {
-                    //循环各种行为的处理
-                    var f = G.extend[proto.TYPE + "/behavior"][x];
-                    if (f) {
-                        f = f[0];
-                        //返回初始化执行函数
-                        if (f) f.call(this, path, behavior[x], root);
-                    }
-                }
-                //执行初始化
-                var init = behavior.init;
-                if (proto.TYPE == "page") G.extend[proto.TYPE + "/behavior"]["init"][0].call(this, path, behavior["init"], root);
-            }
-            proto.PATH = path;
-            var extend = this.extend[proto.TYPE];
-            //需要跟page分开扩展
-            //对widget 和page的内部方法扩展
-            for (var x in extend) proto[x] = extend[x];
-            for (var x in behavior) {
-                var f = G.extend[proto.TYPE + "/behavior"][x];
-                if (f) {
-                    f = f[1];
-                    //返回初始化前执行函数 ，应该调整一下
-                    if (f) f.call(this, path, behavior[x], proto);
-                }
-            }
-            //返回组装类
-            return Compose(Widget, proto);
-        }
         G.Extend("grace", {
             Page: function(path, cons, behavior, proto) {
                 proto.TYPE = "page";
@@ -941,7 +1055,7 @@
         G.Extend("grace", {
             //应用初始化启动程序，需要模块依赖管理框架对各模块进行管理，此模块应该作为最后的模块加载
             //before 	初始化前执行函数
-            //end		初始化后执行函数
+            //end		初始化后执行函数 
             App: function(before, end) {
                 var p, x;
                 before && before();
@@ -962,6 +1076,6 @@ function(deps, factory) {
     if (typeof module != "undefined") {
         module.exports = factory();
     } else {
-        window.Compose = factory();
+        window.G = factory();
     }
 });

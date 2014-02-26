@@ -178,7 +178,7 @@ if (!window.jq || typeof (jq) !== "function") {
         
         
         $.each = function(elements, callback) {
-            var i, key,;
+            var i, key;
             if ($.isArray(elements))
                 for(var i=0,len=elements.length;i<len;i++)
 					if (callback(i, elements[i]) === false) return elements;

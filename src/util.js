@@ -66,7 +66,7 @@ G.Engine({
 	
 });
 
-
+return G;
 });
 
 

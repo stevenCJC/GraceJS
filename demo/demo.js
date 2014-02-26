@@ -1,6 +1,6 @@
-require(['grace','pages/p'],function(G){
+require(['grace','pages/p','pp'],function(G){
 	
-	$(function(){
+	G.$(function(){
 		G.App(function(){
 			
 		},function(){

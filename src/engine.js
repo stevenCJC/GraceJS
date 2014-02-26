@@ -10,7 +10,7 @@ G.Extend('grace',{
 		if(proto)for(var x in proto) $$.fn[x]=proto[x];
 		if(extend)for(var x in extend) $$[x]=extend[x];
 	},
-	$:function(s){return $$(s);},
+	$:$$,
 	
 })
 
@@ -24,8 +24,15 @@ G.Engine({
 		//返回内部元素个数
 		this.length=core.length;
 	},
+},{
+	extend:function(data){
+		for(var x in data)
+			(function(name,func){
+				$$.fn[name]=func;
+			})(x,data[x]);
+	},
 })
-
+return G;
 });
 
 

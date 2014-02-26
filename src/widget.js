@@ -174,5 +174,5 @@ define(['./core','./compose','function/fixPath','engine/$$','function/makeWidget
 		
 	}
 	
-	
+	return G;
 });
