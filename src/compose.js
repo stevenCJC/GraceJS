@@ -2,7 +2,9 @@
  * ComposeJS, object composition for JavaScript, featuring
 * JavaScript-style prototype inheritance and composition, multiple inheritance, 
 * mixin and traits-inspired conflict resolution and composition  
- */ 
+ */
+(function(define){
+"use strict";
 define([], function(){
 	// function for creating instances from a prototype
 	function Create(){
@@ -24,6 +26,7 @@ define([], function(){
 		return arg;
 	}
 	// this does the work of combining mixins/prototypes
+	// 混合原型
 	function mixin(instance, args, i){
 		// use prototype inheritance for first arg
 		var value, argsLength = args.length; 
@@ -57,7 +60,7 @@ define([], function(){
 						// apply modifier
 						value.install.call(instance, key);
 					}else{
-						instance[key] = value;
+						instance[key] = value;//合并原型函数
 					} 
 				}
 			}else{
@@ -85,9 +88,11 @@ define([], function(){
 		return instance;	
 	}
 	// allow for override (by es5 module)
+	//重载混合原型的方法
 	Compose._setMixin = function(newMixin){
 		mixin = newMixin;
 	};
+	//检测是否在原型链里面
 	function isInMethodChain(method, name, prototypes){
 		// searches for a method in the given prototype hierarchy 
 		for(var i = 0; i < prototypes.length;i++){
@@ -174,7 +179,7 @@ define([], function(){
 	};
 	Compose.required = required;
 	// get the value of |this| for direct function calls for this mode (strict in ES5)
-	
+	//调用Compose实现扩展
 	function extend(){
 		var args = [this];
 		args.push.apply(args, arguments);
@@ -186,6 +191,7 @@ define([], function(){
 		var prototype = (args.length < 2 && typeof args[0] != "function") ? 
 			args[0] : // if there is just a single argument object, just use that as the prototype 
 			mixin(delegate(validArg(base)), args, 1); // normally create a delegate to start with			
+		//构造器，返回新对象，合并所有属性
 		function Constructor(){
 			var instance;
 			if(this instanceof Constructor){
@@ -199,15 +205,16 @@ define([], function(){
 			}
 			// call all the constructors with the given arguments
 			for(var i = 0; i < constructorsLength; i++){
+				//合并所有构造里面的属性
 				var constructor = constructors[i];
-				var result = constructor.apply(instance, arguments);
+				var result = constructor.apply(instance, arguments);//生成实例，以获得属性
 				if(typeof result == "object"){
 					if(result instanceof Constructor){
 						instance = result;
 					}else{
 						for(var j in result){
 							if(result.hasOwnProperty(j)){
-								instance[j] = result[j];
+								instance[j] = result[j];//合并属性
 							}
 						}
 					}
@@ -220,6 +227,7 @@ define([], function(){
 			return prototype ? prototypes : constructors;
 		};
 		// now get the prototypes and the constructors
+		//返回所有构造器
 		var constructors = getBases(args), 
 			constructorsLength = constructors.length;
 		if(typeof args[args.length - 1] == "object"){
@@ -244,7 +252,7 @@ define([], function(){
 		// call() should correspond with apply behavior
 		return mixin(thisObject, arguments, 1);
 	};
-	
+	//返回所有继承的构造器
 	function getBases(args, prototype){
 		// this function registers a set of constructors for a class, eliminating duplicate
 		// constructors that may result from diamond construction for classes (B->A, C->A, D->B&C, then D() should only call A() once)
@@ -276,3 +284,13 @@ define([], function(){
 	// returning the export of the module
 	return Compose;
 });
+})(typeof define != "undefined" ?
+	define: // AMD/RequireJS format if available
+	function(deps, factory){
+		if(typeof module !="undefined"){
+			module.exports = factory(); // CommonJS environment, like NodeJS
+		//	require("./configure");
+		}else{
+			Compose = factory(); // raw script, assign to Compose global
+		}
+	});
