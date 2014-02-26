@@ -19,7 +19,7 @@ G.Engine({
 	
 	each:function(func){
 		this.core.each(function(){
-			func(new Engine(this));
+			func(G.$(this));
 		});
 		return this;
 	},
