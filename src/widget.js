@@ -4,7 +4,28 @@ define(['./core','./compose','function/fixPath','engine/$$','function/makeWidget
 		
 		Widget:function(path,cons,behavior,proto){
 			proto.TYPE='widget';//设置生成插件类别
+			//需要存储各成分结构，提供复用
+			/*
+				1、行为只有覆盖，不提供向上指针
+				2、原型方法可提供向上原型指针
+				
+				复用分为两种模式：
+					1、重构---生成兄弟关系的新类；
+						a.覆盖base的构造函数，
+						b.可选择继承行为，覆盖行为，
+						c.覆盖原有原型方法，提供base向上原型指针
+						d.执行新的构造函数进行构造
+					2、继承---生成父子关系的新类；
+						a.执行父级构造函数进行初始构造，生成base向上对象指针；
+						b.选择继承行为，覆盖行为，
+						c.原型覆盖
+						d.执行新的构造函数进行构造
+				
+			*/
+			//继承，在这里实现各成分拷贝
 			this.widget[path]=makeWidget.call(this,path,cons,behavior,proto);
+			//原型已就绪    向上指针：this.base=baseClass.prototype;
+			
 		},
 		
 	});

@@ -7,7 +7,7 @@ define(['../core','../compose'], function(G,Compose) {
 		function Widget(){
 			
 			cons.apply(this,arguments);
-			
+			//初始化处理阶段
 			for(var x in behavior) if(x!='init'){//循环各种行为的处理
 				var f=G.extend[proto.TYPE+'/behavior'][x]
 				if(f){
@@ -24,7 +24,7 @@ define(['../core','../compose'], function(G,Compose) {
 		var extend=this.extend[proto.TYPE];//需要跟page分开扩展
 		//对widget 和page的内部方法扩展
 		for(var x in extend) proto[x]=extend[x];
-		
+		//原型处理阶段，所有原型方法就绪
 		for(var x in behavior) {
 			var f=G.extend[proto.TYPE+'/behavior'][x];
 			if(f){
