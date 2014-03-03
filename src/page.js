@@ -1,4 +1,4 @@
-define(["./core",'function/makeWidget'], function(G,makeWidget) {
+define(["./core",'function/makeWidget','./widget'], function(G,makeWidget) {
 	
 	G.Extend('grace',{
 		

@@ -2,6 +2,14 @@
  * ComposeJS, object composition for JavaScript, featuring
 * JavaScript-style prototype inheritance and composition, multiple inheritance, 
 * mixin and traits-inspired conflict resolution and composition  
+
+
+	考虑把生成的对象存储起来
+
+
+
+
+
  */
 (function(define){
 "use strict";
@@ -47,6 +55,7 @@ define([], function(){
 						else if(!own){
 							// if it is own property, it is considered an explicit override 
 							// TODO: make faster calls on this, perhaps passing indices and caching
+							// 对比前面的被继承的对象是否含有相同的prototype方法，
 							if(isInMethodChain(value, key, getBases([].slice.call(args, 0, i), true))){
 								// this value is in the existing method's override chain, we can use the existing method
 								value = existing;
@@ -253,6 +262,7 @@ define([], function(){
 		return mixin(thisObject, arguments, 1);
 	};
 	//返回所有继承的构造器
+	// 第二个参数是否返回原型链
 	function getBases(args, prototype){
 		// this function registers a set of constructors for a class, eliminating duplicate
 		// constructors that may result from diamond construction for classes (B->A, C->A, D->B&C, then D() should only call A() once)
@@ -263,13 +273,15 @@ define([], function(){
 				var arg = args[i];
 				var target = prototype && typeof arg == "function" ?
 						arg.prototype : arg;
+						
+				//如果此对象不是函数，而是其他对象类型，则跳进下面的循环检测，其方法作为原型方法
 				if(prototype || typeof arg == "function"){
-					var argGetBases = checkChildren && arg._getBases;
+					var argGetBases = checkChildren && arg._getBases;//Constructor构造的类带有此方法，也作为一个标志
 					if(argGetBases){
-						iterate(argGetBases(prototype)); // don't need to check children for these, this should be pre-flattened 
+						iterate(argGetBases(prototype)); // 此处并非递归，而是为了进入下面的循环检测 don't need to check children for these, this should be pre-flattened
 					}else{
 						for(var j = 0; j < bases.length; j++){
-							if(target == bases[j]){
+							if(target == bases[j]){//检测是否含有相同原型或构造器，有就不再push
 								continue outer;
 							}
 						}
