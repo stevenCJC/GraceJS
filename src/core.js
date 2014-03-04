@@ -6,6 +6,8 @@ define(["./mediator","./dataset","./router"], function(Mediator,DataSet,Router) 
 		this.page={};
 		//存储不同的扩展函数
 		this.extend={};
+		//存储原插件碎片
+		this.chips={};
 		//初始化数据岛对象
 		this.DS=new DataSet();
 		//初始化中介对象

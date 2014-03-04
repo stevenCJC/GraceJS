@@ -1,14 +1,3 @@
-/*
-	简化细节：
-		class	使用原有class操作功能
-		$		删除类数组的操作方式
-		
-		
-	
-*/
-
-
-
 
 if (!window.jq || typeof (jq) !== "function") {
     

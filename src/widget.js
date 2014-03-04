@@ -1,4 +1,4 @@
-define(['./core','./compose','function/fixPath','engine/$$','function/makeWidget','function/deepClone'], function(G,Compose,fixPath,$$,makeWidget,deepClone) {
+define(['./core','_','./compose','function/fixPath','engine/$$','function/makeWidget','function/deepClone','oop/baseClass'], function(G,_,Compose,fixPath,$$,makeWidget,deepClone,baseClass) {
 	
 	G.Extend('grace',{
 		
@@ -23,6 +23,36 @@ define(['./core','./compose','function/fixPath','engine/$$','function/makeWidget
 				
 			*/
 			//继承，在这里实现各成分拷贝
+			
+			if(baseClass.path){
+				var base=this.widget[baseClass.path];
+				var chips=this.chips[baseClass.path];
+				var options;
+				if(baseClass.options=='*') options=Object.keys(G.extend['widget/behavior']);
+				else options=baseClass.options
+				var tmp={};
+				for(var i=0,len=options.length;i<len;i++)
+					tmp[options[i]]=_.extend({},chips.behavior[options[i]],behavior[options[i]]);
+				behavior=_.extend(behavior,tmp);
+				
+				//需要区别是否原生类，如果是原生类，需要继承prototype，如果不是原生类，只需要继承proto
+				
+				proto=_.extend({},chips.proto,proto);
+				
+				if(baseClass.type=="Rebuilt"){
+					
+				}else{
+					
+				}
+			}
+			
+			this.chips[path]={
+				path:path,
+				cons:cons,
+				behavior:behavior,
+				proto:proto,
+			};
+			
 			this.widget[path]=makeWidget.call(this,path,cons,behavior,proto);
 			//原型已就绪    向上指针：this.base=baseClass.prototype;
 			

@@ -1,9 +1,6 @@
-
-(function() {
-
+define([], function() {
 
   // Save the previous value of the `_` variable.
-  var previousUnderscore = window._;
   var breaker = {};
 
   // Save bytes in the minified (but not gzipped) version:
@@ -33,7 +30,7 @@
     nativeBind         = FuncProto.bind;
 
   // Create a safe reference to the Underscore object for use below.
-  var _ =window._ = function(obj) {
+  var _ = function(obj) {
     if (obj instanceof _) return obj;
     if (!(this instanceof _)) return new _(obj);
     this._wrapped = obj;
@@ -473,5 +470,5 @@
   }; 
 
 
-
-}).call(this);
+return _;
+});
