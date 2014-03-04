@@ -7,7 +7,7 @@ define(['../core','../compose','oop/baseClass'], function(G,Compose,baseClass) {
 		function Widget(p){
 			
 			if(this.INHERIT){
-				var base=this.base=new this.widget[this.INHERIT](p);
+				var base=this.base=new G.widget[this.INHERIT](p);
 				for(var x in base)if(base.hasOwnProperty(x))this[x]=base[x];
 			}
 			
@@ -26,17 +26,17 @@ define(['../core','../compose','oop/baseClass'], function(G,Compose,baseClass) {
 			
 		}
 		
-		proto.PATH=path;
+		Widget.prototype.PATH=path;
 		
 		if(baseClass.path){
-			proto[baseClass.type]=baseClass.path;
-			if(baseClass.type=='REBUILT') proto.baseProto=G.chips[baseClass.path].proto;
+			Widget.prototype[baseClass.type]=baseClass.path;
+			if(baseClass.type=='REBUILT') Widget.prototype.baseProto=G.chips[baseClass.path].proto;
 			baseClass.path=null;
 		}
 		
 		var extend=this.extend[proto.TYPE];//需要跟page分开扩展
 		//对widget 和page的内部方法扩展
-		for(var x in extend) proto[x]=extend[x];
+		for(var x in extend) Widget.prototype[x]=extend[x];
 		//原型处理阶段，所有原型方法就绪
 		for(var x in behavior) {
 			var f=G.extend[proto.TYPE+'/behavior'][x];
