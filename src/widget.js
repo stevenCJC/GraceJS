@@ -2,7 +2,7 @@ define(['./core','_','./compose','function/fixPath','engine/$$','function/makeWi
 	
 	G.Extend('grace',{
 		
-		Widget:function(path,cons,behavior,proto){
+		Widget:function(path,func,behavior,proto){
 			proto.TYPE='widget';//设置生成插件类别
 			//需要存储各成分结构，提供复用
 			/*
@@ -33,27 +33,22 @@ define(['./core','_','./compose','function/fixPath','engine/$$','function/makeWi
 				var tmp={};
 				for(var i=0,len=options.length;i<len;i++)
 					tmp[options[i]]=_.extend({},chips.behavior[options[i]],behavior[options[i]]);
-				behavior=_.extend(behavior,tmp);
+				behavior=_.extend({},behavior,tmp);
 				
 				//需要区别是否原生类，如果是原生类，需要继承prototype，如果不是原生类，只需要继承proto
 				
-				proto=_.extend({},chips.proto,proto);
+				proto=_.extend({},chips.proto,func.prototype,proto);
 				
-				if(baseClass.type=="Rebuilt"){
-					
-				}else{
-					
-				}
 			}
 			
 			this.chips[path]={
 				path:path,
-				cons:cons,
+				func:func,
 				behavior:behavior,
 				proto:proto,
 			};
 			
-			this.widget[path]=makeWidget.call(this,path,cons,behavior,proto);
+			this.widget[path]=makeWidget.call(this,path,func,behavior,proto);
 			//原型已就绪    向上指针：this.base=baseClass.prototype;
 			
 		},

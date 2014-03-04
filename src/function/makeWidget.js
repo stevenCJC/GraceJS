@@ -1,12 +1,17 @@
-define(['../core','../compose'], function(G,Compose) {
+define(['../core','../compose','oop/baseClass'], function(G,Compose,baseClass) {
 	//新组装一个插件
-	function makeWidget(path,cons,behavior,proto){
+	function makeWidget(path,func,behavior,proto){
 		
 		var root=this;
 		
-		function Widget(){
+		function Widget(p){
 			
-			cons.apply(this,arguments);
+			if(this.INHERIT){
+				var base=this.base=new this.widget[this.INHERIT](p);
+				for(var x in base)if(base.hasOwnProperty(x))this[x]=base[x];
+			}
+			
+			func.call(this,p);
 			//初始化处理阶段
 			for(var x in behavior) if(x!='init'){//循环各种行为的处理
 				var f=G.extend[proto.TYPE+'/behavior'][x]
@@ -18,9 +23,17 @@ define(['../core','../compose'], function(G,Compose) {
 			//执行初始化
 			var init=behavior.init;
 			if(proto.TYPE=='page') G.extend[proto.TYPE+'/behavior']['init'][0].call(this,path,behavior['init'],root);
+			
 		}
 		
 		proto.PATH=path;
+		
+		if(baseClass.path){
+			proto[baseClass.type]=baseClass.path;
+			if(baseClass.type=='REBUILT') proto.baseProto=G.chips[baseClass.path].proto;
+			baseClass.path=null;
+		}
+		
 		var extend=this.extend[proto.TYPE];//需要跟page分开扩展
 		//对widget 和page的内部方法扩展
 		for(var x in extend) proto[x]=extend[x];
@@ -32,8 +45,10 @@ define(['../core','../compose'], function(G,Compose) {
 				if(f)f.call(this,path,behavior[x],proto);
 			}
 		}
+		
+		for(var x in proto)Widget.prototype[x]=proto[x];
 		//返回组装类
-		return Compose(Widget,proto);
+		return Widget;
 			
 	}
 	
