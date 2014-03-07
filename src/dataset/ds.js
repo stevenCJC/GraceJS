@@ -1,4 +1,4 @@
-define(['dataset/dsevent','function/getObjByPath','function/setObjByPath','function/delObjByPath'], function(dsevent,getObjByPath,setObjByPath,delObjByPath) {
+define(['dataset/dsevent','function/getObjByPath','function/setObjByPath','function/delObjByPath','function/JSONClone'], function(dsevent,getObjByPath,setObjByPath,delObjByPath,JSONClone) {
 	
 	//数据树节点定义
 	function DS(path,ds){
@@ -6,15 +6,15 @@ define(['dataset/dsevent','function/getObjByPath','function/setObjByPath','funct
 		if(path.lastIndexOf('/')==path.length-1) path=path.substr(0,path.length-1);
 		this.PATH=path;
 		//返回数据树相应的数据节点
-		this._dataset_=getObjByPath(path,ds);
+		this.dataset=getObjByPath(path,ds);
 	}
 	DS.prototype={
 		
 		//应该具备解析字符串值作为数据来源的功能，如 dom:#id.val,DS:path/path/Count
 		get:function(path){
 			if(path){
-				return getObjByPath(path,this._dataset_);
-			}else return this._dataset_;
+				return getObjByPath(path,this.dataset);
+			}else return this.dataset;
 		},
 		
 		
@@ -53,7 +53,7 @@ define(['dataset/dsevent','function/getObjByPath','function/setObjByPath','funct
 			var src = getObjByPath(path, this.dataset),
 			oldValue = JSONClone(src);
 
-			var event = src ? 'update' : 'create';
+			var event = typeof src!='undefined' ? 'update' : 'create';
 
 			newValue = setObjByPath(path, this.dataset, newValue, 1);
 

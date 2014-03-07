@@ -4,36 +4,21 @@
         //path		数据路径
         //obj		基础对象
         //create	是否进行创建路径，如果否，返回null
-        function getObjByPath(path, obj, create) {
+        //需考虑末尾/的情况
+        function getObjByPath(path, obj) {
             path = path.replace(/(^\s*)|(\s*$)/g, "");
             var tmp;
             if (path.indexOf("/") > -1) {
                 path = path.split("/");
                 var x;
                 while (x = path.shift()) {
-                    if (typeof obj[x] != "undefined") {
+                    if (typeof obj[x] == "array" || typeof obj[x] == "object") {
                         obj = obj[x];
-                        if (path.length > 0 && typeof obj != "object") throw new Error("The " + x + " related to the node of Object is not an Object type");
-                    } else if (create) {
-                        //如果子路径元素不存在，并且需要创建
-                        if (path.length) {
-                            //路径中遇到undefined
-                            obj = obj[x] = {};
-                        } else {
-                            //终端
-                            obj[x] = {};
-                            //创建路径
-                            return obj[x];
-                        }
+                        if (path.length > 0 && typeof obj != "object" && typeof obj[x] != "array") return;
                     } else return;
                 }
                 return obj;
-            } else if (typeof obj[path] != "undefined") {
-                return obj[path];
-            } else if (create) {
-                obj[path] = {};
-                return obj[path];
-            } else return;
+            } else return obj[path];
         }
         function Mediator() {
             this.channels = {};
@@ -52,10 +37,14 @@
             },
             subscribe: function(channel, callback) {
                 //根据路径生成对象树
-                var cn = getObjByPath(channel, this.channels, 1);
-                cn = cn.channels || (cn.channels = []);
-                //将方法加入到监听数组
-                cn.push(callback);
+                var cn = getObjByPath(channel, this.channels);
+                if (cn) {
+                    cn = cn.channels || (cn.channels = []);
+                    //将方法加入到监听数组
+                    cn.push(callback);
+                } else setObjByPath(channel, this.channels, {
+                    channels: [ callback ]
+                }, 1);
             }
         };
         function DSEvent() {
@@ -73,8 +62,13 @@
         DSEvent.prototype = {
             constructor: DSEvent,
             add: function(path, event, namespace, callback) {
-                if (arguments.length == 3) {
+                path = path.replace(/\s/gi, "");
+                if (typeof namespace == "function") {
                     callback = namespace;
+                    namespace = "none";
+                } else if (typeof event == "function") {
+                    callback = event;
+                    event = "all";
                     namespace = "none";
                 }
                 var hs = this.handle[path] = this.handle[path] || {};
@@ -84,301 +78,186 @@
             },
             //删除委托事件
             del: function(path, event, namespace) {
-                if (arguments.length == 2) {
-                    namespace = "none";
-                } else if (arguments.length == 1) {
+                path = path.replace(/\s/gi, "");
+                if (!event && !namespace) {
                     namespace = "none";
                     event = "all";
+                } else if (!namespace) {
+                    namespace = "none";
                 }
                 var hs = this.handle[path];
                 if (hs) {
                     if (event == "all") if (namespace == "none") delete this.handle[path]; else for (var x in hs) {
                         delete hs[x][namespace];
-                    } else if (namespace == "none") delete hs[event]; else hs[event] && delete hs[event][namespace];
+                    } else {
+                        if (namespace == "none") {
+                            delete hs[event];
+                        } else {
+                            if (hs[event]) delete hs[event][namespace];
+                        }
+                    }
                 }
             },
-            trigger: function(path, event, namespace) {
-                path = path.replace(/\s/gi, "");
-                if (arguments.length == 2) {
-                    namespace = "none";
-                } else if (arguments.length == 1) {
+            trigger: function(e) {
+                var path = e.path.replace(/\s/gi, ""), event = e.event, namespace = e.namespace;
+                if (!namespace && !event) {
                     namespace = "none";
                     event = "all";
+                } else if (!namespace) {
+                    namespace = "none";
                 }
-                if (path.lastIndexOf("/") == path.length - 1) {
-                    _trigger(this.handle, path, event, namespace);
-                } else {
-                    var p = path.split("/");
-                    while (p.length) {
-                        _trigger(this.handle, p.join("/"), event, namespace);
-                        p.pop();
+                var isExtend = path.lastIndexOf("/") == path.length - 1;
+                if (isExtend) {
+                    e.currentPath = path;
+                    e.handle = this.handle[path];
+                    if (e.handle) _trigger(e);
+                }
+                var p = path.split("/");
+                if (isExtend) p.pop();
+                while (p.length) {
+                    e.currentPath = p.join("/");
+                    e.handle = this.handle[e.currentPath];
+                    if (e.handle) _trigger(e);
+                    p.pop();
+                    if (p.length) {
+                        e.currentPath = p.join("/") + "/";
+                        e.handle = this.handle[e.currentPath];
+                        if (e.handle) _trigger(e);
                     }
                 }
             }
         };
-        function _trigger(handles, path, event, namespace) {
-            var hs = handles[path];
+        function _trigger(e) {
+            var handles = e.handle, path = e.path, event = e.event, namespace = e.namespace;
             var es, ns, x, y;
-            if (hs) {
-                if (event == "all") if (namespace == "none") {
-                    for (y in hs) if (ns = hs[y]) for (x in ns) ns[x].forEach(function(fn) {
-                        fn(path, event);
-                    });
+            if (handles) {
+                if (event == "all") {
+                    //all事件不会引起其他事件的触发
+                    if (namespace == "none") {
+                        if (ns = handles["all"]) for (x in ns) ns[x].forEach(function(fn) {
+                            fn(path);
+                        });
+                    } else {
+                        (ns = handles["all"]) && ns[namespace] && ns[namespace].forEach(function(fn) {
+                            fn(path, e);
+                        });
+                    }
                 } else {
-                    (ns = hs["delete"]) && ns[namespace] && ns[namespace].forEach(function(fn) {
-                        fn(path, event);
-                    });
-                } else if (namespace == "none") if (ns = hs[event]) for (x in ns) ns[x].forEach(function(fn) {
-                    fn(path, event);
-                }); else if (ns = hs[event]) ns[namespace] && ns[namespace].forEach(function(fn) {
-                    fn(path, event);
-                });
+                    if (namespace == "none") {
+                        if (ns = handles[event]) for (x in ns) ns[x].forEach(function(fn) {
+                            if (oldValue) fn(path, oldValue); else fn(path);
+                        });
+                        //任何其他事件的触发都会引起事件all触发
+                        if (ns = handles["all"]) for (x in ns) ns[x].forEach(function(fn) {
+                            fn(path, event);
+                        });
+                    } else {
+                        if (ns = handles[event]) ns[namespace] && ns[namespace].forEach(function(fn) {
+                            fn(path, event);
+                        });
+                        //任何其他事件的触发都会引起事件all触发
+                        if (ns = handles["all"]) ns[namespace] && ns[namespace].forEach(function(fn) {
+                            fn(path, event);
+                        });
+                    }
+                }
             }
         }
         var dsevent = new DSEvent();
+        //根据路径返回对象
+        //path		数据路径
+        //obj		基础对象
+        //create	是否进行创建路径，如果否，返回null
+        //需考虑末尾/的情况
+        function setObjByPath(path, obj, kvp, force) {
+            if (typeof obj != "object" && typeof obj != "array") throw new Error("The second arguments need to be an Object or an Array");
+            path = path.replace(/(^\s*)|(\s*$)/g, "");
+            path = path.split("/");
+            var x, tail;
+            //转到路径
+            while (x = path.shift()) {
+                if (force) obj = obj[x] = obj[x] || {}; else if (!obj[x] && path.length) return false;
+            }
+            //判断父元素
+            if (typeof obj == "array") obj.push(kvp); else if (typeof obj == "object") for (var x in kvp) obj[x] = kvp[x];
+            return obj;
+        }
+        //根据路径返回对象
+        //path		数据路径
+        //obj		基础对象
+        //create	是否进行创建路径，如果否，返回null
+        //需考虑末尾/的情况
+        function delObjByPath(path, obj) {
+            if (typeof obj != "object" && typeof obj != "array") throw new Error("The second arguments need to be an Object or an Array");
+            path = path.replace(/(^\s*)|(\s*$)/g, "");
+            path = path.split("/");
+            var p = path.pop();
+            var x, tail;
+            //转到路径
+            while (x = path.shift()) {
+                if (typeof obj == "object" || typeof obj == "array") obj = obj[x]; else if (!obj) return; else return;
+            }
+            var t = obj[p];
+            delete obj[p];
+            return t;
+        }
         //数据树节点定义
         function DS(path, ds) {
             //当前路径
+            if (path.lastIndexOf("/") == path.length - 1) path = path.substr(0, path.length - 1);
             this.PATH = path;
             //返回数据树相应的数据节点
-            this._dataset_ = getObjByPath(path, ds, 1);
+            this._dataset_ = getObjByPath(path, ds);
         }
         DS.prototype = {
             //应该具备解析字符串值作为数据来源的功能，如 dom:#id.val,DS:path/path/Count
             get: function(path) {
-                path = path.replace(/\s/gi, "");
                 if (path) {
-                    if (path.indexOf("/") > -1) return getObjByPath(path, this._dataset_); else return this._dataset_[path];
+                    return getObjByPath(path, this._dataset_);
                 } else return this._dataset_;
             },
-            //这里会引起update或create事件的触发
-            set: function(path, value) {
-                var obj;
-                if (value.constructor == Object) {
-                    //如果值为对象，只需要扩展源对象即可
-                    if (path.indexOf("/") > -1) obj = getObjByPath(path, this._dataset_, 1); else obj = this._dataset_[path];
-                    for (var x in value) if (value.hasOwnProperty(x)) obj[path] = value[x];
-                } else {
-                    //如果值不为对象，则需要找到目标对象所在的父对象
-                    //如果path是多个节点
-                    if (path.indexOf("/") > -1) {
-                        path = path.replace(/\s/gi, "").split("/");
-                        var key = path.pop();
-                        //对应的键
-                        //返回父对象
-                        if (path.length > 1) obj = getObjByPath(path.join("/"), this._dataset_, 1); else if (path.length == 1) obj = this._dataset_[path[0]];
-                    } else obj = this._dataset_;
-                    obj[path] = value;
-                }
+            trigger: function(path, event) {
+                if (!event) return;
+                var ev = event.split("."), namespace;
+                event = ev.shift();
+                if (ev.length) namespace = ev.join(".");
+                dsevent.trigger({
+                    path: this.PATH + "/" + path,
+                    event: event,
+                    namespace: namespace || "none"
+                });
             },
-            //这里可能会引起delete事件的触发
+            on: function(path, event, namespace, callback) {
+                dsevent.add(this.PATH + "/" + path, event, namespace, callback);
+            },
+            off: function(path, event, namespace) {
+                dsevent.del(this.PATH + "/" + path, event, namespace);
+            },
             "delete": function(path) {
-                var srcPath = this.PATH + "/" + path;
-                path = path.replace(/\s/gi, "").split("/");
-                var p = path.pop();
-                path = path.join("/");
-                if (path) {
-                    if (path.indexOf("/") > -1) {
-                        delete getObjByPath(path, this._dataset_)[p];
-                        event(this.handlers[srcPath], srcPath);
-                    } else {
-                        delete this._dataset_[path][p];
-                    }
-                } else {
-                    delete this._dataset_[p];
-                }
-                function event(h, path) {
-                    if (h) {
-                        for (var x in h) {
-                            if (x.indexOf("delete") == 0 || x.indexOf("all") == 0) {
-                                h[x]();
-                            }
-                        }
-                    }
-                }
+                var src = delObjByPath(path, this.dataset), oldValue = JSONClone(src);
+                dsevent.trigger({
+                    path: this.PATH + "/" + path,
+                    event: "delete",
+                    namespace: "none",
+                    oldValue: oldValue
+                });
             },
-            // 提供绑定事件类型有 update delete create all
-            // 这里需要支持末尾为/的绑定，绑定指向末尾的所有数据包括其各级子数据
-            // 事件触发要伴随变化前数据和变化后数据
-            // 需要支持命名空间
-            bind: function(path, event, handlers) {
-                if (path.constructor == Function) {
-                    //如果参数只有一个函数，则对当前路径进行绑定
-                    callback = path;
-                    path = this.PATH;
-                    event = "all";
-                } else if (event.constructor == Function) {
-                    //如果第二个参数为函数
-                    callback = event;
-                    //如果path为事件名称，则使用当前PATH，以及path作为event
-                    //.后面作为事件命名空间
-                    if ("|update|delete|create|".indexOf("|" + path.split(".")[0] + "|") > -1) {
-                        event = path;
-                        path = this.PATH;
-                    } else {
-                        //否则认为path参数不为event
-                        event = "all";
-                        path = this.PATH + "/" + path;
-                    }
-                }
-                for (var x in handlers) {
-                    //这里应该使用时间管理类进行管理
-                    var h = this.handlers[path] = this.handlers[path] || {};
-                    h = h[event] = h[event] || [];
-                    h.push(handlers);
-                }
-            },
-            //需要事件管理类
-            //删除数据事件绑定  		//  采用dom事件委托方式
-            unbind: function(path, event) {
-                //.后面作为事件命名空间
-                if ("|update|delete|create|".indexOf("|" + path.split(".")[0] + "|") > -1) {
-                    event = path;
-                    path = this.PATH;
-                } else {
-                    event = "all";
-                    path = this.PATH + "/" + path;
-                }
-                if (event == "all") {
-                    delete this.handlers[path];
-                } else {
-                    var h = this.handlers[path];
-                    for (var x in h) if (x.indexOf(event) == 0) delete h[x];
-                }
-            },
-            //Dataset事件触发
-            trigger: function(path, type, newData, oldData) {}
-        };
-        function DSEvent() {
-            this.handle = {
-                //仅当前节点的更新会触发事件
-                "path1/path2": {
-                    all: {}
-                },
-                //关联事件，关联所有子节点的更新
-                "path1/path2/": {
-                    "delete": {}
-                }
-            };
-        }
-        DSEvent.prototype = {
-            constructor: DSEvent,
-            add: function(path, event, namespace, callback) {
-                if (arguments.length == 3) {
-                    callback = namespace;
-                    namespace = "none";
-                }
-                var hs = this.handle[path] = this.handle[path] || {};
-                var ev = hs[event] || {};
-                var ns = ev[namespace] || [];
-                ns.push(callback);
-            },
-            //删除委托事件
-            del: function(path, event, namespace) {
-                if (arguments.length == 2) {
-                    namespace = "none";
-                } else if (arguments.length == 1) {
-                    namespace = "none";
-                    event = "all";
-                }
-                var hs = this.handle[path];
-                if (hs) {
-                    if (event == "all") if (namespace == "none") delete this.handle[path]; else for (var x in hs) {
-                        delete hs[x][namespace];
-                    } else if (namespace == "none") delete hs[event]; else hs[event] && delete hs[event][namespace];
-                }
-            },
-            trigger: function(path, event, namespace) {
-                path = path.replace(/\s/gi, "");
-                if (arguments.length == 2) {
-                    namespace = "none";
-                } else if (arguments.length == 1) {
-                    namespace = "none";
-                    event = "all";
-                }
-                if (path.lastIndexOf("/") == path.length - 1) {
-                    _trigger(this.handle, path, event, namespace);
-                } else {
-                    var p = path.split("/");
-                    while (p.length) {
-                        _trigger(this.handle, p.join("/"), event, namespace);
-                        p.pop();
-                    }
-                }
-            }
-        };
-        function _trigger(handles, path, event, namespace) {
-            var hs = handles[path];
-            var es, ns, x, y;
-            if (hs) {
-                if (event == "all") if (namespace == "none") {
-                    for (y in hs) if (ns = hs[y]) for (x in ns) ns[x].forEach(function(fn) {
-                        fn(path, event);
-                    });
-                } else {
-                    (ns = hs["delete"]) && ns[namespace] && ns[namespace].forEach(function(fn) {
-                        fn(path, event);
-                    });
-                } else if (namespace == "none") if (ns = hs[event]) for (x in ns) ns[x].forEach(function(fn) {
-                    fn(path, event);
-                }); else if (ns = hs[event]) ns[namespace] && ns[namespace].forEach(function(fn) {
-                    fn(path, event);
+            set: function(path, newValue) {
+                var src = getObjByPath(path, this.dataset), oldValue = JSONClone(src);
+                var event = src ? "update" : "create";
+                newValue = setObjByPath(path, this.dataset, newValue, 1);
+                dsevent.trigger({
+                    path: this.PATH + "/" + path,
+                    event: event,
+                    namespace: "none",
+                    newValue: newValue,
+                    oldValue: oldValue
                 });
             }
-        }
-        var dsevent = new DSEvent();
+        };
         //深克隆函数
-        function deepClone(item) {
-            if (!item) {
-                return item;
-            }
-            // null, undefined values check 
-            var types = [ Number, String, Boolean ], result;
-            // normalizing primitives if someone did new String('aaa'), or new Number('444');    
-            //一些通过new方式建立的东东可能会类型发生变化，我们在这里要做一下正常化处理 
-            //比如new String('aaa'), or new Number('444') 
-            types.forEach(function(type) {
-                if (item instanceof type) {
-                    result = type(item);
-                }
-            });
-            if (typeof result == "undefined") {
-                if (Object.prototype.toString.call(item) === "[object Array]") {
-                    result = [];
-                    item.forEach(function(child, index, array) {
-                        result[index] = deepClone(child);
-                    });
-                } else if (typeof item == "object") {
-                    // testign that this is DOM 
-                    //如果是dom对象，那么用自带的cloneNode处理 
-                    if (item.nodeType && typeof item.cloneNode == "function") {
-                        var result = item.cloneNode(true);
-                    } else if (!item.prototype) {
-                        // check that this is a literal 
-                        // it is an object literal       
-                        //如果是个对象迭代的话，我们可以用for in 迭代来赋值 
-                        result = {};
-                        for (var i in item) {
-                            result[i] = deepClone(item[i]);
-                        }
-                    } else {
-                        // depending what you would like here, 
-                        // just keep the reference, or create new object 
-                        //这里解决的是带构造函数的情况，这里要看你想怎么复制了，深得话，去掉那个false && ，浅的话，维持原有的引用，                 
-                        //但是我不建议你去new一个构造函数来进行深复制，具体原因下面会解释 
-                        if (false && item.constructor) {
-                            // would not advice to do that, reason? Read below 
-                            //朕不建议你去new它的构造函数 
-                            result = new item.constructor();
-                        } else {
-                            result = item;
-                        }
-                    }
-                } else {
-                    result = item;
-                }
-            }
-            return result;
+        function JSONClone(item) {
+            return JSON.parse(JSON.stringify(item));
         }
         function DataSet() {
             //数据岛的数据树
@@ -392,17 +271,9 @@
             //that:	数据源对象
             initData: function(path, ds) {
                 if (ds) {
-                    ds = deepClone(ds);
-                    //深克隆
-                    var dso = getObjByPath(path, this.dataset, 1);
-                    //获得对象，强制生成
-                    if (ds.constructor == Array) {
-                        //如果是数组，说明对象是可以初始化多个实例，影响也有所区别，所以需要解析路径，此处应该把路径的解析独立处理
-                        dso[ds[0]] = ds[1];
-                    } else if (ds.constructor == Object) {
-                        //如果是对象，即只需初始化一个实例即可
-                        for (var x in ds) if (ds.hasOwnProperty(x)) dso[x] = ds[x];
-                    }
+                    ds = JSONClone(ds);
+                    //JSON克隆
+                    return setObjByPath(path, this.dataset, ds, 1);
                 }
             },
             getDS: function(path) {
@@ -410,7 +281,44 @@
                 return new DS(path, this.dataset);
             },
             //Dataset事件触发
-            trigger: function(path, type, newData, oldData) {}
+            trigger: function(path, event) {
+                if (!event) return;
+                var ev = event.split("."), namespace;
+                event = ev.shift();
+                if (ev.length) namespace = ev.join(".");
+                dsevent.trigger({
+                    path: path,
+                    event: event,
+                    namespace: namespace || "none"
+                });
+            },
+            on: function(path, event, namespace, callback) {
+                dsevent.add(path, event, namespace, callback);
+            },
+            off: function(path, event, namespace) {
+                dsevent.del(path, event, namespace);
+            },
+            "delete": function(path) {
+                var src = delObjByPath(path, this.dataset), oldValue = JSONClone(src);
+                dsevent.trigger({
+                    path: path,
+                    event: "delete",
+                    namespace: "none",
+                    oldValue: oldValue
+                });
+            },
+            set: function(path, newValue) {
+                var src = getObjByPath(path, this.dataset), oldValue = JSONClone(src);
+                var event = src ? "update" : "create";
+                newValue = setObjByPath(path, this.dataset, newValue, 1);
+                dsevent.trigger({
+                    path: path,
+                    event: event,
+                    namespace: "none",
+                    newValue: newValue,
+                    oldValue: oldValue
+                });
+            }
         };
         function Router() {
             this.routers = {};
@@ -449,6 +357,8 @@
             this.page = {};
             //存储不同的扩展函数
             this.extend = {};
+            //存储原插件碎片
+            this.chips = {};
             //初始化数据岛对象
             this.DS = new DataSet();
             //初始化中介对象
@@ -531,278 +441,688 @@
                 })(x, data[x]);
             }
         });
+        // Save the previous value of the `_` variable.
+        var breaker = {};
+        // Save bytes in the minified (but not gzipped) version:
+        var ArrayProto = Array.prototype, ObjProto = Object.prototype, FuncProto = Function.prototype;
+        // Create quick reference variables for speed access to core prototypes.
+        var push = ArrayProto.push, slice = ArrayProto.slice, concat = ArrayProto.concat, toString = ObjProto.toString, hasOwnProperty = ObjProto.hasOwnProperty;
+        // All **ECMAScript 5** native function implementations that we hope to use
+        // are declared here.
+        var nativeForEach = ArrayProto.forEach, nativeMap = ArrayProto.map, nativeReduce = ArrayProto.reduce, nativeReduceRight = ArrayProto.reduceRight, nativeFilter = ArrayProto.filter, nativeEvery = ArrayProto.every, nativeSome = ArrayProto.some, nativeIndexOf = ArrayProto.indexOf, nativeLastIndexOf = ArrayProto.lastIndexOf, nativeIsArray = Array.isArray, nativeKeys = Object.keys, nativeBind = FuncProto.bind;
+        // Create a safe reference to the Underscore object for use below.
+        var _ = function(obj) {
+            if (obj instanceof _) return obj;
+            if (!(this instanceof _)) return new _(obj);
+            this._wrapped = obj;
+        };
+        // Collection Functions
+        // --------------------
+        // The cornerstone, an `each` implementation, aka `forEach`.
+        // Handles objects with the built-in `forEach`, arrays, and raw objects.
+        // Delegates to **ECMAScript 5**'s native `forEach` if available.
+        var each = _.each = function(obj, iterator, context) {
+            if (obj == null) return;
+            if (nativeForEach && obj.forEach === nativeForEach) {
+                obj.forEach(iterator, context);
+            } else if (obj.length === +obj.length) {
+                for (var i = 0, l = obj.length; i < l; i++) {
+                    if (iterator.call(context, obj[i], i, obj) === breaker) return;
+                }
+            } else {
+                for (var key in obj) {
+                    if (_.hasKey(obj, key)) {
+                        if (iterator.call(context, obj[key], key, obj) === breaker) return;
+                    }
+                }
+            }
+        };
+        // Return the results of applying the iterator to each element.
+        // Delegates to **ECMAScript 5**'s native `map` if available.
+        _.map = function(obj, iterator, context) {
+            var results = [];
+            if (obj == null) return results;
+            if (nativeMap && obj.map === nativeMap) return obj.map(iterator, context);
+            each(obj, function(value, index, list) {
+                results[results.length] = iterator.call(context, value, index, list);
+            });
+            return results;
+        };
+        // Return the first value which passes a truth test. Aliased as `detect`.
+        _.find = function(obj, iterator, context) {
+            var result;
+            any(obj, function(value, index, list) {
+                if (iterator.call(context, value, index, list)) {
+                    result = value;
+                    return true;
+                }
+            });
+            return result;
+        };
+        // Return all the elements that pass a truth test.
+        // Delegates to **ECMAScript 5**'s native `filter` if available.
+        // Aliased as `select`.
+        _.filter = function(obj, iterator, context) {
+            var results = [];
+            if (obj == null) return results;
+            if (nativeFilter && obj.filter === nativeFilter) return obj.filter(iterator, context);
+            each(obj, function(value, index, list) {
+                if (iterator.call(context, value, index, list)) results[results.length] = value;
+            });
+            return results;
+        };
+        // Determine if at least one element in the object matches a truth test.
+        // Delegates to **ECMAScript 5**'s native `some` if available.
+        // Aliased as `any`.
+        var any = function(obj, iterator, context) {
+            iterator || (iterator = _.identity);
+            var result = false;
+            if (obj == null) return result;
+            if (nativeSome && obj.some === nativeSome) return obj.some(iterator, context);
+            each(obj, function(value, index, list) {
+                if (result || (result = iterator.call(context, value, index, list))) return breaker;
+            });
+            return !!result;
+        };
+        // Determine if the array or object contains a given value (using `===`).
+        // Aliased as `include`.
+        _.contains = function(obj, target) {
+            if (obj == null) return false;
+            if (nativeIndexOf && obj.indexOf === nativeIndexOf) return obj.indexOf(target) != -1;
+            return any(obj, function(value) {
+                return value === target;
+            });
+        };
+        // Convenience version of a common use case of `map`: fetching a property.
+        _.pluck = function(obj, key) {
+            return _.map(obj, function(value) {
+                return value[key];
+            });
+        };
+        // Convenience version of a common use case of `filter`: selecting only objects
+        // containing specific `key:value` pairs.
+        _.where = function(obj, attrs, first) {
+            if (_.isEmpty(attrs)) return first ? null : [];
+            return _[first ? "find" : "filter"](obj, function(value) {
+                for (var key in attrs) {
+                    if (attrs[key] !== value[key]) return false;
+                }
+                return true;
+            });
+        };
+        // Convenience version of a common use case of `find`: getting the first object
+        // containing specific `key:value` pairs.
+        _.findWhere = function(obj, attrs) {
+            return _.where(obj, attrs, true);
+        };
+        // Return the number of elements in an object.
+        _.size = function(obj) {
+            if (obj == null) return 0;
+            return obj.length === +obj.length ? obj.length : _.keys(obj).length;
+        };
+        // Return a version of the array that does not contain the specified value(s).
+        _.without = function(array) {
+            return _.difference(array, slice.call(arguments, 1));
+        };
+        // Produce a duplicate-free version of the array. If the array has already
+        // been sorted, you have the option of using a faster algorithm.
+        // Aliased as `unique`.
+        _.uniq = _.unique = function(array, isSorted, iterator, context) {
+            if (_.isFunction(isSorted)) {
+                context = iterator;
+                iterator = isSorted;
+                isSorted = false;
+            }
+            var initial = iterator ? _.map(array, iterator, context) : array;
+            var results = [];
+            var seen = [];
+            each(initial, function(value, index) {
+                if (isSorted ? !index || seen[seen.length - 1] !== value : !_.contains(seen, value)) {
+                    seen.push(value);
+                    results.push(array[index]);
+                }
+            });
+            return results;
+        };
+        // Produce an array that contains the union: each distinct element from all of
+        // the passed-in arrays.
+        _.union = function() {
+            return _.uniq(concat.apply(ArrayProto, arguments));
+        };
+        // Take the difference between one array and a number of other arrays.
+        // Only the elements present in just the first array will remain.
+        _.difference = function(array) {
+            var rest = concat.apply(ArrayProto, slice.call(arguments, 1));
+            return _.filter(array, function(value) {
+                return !_.contains(rest, value);
+            });
+        };
+        // Delays a function for the given number of milliseconds, and then calls
+        // it with the arguments supplied.
+        _.delay = function(func, wait) {
+            var args = slice.call(arguments, 2);
+            return setTimeout(function() {
+                return func(args);
+            }, wait);
+        };
+        // Defers a function, scheduling it to run after the current call stack has
+        // cleared.
+        _.defer = function(func) {
+            return _.delay.apply(_, [ func, 1 ].concat(slice.call(arguments, 1)));
+        };
+        // Returns a function, that, when invoked, will only be triggered at most once
+        // during a given window of time.
+        _.throttle = function(func, wait) {
+            var context, args, timeout, result;
+            var previous = 0;
+            var later = function() {
+                previous = new Date();
+                timeout = null;
+                result = func.apply(context, args);
+            };
+            return function() {
+                var now = new Date();
+                var remaining = wait - (now - previous);
+                context = this;
+                args = arguments;
+                if (remaining <= 0) {
+                    clearTimeout(timeout);
+                    timeout = null;
+                    previous = now;
+                    result = func.apply(context, args);
+                } else if (!timeout) {
+                    timeout = setTimeout(later, remaining);
+                }
+                return result;
+            };
+        };
+        // Returns a function, that, as long as it continues to be invoked, will not
+        // be triggered. The function will be called after it stops being called for
+        // N milliseconds. If `immediate` is passed, trigger the function on the
+        // leading edge, instead of the trailing.
+        _.debounce = function(func, wait, immediate) {
+            var timeout, result;
+            return function() {
+                var context = this, args = arguments;
+                var later = function() {
+                    timeout = null;
+                    if (!immediate) result = func.apply(context, args);
+                };
+                var callNow = immediate && !timeout;
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+                if (callNow) result = func.apply(context, args);
+                return result;
+            };
+        };
+        // Returns a function that will be executed at most one time, no matter how
+        // often you call it. Useful for lazy initialization.
+        _.once = function(func) {
+            var ran = false, memo;
+            return function() {
+                if (ran) return memo;
+                ran = true;
+                memo = func.apply(this, arguments);
+                func = null;
+                return memo;
+            };
+        };
+        // Returns a function that will only be executed after being called N times.
+        _.after = function(times, func) {
+            if (times <= 0) return func();
+            return function() {
+                if (--times < 1) {
+                    return func.apply(this, arguments);
+                }
+            };
+        };
+        // Object Functions
+        // ----------------
+        // Retrieve the names of an object's properties.
+        // Delegates to **ECMAScript 5**'s native `Object.keys`
+        _.keys = nativeKeys || function(obj) {
+            if (obj !== Object(obj)) throw new TypeError("Invalid object");
+            var keys = [];
+            for (var key in obj) if (_.hasKey(obj, key)) keys[keys.length] = key;
+            return keys;
+        };
+        // Retrieve the values of an object's properties.
+        _.values = function(obj) {
+            var values = [];
+            for (var key in obj) if (_.hasKey(obj, key)) values.push(obj[key]);
+            return values;
+        };
+        // Extend a given object with all the properties in passed-in object(s).
+        _.extend = function(obj) {
+            each(slice.call(arguments, 1), function(source) {
+                if (source) {
+                    for (var prop in source) {
+                        obj[prop] = source[prop];
+                    }
+                }
+            });
+            return obj;
+        };
+        // Return a copy of the object only containing the whitelisted properties.
+        _.pick = function(obj) {
+            var copy = {};
+            var keys = concat.apply(ArrayProto, slice.call(arguments, 1));
+            each(keys, function(key) {
+                if (key in obj) copy[key] = obj[key];
+            });
+            return copy;
+        };
+        // Return a copy of the object without the blacklisted properties.
+        _.omit = function(obj) {
+            var copy = {};
+            var keys = concat.apply(ArrayProto, slice.call(arguments, 1));
+            for (var key in obj) {
+                if (!_.contains(keys, key)) copy[key] = obj[key];
+            }
+            return copy;
+        };
+        // Create a (shallow-cloned) duplicate of an object.
+        _.clone = function(obj) {
+            if (!_.isObject(obj)) return obj;
+            return _.isArray(obj) ? obj.slice() : _.extend({}, obj);
+        };
+        // Invokes interceptor with the obj, and then returns obj.
+        // The primary purpose of this method is to "tap into" a method chain, in
+        // order to perform operations on intermediate results within the chain.
+        _.tap = function(obj, interceptor) {
+            interceptor(obj);
+            return obj;
+        };
+        // Is a given array, string, or object empty?
+        // An "empty" object has no enumerable own-properties.
+        _.isEmpty = function(obj) {
+            if (obj == null) return true;
+            if (_.isArray(obj) || _.isString(obj)) return obj.length === 0;
+            for (var key in obj) if (_.hasKey(obj, key)) return false;
+            return true;
+        };
+        // Is a given value a DOM element?
+        _.isElement = function(obj) {
+            return !!(obj && obj.nodeType === 1);
+        };
+        // Is a given value an array?
+        // Delegates to ECMA5's native Array.isArray
+        _.isArray = nativeIsArray || function(obj) {
+            return toString.call(obj) == "[object Array]";
+        };
+        // Is a given variable an object?
+        _.isObject = function(obj) {
+            return obj === Object(obj);
+        };
+        // Add some isType methods: isArguments, isFunction, isString, isNumber, isDate, isRegExp.
+        each([ "Arguments", "Function", "String", "Number", "Date", "RegExp" ], function(name) {
+            _["is" + name] = function(obj) {
+                return toString.call(obj) == "[object " + name + "]";
+            };
+        });
+        // Define a fallback version of the method in browsers (ahem, IE), where
+        // there isn't any inspectable "Arguments" type.
+        if (!_.isArguments(arguments)) {
+            _.isArguments = function(obj) {
+                return !!(obj && _.hasKey(obj, "callee"));
+            };
+        }
+        // Optimize `isFunction` if appropriate.
+        if (typeof /./ !== "function") {
+            _.isFunction = function(obj) {
+                return typeof obj === "function";
+            };
+        }
+        // Is a given object a finite number?
+        _.isFinite = function(obj) {
+            return isFinite(obj) && !isNaN(parseFloat(obj));
+        };
+        // Is the given value `NaN`? (NaN is the only number which does not equal itself).
+        _.isNaN = function(obj) {
+            return _.isNumber(obj) && obj != +obj;
+        };
+        // Is a given value a boolean?
+        _.isBoolean = function(obj) {
+            return obj === true || obj === false || toString.call(obj) == "[object Boolean]";
+        };
+        // Is a given value equal to null?
+        _.isNull = function(obj) {
+            return obj === null;
+        };
+        // Is a given variable undefined?
+        _.isUndefined = function(obj) {
+            return obj === void 0;
+        };
+        // Shortcut function for checking if an object has a given property directly
+        // on itself (in other words, not on a prototype).
+        _.hasKey = function(obj, key) {
+            return hasOwnProperty.call(obj, key);
+        };
+        // Return a random integer between min and max (inclusive).
+        _.random = function(min, max) {
+            if (max == null) {
+                max = min;
+                min = 0;
+            }
+            return min + Math.floor(Math.random() * (max - min + 1));
+        };
+        // Generate a unique integer id (unique within the entire client session).
+        // Useful for temporary DOM ids.
+        var idCounter = 0;
+        _.uniqueId = function(prefix) {
+            var id = ++idCounter + "";
+            return prefix ? prefix + id : id;
+        };
         /*
  * ComposeJS, object composition for JavaScript, featuring
 * JavaScript-style prototype inheritance and composition, multiple inheritance, 
 * mixin and traits-inspired conflict resolution and composition  
+
+
+	考虑把生成的对象存储起来
+
+
+
+
+
  */
-        // function for creating instances from a prototype
-        function Create() {}
-        var delegate = Object.create ? function(proto) {
-            return Object.create(typeof proto == "function" ? proto.prototype : proto || Object.prototype);
-        } : function(proto) {
-            Create.prototype = typeof proto == "function" ? proto.prototype : proto;
-            var instance = new Create();
-            Create.prototype = null;
-            return instance;
-        };
-        function validArg(arg) {
-            if (!arg) {
-                throw new Error("Compose arguments must be functions or objects");
+        (function(define) {
+            // function for creating instances from a prototype
+            function Create() {}
+            var delegate = Object.create ? function(proto) {
+                return Object.create(typeof proto == "function" ? proto.prototype : proto || Object.prototype);
+            } : function(proto) {
+                Create.prototype = typeof proto == "function" ? proto.prototype : proto;
+                var instance = new Create();
+                Create.prototype = null;
+                return instance;
+            };
+            function validArg(arg) {
+                if (!arg) {
+                    throw new Error("Compose arguments must be functions or objects");
+                }
+                return arg;
             }
-            return arg;
-        }
-        // this does the work of combining mixins/prototypes
-        function mixin(instance, args, i) {
-            // use prototype inheritance for first arg
-            var value, argsLength = args.length;
-            for (;i < argsLength; i++) {
-                var arg = args[i];
-                if (typeof arg == "function") {
-                    // the arg is a function, use the prototype for the properties
-                    var prototype = arg.prototype;
-                    for (var key in prototype) {
-                        value = prototype[key];
-                        var own = prototype.hasOwnProperty(key);
-                        if (typeof value == "function" && key in instance && value !== instance[key]) {
-                            var existing = instance[key];
-                            if (value == required) {
-                                // it is a required value, and we have satisfied it
-                                value = existing;
-                            } else if (!own) {
-                                // if it is own property, it is considered an explicit override 
-                                // TODO: make faster calls on this, perhaps passing indices and caching
-                                if (isInMethodChain(value, key, getBases([].slice.call(args, 0, i), true))) {
-                                    // this value is in the existing method's override chain, we can use the existing method
+            // this does the work of combining mixins/prototypes
+            // 混合原型
+            function mixin(instance, args, i) {
+                // use prototype inheritance for first arg
+                var value, argsLength = args.length;
+                for (;i < argsLength; i++) {
+                    var arg = args[i];
+                    if (typeof arg == "function") {
+                        // the arg is a function, use the prototype for the properties
+                        var prototype = arg.prototype;
+                        for (var key in prototype) {
+                            value = prototype[key];
+                            var own = prototype.hasOwnProperty(key);
+                            if (typeof value == "function" && key in instance && value !== instance[key]) {
+                                var existing = instance[key];
+                                if (value == required) {
+                                    // it is a required value, and we have satisfied it
                                     value = existing;
-                                } else if (!isInMethodChain(existing, key, getBases([ arg ], true))) {
-                                    // the existing method is not in the current override chain, so we are left with a conflict
-                                    console.error("Conflicted method " + key + ", final composer must explicitly override with correct method.");
+                                } else if (!own) {
+                                    // if it is own property, it is considered an explicit override 
+                                    // TODO: make faster calls on this, perhaps passing indices and caching
+                                    // 对比前面的被继承的对象是否含有相同的prototype方法，
+                                    if (isInMethodChain(value, key, getBases([].slice.call(args, 0, i), true))) {
+                                        // this value is in the existing method's override chain, we can use the existing method
+                                        value = existing;
+                                    } else if (!isInMethodChain(existing, key, getBases([ arg ], true))) {
+                                        // the existing method is not in the current override chain, so we are left with a conflict
+                                        console.error("Conflicted method " + key + ", final composer must explicitly override with correct method.");
+                                    }
                                 }
                             }
-                        }
-                        if (value && value.install && own && !isInMethodChain(existing, key, getBases([ arg ], true))) {
-                            // apply modifier
-                            value.install.call(instance, key);
-                        } else {
-                            instance[key] = value;
-                        }
-                    }
-                } else {
-                    // it is an object, copy properties, looking for modifiers
-                    for (var key in validArg(arg)) {
-                        var value = arg[key];
-                        if (typeof value == "function") {
-                            if (value.install) {
+                            if (value && value.install && own && !isInMethodChain(existing, key, getBases([ arg ], true))) {
                                 // apply modifier
                                 value.install.call(instance, key);
-                                continue;
-                            }
-                            if (key in instance) {
-                                if (value == required) {
-                                    // required requirement met
-                                    continue;
-                                }
+                            } else {
+                                instance[key] = value;
                             }
                         }
-                        // add it to the instance
-                        instance[key] = value;
-                    }
-                }
-            }
-            return instance;
-        }
-        // allow for override (by es5 module)
-        Compose._setMixin = function(newMixin) {
-            mixin = newMixin;
-        };
-        function isInMethodChain(method, name, prototypes) {
-            // searches for a method in the given prototype hierarchy 
-            for (var i = 0; i < prototypes.length; i++) {
-                var prototype = prototypes[i];
-                if (prototype[name] == method) {
-                    // found it
-                    return true;
-                }
-            }
-        }
-        // Decorator branding
-        function Decorator(install, direct) {
-            function Decorator() {
-                if (direct) {
-                    return direct.apply(this, arguments);
-                }
-                throw new Error("Decorator not applied");
-            }
-            Decorator.install = install;
-            return Decorator;
-        }
-        Compose.Decorator = Decorator;
-        // aspect applier 
-        function aspect(handler) {
-            return function(advice) {
-                return Decorator(function install(key) {
-                    var baseMethod = this[key];
-                    (advice = this[key] = baseMethod ? handler(this, baseMethod, advice) : advice).install = install;
-                }, advice);
-            };
-        }
-        // around advice, useful for calling super methods too
-        Compose.around = aspect(function(target, base, advice) {
-            return advice.call(target, base);
-        });
-        Compose.before = aspect(function(target, base, advice) {
-            return function() {
-                var results = advice.apply(this, arguments);
-                if (results !== stop) {
-                    return base.apply(this, results || arguments);
-                }
-            };
-        });
-        var stop = Compose.stop = {};
-        var undefined;
-        Compose.after = aspect(function(target, base, advice) {
-            return function() {
-                var results = base.apply(this, arguments);
-                var adviceResults = advice.apply(this, arguments);
-                return adviceResults === undefined ? results : adviceResults;
-            };
-        });
-        // rename Decorator for calling super methods
-        Compose.from = function(trait, fromKey) {
-            if (fromKey) {
-                return (typeof trait == "function" ? trait.prototype : trait)[fromKey];
-            }
-            return Decorator(function(key) {
-                if (!(this[key] = typeof trait == "string" ? this[trait] : (typeof trait == "function" ? trait.prototype : trait)[fromKey || key])) {
-                    throw new Error("Source method " + fromKey + " was not available to be renamed to " + key);
-                }
-            });
-        };
-        // Composes an instance
-        Compose.create = function(base) {
-            // create the instance
-            var instance = mixin(delegate(base), arguments, 1);
-            var argsLength = arguments.length;
-            // for go through the arguments and call the constructors (with no args)
-            for (var i = 0; i < argsLength; i++) {
-                var arg = arguments[i];
-                if (typeof arg == "function") {
-                    instance = arg.call(instance) || instance;
-                }
-            }
-            return instance;
-        };
-        // The required function, just throws an error if not overriden
-        function required() {
-            throw new Error("This method is required and no implementation has been provided");
-        }
-        Compose.required = required;
-        // get the value of |this| for direct function calls for this mode (strict in ES5)
-        function extend() {
-            var args = [ this ];
-            args.push.apply(args, arguments);
-            return Compose.apply(0, args);
-        }
-        // Compose a constructor
-        function Compose(base) {
-            var args = arguments;
-            var prototype = args.length < 2 && typeof args[0] != "function" ? args[0] : // if there is just a single argument object, just use that as the prototype 
-            mixin(delegate(validArg(base)), args, 1);
-            // normally create a delegate to start with			
-            function Constructor() {
-                var instance;
-                if (this instanceof Constructor) {
-                    // called with new operator, can proceed as is
-                    instance = this;
-                } else {
-                    // we allow for direct calls without a new operator, in this case we need to
-                    // create the instance ourself.
-                    Create.prototype = prototype;
-                    instance = new Create();
-                }
-                // call all the constructors with the given arguments
-                for (var i = 0; i < constructorsLength; i++) {
-                    var constructor = constructors[i];
-                    var result = constructor.apply(instance, arguments);
-                    if (typeof result == "object") {
-                        if (result instanceof Constructor) {
-                            instance = result;
-                        } else {
-                            for (var j in result) {
-                                if (result.hasOwnProperty(j)) {
-                                    instance[j] = result[j];
+                    } else {
+                        // it is an object, copy properties, looking for modifiers
+                        for (var key in validArg(arg)) {
+                            var value = arg[key];
+                            if (typeof value == "function") {
+                                if (value.install) {
+                                    // apply modifier
+                                    value.install.call(instance, key);
+                                    continue;
+                                }
+                                if (key in instance) {
+                                    if (value == required) {
+                                        // required requirement met
+                                        continue;
+                                    }
                                 }
                             }
+                            // add it to the instance
+                            instance[key] = value;
                         }
                     }
                 }
                 return instance;
             }
-            // create a function that can retrieve the bases (constructors or prototypes)
-            Constructor._getBases = function(prototype) {
-                return prototype ? prototypes : constructors;
+            // allow for override (by es5 module)
+            //重载混合原型的方法
+            Compose._setMixin = function(newMixin) {
+                mixin = newMixin;
             };
-            // now get the prototypes and the constructors
-            var constructors = getBases(args), constructorsLength = constructors.length;
-            if (typeof args[args.length - 1] == "object") {
-                args[args.length - 1] = prototype;
-            }
-            var prototypes = getBases(args, true);
-            Constructor.extend = extend;
-            if (!Compose.secure) {
-                prototype.constructor = Constructor;
-            }
-            Constructor.prototype = prototype;
-            return Constructor;
-        }
-        Compose.apply = function(thisObject, args) {
-            // apply to the target
-            // called with a target object, apply the supplied arguments as mixins to the target object
-            return thisObject ? mixin(thisObject, args, 0) : extend.apply.call(Compose, 0, args);
-        };
-        Compose.call = function(thisObject) {
-            // call() should correspond with apply behavior
-            return mixin(thisObject, arguments, 1);
-        };
-        function getBases(args, prototype) {
-            // this function registers a set of constructors for a class, eliminating duplicate
-            // constructors that may result from diamond construction for classes (B->A, C->A, D->B&C, then D() should only call A() once)
-            var bases = [];
-            function iterate(args, checkChildren) {
-                outer: for (var i = 0; i < args.length; i++) {
-                    var arg = args[i];
-                    var target = prototype && typeof arg == "function" ? arg.prototype : arg;
-                    if (prototype || typeof arg == "function") {
-                        var argGetBases = checkChildren && arg._getBases;
-                        if (argGetBases) {
-                            iterate(argGetBases(prototype));
-                        } else {
-                            for (var j = 0; j < bases.length; j++) {
-                                if (target == bases[j]) {
-                                    continue outer;
-                                }
-                            }
-                            bases.push(target);
-                        }
+            //检测是否在原型链里面
+            function isInMethodChain(method, name, prototypes) {
+                // searches for a method in the given prototype hierarchy 
+                for (var i = 0; i < prototypes.length; i++) {
+                    var prototype = prototypes[i];
+                    if (prototype[name] == method) {
+                        // found it
+                        return true;
                     }
                 }
             }
-            iterate(args, true);
-            return bases;
+            // Decorator branding
+            function Decorator(install, direct) {
+                function Decorator() {
+                    if (direct) {
+                        return direct.apply(this, arguments);
+                    }
+                    throw new Error("Decorator not applied");
+                }
+                Decorator.install = install;
+                return Decorator;
+            }
+            Compose.Decorator = Decorator;
+            // aspect applier 
+            function aspect(handler) {
+                return function(advice) {
+                    return Decorator(function install(key) {
+                        var baseMethod = this[key];
+                        (advice = this[key] = baseMethod ? handler(this, baseMethod, advice) : advice).install = install;
+                    }, advice);
+                };
+            }
+            // around advice, useful for calling super methods too
+            Compose.around = aspect(function(target, base, advice) {
+                return advice.call(target, base);
+            });
+            Compose.before = aspect(function(target, base, advice) {
+                return function() {
+                    var results = advice.apply(this, arguments);
+                    if (results !== stop) {
+                        return base.apply(this, results || arguments);
+                    }
+                };
+            });
+            var stop = Compose.stop = {};
+            var undefined;
+            Compose.after = aspect(function(target, base, advice) {
+                return function() {
+                    var results = base.apply(this, arguments);
+                    var adviceResults = advice.apply(this, arguments);
+                    return adviceResults === undefined ? results : adviceResults;
+                };
+            });
+            // rename Decorator for calling super methods
+            Compose.from = function(trait, fromKey) {
+                if (fromKey) {
+                    return (typeof trait == "function" ? trait.prototype : trait)[fromKey];
+                }
+                return Decorator(function(key) {
+                    if (!(this[key] = typeof trait == "string" ? this[trait] : (typeof trait == "function" ? trait.prototype : trait)[fromKey || key])) {
+                        throw new Error("Source method " + fromKey + " was not available to be renamed to " + key);
+                    }
+                });
+            };
+            // Composes an instance
+            Compose.create = function(base) {
+                // create the instance
+                var instance = mixin(delegate(base), arguments, 1);
+                var argsLength = arguments.length;
+                // for go through the arguments and call the constructors (with no args)
+                for (var i = 0; i < argsLength; i++) {
+                    var arg = arguments[i];
+                    if (typeof arg == "function") {
+                        instance = arg.call(instance) || instance;
+                    }
+                }
+                return instance;
+            };
+            // The required function, just throws an error if not overriden
+            function required() {
+                throw new Error("This method is required and no implementation has been provided");
+            }
+            Compose.required = required;
+            // get the value of |this| for direct function calls for this mode (strict in ES5)
+            //调用Compose实现扩展
+            function extend() {
+                var args = [ this ];
+                args.push.apply(args, arguments);
+                return Compose.apply(0, args);
+            }
+            // Compose a constructor
+            function Compose(base) {
+                var args = arguments;
+                var prototype = args.length < 2 && typeof args[0] != "function" ? args[0] : // if there is just a single argument object, just use that as the prototype 
+                mixin(delegate(validArg(base)), args, 1);
+                // normally create a delegate to start with			
+                //构造器，返回新对象，合并所有属性
+                function Constructor() {
+                    var instance;
+                    if (this instanceof Constructor) {
+                        // called with new operator, can proceed as is
+                        instance = this;
+                    } else {
+                        // we allow for direct calls without a new operator, in this case we need to
+                        // create the instance ourself.
+                        Create.prototype = prototype;
+                        instance = new Create();
+                    }
+                    // call all the constructors with the given arguments
+                    for (var i = 0; i < constructorsLength; i++) {
+                        //合并所有构造里面的属性
+                        var constructor = constructors[i];
+                        var result = constructor.apply(instance, arguments);
+                        //生成实例，以获得属性
+                        if (typeof result == "object") {
+                            if (result instanceof Constructor) {
+                                instance = result;
+                            } else {
+                                for (var j in result) {
+                                    if (result.hasOwnProperty(j)) {
+                                        instance[j] = result[j];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    return instance;
+                }
+                // create a function that can retrieve the bases (constructors or prototypes)
+                Constructor._getBases = function(prototype) {
+                    return prototype ? prototypes : constructors;
+                };
+                // now get the prototypes and the constructors
+                //返回所有构造器
+                var constructors = getBases(args), constructorsLength = constructors.length;
+                if (typeof args[args.length - 1] == "object") {
+                    args[args.length - 1] = prototype;
+                }
+                var prototypes = getBases(args, true);
+                Constructor.extend = extend;
+                if (!Compose.secure) {
+                    prototype.constructor = Constructor;
+                }
+                Constructor.prototype = prototype;
+                return Constructor;
+            }
+            Compose.apply = function(thisObject, args) {
+                // apply to the target
+                // called with a target object, apply the supplied arguments as mixins to the target object
+                return thisObject ? mixin(thisObject, args, 0) : extend.apply.call(Compose, 0, args);
+            };
+            Compose.call = function(thisObject) {
+                // call() should correspond with apply behavior
+                return mixin(thisObject, arguments, 1);
+            };
+            //返回所有继承的构造器
+            // 第二个参数是否返回原型链
+            function getBases(args, prototype) {
+                // this function registers a set of constructors for a class, eliminating duplicate
+                // constructors that may result from diamond construction for classes (B->A, C->A, D->B&C, then D() should only call A() once)
+                var bases = [];
+                function iterate(args, checkChildren) {
+                    outer: for (var i = 0; i < args.length; i++) {
+                        var arg = args[i];
+                        var target = prototype && typeof arg == "function" ? arg.prototype : arg;
+                        //如果此对象不是函数，而是其他对象类型，则跳进下面的循环检测，其方法作为原型方法
+                        if (prototype || typeof arg == "function") {
+                            var argGetBases = checkChildren && arg._getBases;
+                            //Constructor构造的类带有此方法，也作为一个标志
+                            if (argGetBases) {
+                                iterate(argGetBases(prototype));
+                            } else {
+                                for (var j = 0; j < bases.length; j++) {
+                                    if (target == bases[j]) {
+                                        //检测是否含有相同原型或构造器，有就不再push
+                                        continue outer;
+                                    }
+                                }
+                                bases.push(target);
+                            }
+                        }
+                    }
+                }
+                iterate(args, true);
+                return bases;
+            }
+            // returning the export of the module
+            return Compose;
+        });
+    })(typeof define != "undefined" ? define : // AMD/RequireJS format if available
+    function(deps, factory) {
+        if (typeof module != "undefined") {
+            module.exports = factory();
+        } else {
+            Compose = factory();
         }
-        // returning the export of the module
         //替换path里面的变量，如{id}
         function fixPath(path, obj) {
             return path.replace(/(^\s*)|(\s*$)/g, "").replace(/\{.*?\}/gi, function(m) {
                 return obj[m.replace(/\{|\}/gi, "")];
             });
         }
+        var baseClass = {};
         //新组装一个插件
-        function makeWidget(path, cons, behavior, proto) {
+        function makeWidget(path, func, behavior, proto) {
             var root = this;
-            function Widget() {
-                cons.apply(this, arguments);
+            function Widget(p) {
+                if (this.INHERIT) {
+                    var base = this.base = new G.widget[this.INHERIT](p);
+                    for (var x in base) if (base.hasOwnProperty(x)) this[x] = base[x];
+                }
+                func.call(this, p);
+                //初始化处理阶段
                 for (var x in behavior) if (x != "init") {
                     //循环各种行为的处理
                     var f = G.extend[proto.TYPE + "/behavior"][x];
@@ -816,11 +1136,17 @@
                 var init = behavior.init;
                 if (proto.TYPE == "page") G.extend[proto.TYPE + "/behavior"]["init"][0].call(this, path, behavior["init"], root);
             }
-            proto.PATH = path;
+            Widget.prototype.PATH = path;
+            if (baseClass.path) {
+                Widget.prototype[baseClass.type] = baseClass.path;
+                if (baseClass.type == "REBUILT") Widget.prototype.baseProto = G.chips[baseClass.path].proto;
+                baseClass.path = null;
+            }
             var extend = this.extend[proto.TYPE];
             //需要跟page分开扩展
             //对widget 和page的内部方法扩展
-            for (var x in extend) proto[x] = extend[x];
+            for (var x in extend) Widget.prototype[x] = extend[x];
+            //原型处理阶段，所有原型方法就绪
             for (var x in behavior) {
                 var f = G.extend[proto.TYPE + "/behavior"][x];
                 if (f) {
@@ -829,14 +1155,104 @@
                     if (f) f.call(this, path, behavior[x], proto);
                 }
             }
+            for (var x in proto) Widget.prototype[x] = proto[x];
             //返回组装类
-            return Compose(Widget, proto);
+            return Widget;
+        }
+        //深克隆函数
+        function deepClone(item) {
+            if (!item) {
+                return item;
+            }
+            // null, undefined values check 
+            var types = [ Number, String, Boolean ], result;
+            // normalizing primitives if someone did new String('aaa'), or new Number('444');    
+            //一些通过new方式建立的东东可能会类型发生变化，我们在这里要做一下正常化处理 
+            //比如new String('aaa'), or new Number('444') 
+            types.forEach(function(type) {
+                if (item instanceof type) {
+                    result = type(item);
+                }
+            });
+            if (typeof result == "undefined") {
+                if (Object.prototype.toString.call(item) === "[object Array]") {
+                    result = [];
+                    item.forEach(function(child, index, array) {
+                        result[index] = deepClone(child);
+                    });
+                } else if (typeof item == "object") {
+                    // testign that this is DOM 
+                    //如果是dom对象，那么用自带的cloneNode处理 
+                    if (item.nodeType && typeof item.cloneNode == "function") {
+                        var result = item.cloneNode(true);
+                    } else if (!item.prototype) {
+                        // check that this is a literal 
+                        // it is an object literal       
+                        //如果是个对象迭代的话，我们可以用for in 迭代来赋值 
+                        result = {};
+                        for (var i in item) {
+                            result[i] = deepClone(item[i]);
+                        }
+                    } else {
+                        // depending what you would like here, 
+                        // just keep the reference, or create new object 
+                        //这里解决的是带构造函数的情况，这里要看你想怎么复制了，深得话，去掉那个false && ，浅的话，维持原有的引用，                 
+                        //但是我不建议你去new一个构造函数来进行深复制，具体原因下面会解释 
+                        if (false && item.constructor) {
+                            // would not advice to do that, reason? Read below 
+                            //朕不建议你去new它的构造函数 
+                            result = new item.constructor();
+                        } else {
+                            result = item;
+                        }
+                    }
+                } else {
+                    result = item;
+                }
+            }
+            return result;
         }
         G.Extend("grace", {
-            Widget: function(path, cons, behavior, proto) {
+            Widget: function(path, func, behavior, proto) {
                 proto.TYPE = "widget";
                 //设置生成插件类别
-                this.widget[path] = makeWidget.call(this, path, cons, behavior, proto);
+                //需要存储各成分结构，提供复用
+                /*
+				1、行为只有覆盖，不提供向上指针
+				2、原型方法可提供向上原型指针
+				
+				复用分为两种模式：
+					1、重构---生成兄弟关系的新类；
+						a.覆盖base的构造函数，
+						b.可选择继承行为，覆盖行为，
+						c.覆盖原有原型方法，提供base向上原型指针
+						d.执行新的构造函数进行构造
+					2、继承---生成父子关系的新类；
+						a.执行父级构造函数进行初始构造，生成base向上对象指针；
+						b.选择继承行为，覆盖行为，
+						c.原型覆盖
+						d.执行新的构造函数进行构造
+				
+			*/
+                //继承，在这里实现各成分拷贝
+                if (baseClass.path) {
+                    var base = this.widget[baseClass.path];
+                    var chips = this.chips[baseClass.path];
+                    var options;
+                    if (baseClass.options == "*") options = Object.keys(G.extend["widget/behavior"]); else options = baseClass.options;
+                    var tmp = {};
+                    for (var i = 0, len = options.length; i < len; i++) tmp[options[i]] = _.extend({}, chips.behavior[options[i]], behavior[options[i]]);
+                    behavior = _.extend({}, behavior, tmp);
+                    //需要区别是否原生类，如果是原生类，需要继承prototype，如果不是原生类，只需要继承proto
+                    proto = _.extend({}, chips.proto, func.prototype, proto);
+                }
+                this.chips[path] = {
+                    path: path,
+                    func: func,
+                    behavior: behavior,
+                    proto: proto
+                };
+                this.widget[path] = makeWidget.call(this, path, func, behavior, proto);
             }
         });
         //widge page内置方法扩展

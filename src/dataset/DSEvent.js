@@ -1,4 +1,4 @@
-define([], function () {
+define(['function/JSONClone'], function (JSONClone) {
 
 	function DSEvent() {
 		this.handle = {
@@ -31,8 +31,8 @@ define([], function () {
 			}
 			var hs = this.handle[path] = this.handle[path] || {};
 
-			var ev = hs[event] || {};
-			var ns = ev[namespace] || [];
+			var ev = hs[event]=hs[event] || {};
+			var ns = ev[namespace]=ev[namespace] || [];
 			ns.push(callback);
 		},
 		//删除委托事件
@@ -100,7 +100,10 @@ define([], function () {
 
 	};
 	function _trigger(e) {
+		
 	var handles=e.handle, path=e.path, event=e.event, namespace=e.namespace;
+	e=JSONClone(e);
+	delete e['handle'];
 		var es,
 		ns,
 		x,
@@ -111,12 +114,11 @@ define([], function () {
 					if (ns = handles['all'])
 						for (x in ns)
 							ns[x].forEach(function (fn) {
-								fn(path);
+								fn(e);
 							});
 				} else {
 					(ns = handles['all']) && ns[namespace] && ns[namespace].forEach(function (fn) {
-						
-						fn(path, e);
+						fn(e);
 					});
 				}
 			} else {
@@ -124,26 +126,23 @@ define([], function () {
 					if (ns = handles[event])
 						for (x in ns)
 							ns[x].forEach(function (fn) {
-								if (oldValue)
-									fn(path, oldValue);
-								else
-									fn(path);
+								fn(e);
 							});
 					//任何其他事件的触发都会引起事件all触发
 					if (ns = handles['all'])
 						for (x in ns)
 							ns[x].forEach(function (fn) {
-								fn(path, event)
+								fn(e)
 							});
 				} else {
 					if (ns = handles[event])
 						ns[namespace] && ns[namespace].forEach(function (fn) {
-							fn(path, event)
+							fn(e)
 						});
 					//任何其他事件的触发都会引起事件all触发
 					if (ns = handles['all'])
 						ns[namespace] && ns[namespace].forEach(function (fn) {
-							fn(path, event)
+							fn(e)
 						});
 				}
 

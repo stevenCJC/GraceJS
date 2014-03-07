@@ -26,7 +26,13 @@ define(['grace','jquery','utils/chzn'],function(G,$){
 		},{
 			loadPage:function(s,options){},
 			_init:function(el,ds){
-					
+					var d=this.DS('header/'+this.id);
+					d.on('Count','update',function(e){
+						console.log(e);
+					})
+					G.DS.on('header/','update',function(e){
+						console.log(e);
+					})
 					if(!el.length) 
 						this.$('body').append('<br/><a id="'+this.id+'" href="#PLinit'+this.id+':'+this.id+'/init:OOOOOO?????">'+this.id+'</a><br/><a id="'+this.id+'" href="#PLinit'+this.id+':'+this.id+'/init:OOOOOO?????">'+this.id+'</a>');
 				},
@@ -36,7 +42,8 @@ define(['grace','jquery','utils/chzn'],function(G,$){
 			action:function(m){
 				var d=this.DS('header/'+this.id);
 				var c=parseInt(d.get('Count'));
-				d.set('Count',c+1);
+				//d.set('Count',c+1);
+				G.DS.set('header/'+this.id+'/',{Count:c+1})
 				this.$('#'+m).chznText(c+1);
 			}
 			

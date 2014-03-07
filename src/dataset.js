@@ -57,7 +57,7 @@ define(['./dataset/DS', './dataset/dsevent', './function/JSONClone', './function
 			var src = getObjByPath(path, this.dataset),
 			oldValue = JSONClone(src);
 
-			var event = src ? 'update' : 'create';
+			var event = typeof src!='undefined' ? 'update' : 'create';
 
 			newValue = setObjByPath(path, this.dataset, newValue, 1);
 
