@@ -1,4 +1,4 @@
-define(["./core"], function (G) {
+define([], function () {
 
 	/* AJAX functions */
 

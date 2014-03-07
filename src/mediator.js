@@ -17,10 +17,12 @@ define(['function/getObjByPath'], function(getObjByPath) {
 		},
 		subscribe:function(channel,callback){
 			//根据路径生成对象树
-			var cn=getObjByPath(channel,this.channels,1);
-			cn=cn.channels||(cn.channels=[]);
-			//将方法加入到监听数组
-			cn.push(callback);
+			var cn=getObjByPath(channel,this.channels);
+			if(cn){
+				cn=cn.channels||(cn.channels=[]);
+				//将方法加入到监听数组
+				cn.push(callback);
+			}else setObjByPath(channel,this.channels,{channels:[callback]},1);
 		},
 	}
 	return Mediator;

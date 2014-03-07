@@ -1,40 +1,75 @@
-define(['./dataset/DS','./dataset/DSEvent','./function/deepClone','./function/getObjByPath'], function(DS,DSEvent,deepClone,getObjByPath) {
-	
-	function DataSet(){
+define(['./dataset/DS', './dataset/dsevent', './function/JSONClone', './function/getObjByPath', './function/setObjByPath', './function/delObjByPath'], function (DS, dsevent, JSONClone, getObjByPath, setObjByPath, delObjByPath) {
+
+	function DataSet() {
 		//数据岛的数据树
-		this.dataset={};
+		this.dataset = {};
 		//数据事件把柄
-		this.handlers={};
+		this.handlers = {};
 	}
-	
-	DataSet.prototype={
+
+	DataSet.prototype = {
 		//path:	路径
 		//ds:	数据
 		//that:	数据源对象
-		initData:function(path,ds){
-			if(ds){
-				ds=deepClone(ds);//深克隆
-				var dso= getObjByPath(path,this.dataset,1);//获得对象，强制生成
-				if(ds.constructor==Array) {
-					//如果是数组，说明对象是可以初始化多个实例，影响也有所区别，所以需要解析路径，此处应该把路径的解析独立处理
-					dso[ds[0]]=ds[1];
-				}else if(ds.constructor==Object){
-					//如果是对象，即只需初始化一个实例即可
-					for(var x in ds)if(ds.hasOwnProperty(x)) dso[x]=ds[x];
-				}
+		initData : function (path, ds) {
+			if (ds) {
+				ds = JSONClone(ds); //JSON克隆
+				return setObjByPath(path, this.dataset, ds, 1); //获得对象，强制生成
 			}
 		},
-		getDS:function(path){
+		getDS : function (path) {
 			//返回新的数据树节点实例
-			return new DS(path,this.dataset);
+			return new DS(path, this.dataset);
 		},
 		//Dataset事件触发
-		trigger:function(path,type,newData,oldData){
-			
+		trigger : function (path, event) {
+			if (!event)
+				return;
+			var ev = event.split('.'),
+			namespace;
+			event = ev.shift();
+			if (ev.length)
+				namespace = ev.join('.')
+					dsevent.trigger({
+						path : path,
+						event : event,
+						namespace : namespace || 'none'
+					});
+		},
+		on : function (path, event, namespace, callback) {
+			dsevent.add(path, event, namespace, callback);
+		},
+		off : function (path, event, namespace) {
+			dsevent.del(path, event, namespace);
+		},
+		delete : function (path) {
+			var src = delObjByPath(path, this.dataset),
+			oldValue = JSONClone(src);
+
+			dsevent.trigger({
+				path : path,
+				event : 'delete',
+				namespace : 'none',
+				oldValue : oldValue
+			});
+		},
+		set : function (path, newValue) {
+			var src = getObjByPath(path, this.dataset),
+			oldValue = JSONClone(src);
+
+			var event = src ? 'update' : 'create';
+
+			newValue = setObjByPath(path, this.dataset, newValue, 1);
+
+			dsevent.trigger({
+				path : path,
+				event : event,
+				namespace : 'none',
+				newValue : newValue,
+				oldValue : oldValue
+			});
 		},
 	}
-	
+
 	return DataSet;
 });
-	
-	
