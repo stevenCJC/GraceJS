@@ -1,4 +1,4 @@
-define(['../core','../compose','oop/baseClass'], function(G,Compose,baseClass) {
+define(['../core','oop/baseClass'], function(G,baseClass) {
 	//新组装一个插件
 	function makeWidget(path,func,behavior,proto){
 		
@@ -6,6 +6,7 @@ define(['../core','../compose','oop/baseClass'], function(G,Compose,baseClass) {
 		
 		function Widget(p){
 			
+			//继承，new一个base，把base的状态付给对象
 			if(this.INHERIT){
 				var base=this.base=new G.widget[this.INHERIT](p);
 				for(var x in base)if(base.hasOwnProperty(x))this[x]=base[x];
