@@ -1,5 +1,6 @@
 define(['../core','oop/baseClass'], function(G,baseClass) {
 	//新组装一个插件
+	var baseClass={};
 	function makeWidget(path,func,behavior,proto){
 		
 		var root=this;

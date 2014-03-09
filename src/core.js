@@ -18,6 +18,7 @@ define(["./mediator","./dataset","./router"], function(Mediator,DataSet,Router) 
 	
 	Grace.prototype={
 		/*
+		
 			grace					Grace模块扩展
 			widget					Widget原型扩展
 			widget/init				Widget初始化key解析扩展
