@@ -7,14 +7,14 @@ define(["../core", 'dom/$'], function (G, $) {
 		//两个必须参数
 		// proto	原型扩展
 		// extend	属性方法扩展
-		Engine : function (proto, extend) {
+		/*Engine : function (proto, extend) {
 			if (proto)
 				for (var x in proto)
 					$.fn[x] = proto[x];
 			if (extend)
 				for (var x in extend)
 					$[x] = extend[x];
-		},
+		},*/
 		$ : $,
 
 	})

@@ -19,7 +19,6 @@ define(["../core", 'dom/$'], function (G, $) {
 				}
 			}
 		},
-
 	});
 
 	G.Engine({
