@@ -11,7 +11,7 @@ define(["./mediator","./dataset","./router"], function(Mediator,DataSet,Router) 
 		//初始化数据岛对象
 		this.DS=new DataSet();
 		//初始化中介对象
-		this.MD=new Mediator();
+		this.MD=new Mediator(); 
 		//初始化路由对象
 		new Router();
 	}
