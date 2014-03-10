@@ -1,4 +1,4 @@
-define(['./core','_','./compose','function/fixPath','engine/$$','function/makeWidget','function/deepClone','oop/baseClass'], function(G,_,Compose,fixPath,$$,makeWidget,deepClone,baseClass) {
+define(['./core','_','function/fixPath','engine/$$','function/makeWidget','function/deepClone','oop/baseClass'], function(G,_,fixPath,$$,makeWidget,deepClone,baseClass) {
 	
 	G.Extend('grace',{
 		
@@ -25,12 +25,16 @@ define(['./core','_','./compose','function/fixPath','engine/$$','function/makeWi
 			//继承，在这里实现各成分拷贝
 			
 			if(baseClass.path){
+				//获取base类
 				var base=this.widget[baseClass.path];
+				//获取base构件
 				var chips=this.chips[baseClass.path];
 				var options;
+				//获得继承的行为种类
 				if(baseClass.options=='*') options=Object.keys(G.extend['widget/behavior']);
 				else options=baseClass.options
 				var tmp={};
+				//根据继承行为种类进行拷贝构件
 				for(var i=0,len=options.length;i<len;i++)
 					tmp[options[i]]=_.extend({},chips.behavior[options[i]],behavior[options[i]]);
 				behavior=_.extend({},behavior,tmp);

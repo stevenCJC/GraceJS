@@ -1,7 +1,7 @@
 // JavaScript Document
 var require = { 
-	baseUrl:'D:/GraceJS/src',
-	//baseUrl:'/src',
+	//baseUrl:'D:/GraceJS/src',
+	baseUrl:'/src',
 	paths: {
 		jquery:"../demo/libs/jquery-2.0.0.min",
 		demo:'../demo/demo', 

@@ -1,10 +1,9 @@
 define([
 	"./core",
-	"./engine",
+	"$/engine",
 	"./widget",
 	"./page",
 	"./util",
-	"./app",
 	//"pp",
 ], function(G) {
 
