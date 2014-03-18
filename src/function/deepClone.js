@@ -14,7 +14,7 @@ define([], function() {
 			if (item instanceof type) { 
 				result = type( item ); 
 			}
-		}); 
+		});
 	 
 		if (typeof result == "undefined") { 
 			if (Object.prototype.toString.call( item ) === "[object Array]") { 

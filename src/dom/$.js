@@ -167,7 +167,7 @@ define([], function() {
 	
 	$.each = function(elements, callback) {
 		var i, key;
-		if ($.isArray(elements))
+		if ($.isArray(elements))//需要修改
 			for(var i=0,len=elements.length;i<len;i++)
 				if (callback(i, elements[i]) === false) return elements;
 		else if ($.isObject(elements))
