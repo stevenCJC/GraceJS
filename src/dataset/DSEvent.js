@@ -154,9 +154,9 @@ define(['function/JSONClone'], function (JSONClone) {
 	if (window.dsevent)
 		return window.dsevent;
 	else {
-		/*ExcludeEnd*/
+	/*ExcludeEnd*/
 		var dsevent = new DSEvent();
-		/*ExcludeStart*/
+	/*ExcludeStart*/
 		window.dsevent = dsevent
 			return dsevent;
 	}
