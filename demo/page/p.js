@@ -5,13 +5,17 @@ define(['grace', 'jquery', 'utils/chzn'], function (G, $) {
 		this.id = 'DD';
 		//this.init();
 	}, {
-		Dataset : ['{id}', {
+		Dataset : {
+			'P:{id}': {
 				Count : 0,
-			}
-		],
+			},
+			header:{
+				open:true
+			},
+		},
 		Subscribe : {
-			'PLinit{id}' : 'action',
-			init : function (m) {
+			'P:PLinit{id}' : 'action',
+			'init' : function (m) {
 				$('#' + this.id).html($('#' + this.id).html() + m);
 			},
 		},

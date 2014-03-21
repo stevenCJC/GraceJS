@@ -8,10 +8,13 @@ define(['./dataset/DS', './dataset/dsevent', './function/JSONClone', './function
 	}
 
 	DataSet.prototype = {
-
-		initData : function (key, ds) {
+		//path:	路径
+		//ds:	数据
+		//that:	数据源对象
+		initData : function (path, ds) {
 			if (ds) {
-				return (this.dataset[key] = JSONClone(ds)); //获得对象，强制生成
+				ds = JSONClone(ds); //JSON克隆
+				return setObjByPath(path, this.dataset, ds, 1); //获得对象，强制生成
 			}
 		},
 		getDS : function (path) {
@@ -54,7 +57,7 @@ define(['./dataset/DS', './dataset/dsevent', './function/JSONClone', './function
 			var src = getObjByPath(path, this.dataset),
 			oldValue = JSONClone(src);
 
-			var event = typeof src != 'undefined' ? 'update' : 'create';
+			var event = typeof src!='undefined' ? 'update' : 'create';
 
 			newValue = setObjByPath(path, this.dataset, newValue, 1);
 

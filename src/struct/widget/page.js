@@ -21,9 +21,9 @@ define(["./core",'function/makeWidget','./widget'], function(G,makeWidget) {
 		//path	调用插件的路径
 		//p		传入参数
 		init:function(path,p){
-			var w=this.page[path];
-			if(this.TYPE=='page'&&w&&this.PATH.split('/')[0]==path.split('/')[0])
-				return new w(p);
+			var page=this.page[path];
+			if(this.TYPE=='page'&&page&&this.PATH.split('/')[0]==path.split('/')[0])
+				return new page(p);
 		},
 		
 	})
