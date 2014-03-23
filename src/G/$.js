@@ -71,12 +71,12 @@ define([], function() {
 	}
 
 	
-	var $jqm = function(toSelect, what) {
+	var Core = function(toSelect, what) {
 		this.length = 0;
 		this.elems=[];
 		if (!toSelect) {
 			return this;
-		} else if (toSelect instanceof $jqm && what == undefined) {
+		} else if (toSelect instanceof Core && what == undefined) {
 			return toSelect;
 		} else if ($.isFunction(toSelect)) {
 		//////////////
@@ -99,7 +99,7 @@ define([], function() {
 			this.elems[this.length++] = toSelect;
 			return this;
 		} else if (what !== undefined) {
-			if (what instanceof $jqm) {
+			if (what instanceof Core) {
 				return what.find(toSelect);
 			}
 		
@@ -113,7 +113,7 @@ define([], function() {
 
 	
 	var $ = function(selector, what) {
-		return new $jqm(selector, what);
+		return new Core(selector, what);
 	};
 
 	
@@ -162,7 +162,7 @@ define([], function() {
 	}
 	
 	
-	$.is$ = function(obj){return obj instanceof $jqm;}
+	$.is$ = function(obj){return obj instanceof Core;}
 	
 	
 	$.each = function(elements, callback) {
@@ -211,8 +211,8 @@ define([], function() {
 		return typeof obj === "object";
 	};
 
-	$.fn = $jqm.prototype = {
-		constructor: $jqm,
+	$.fn = Core.prototype = {
+		constructor: Core,
 		selector: _selector,
 		oldElement: undefined,
 		
@@ -553,7 +553,7 @@ define([], function() {
 					}
 					if (obj.nodeName != undefined && obj.nodeName.toLowerCase() == "script" && (!obj.type || obj.type.toLowerCase() === 'text/javascript')) {
 						window.eval(obj.innerHTML);
-					} else if(obj instanceof $jqm) {
+					} else if(obj instanceof Core) {
 						_insertFragments(obj,this.elems[i],insert);
 					}
 					else {
