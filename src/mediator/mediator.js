@@ -19,3 +19,5 @@ define(['function/getObjByPath','function/setObjByPath'], function(getObjByPath,
 	}
 	return Mediator;
 });
+
+
