@@ -5,32 +5,13 @@ define([], function () {
 
 	// Save bytes in the minified (but not gzipped) version:
 	var ArrayProto = Array.prototype,
-	ObjProto = Object.prototype,
-	FuncProto = Function.prototype;
-
+	ObjProto = Object.prototype;
 	// Create quick reference variables for speed access to core prototypes.
 	var push = ArrayProto.push,
 	slice = ArrayProto.slice,
 	concat = ArrayProto.concat,
 	toString = ObjProto.toString,
 	hasOwnProperty = ObjProto.hasOwnProperty;
-
-	// All **ECMAScript 5** native function implementations that we hope to use
-	// are declared here.
-	var
-	nativeForEach = ArrayProto.forEach,
-	nativeMap = ArrayProto.map,
-	nativeReduce = ArrayProto.reduce,
-	nativeReduceRight = ArrayProto.reduceRight,
-	nativeFilter = ArrayProto.filter,
-	nativeEvery = ArrayProto.every,
-	nativeSome = ArrayProto.some,
-	nativeIndexOf = ArrayProto.indexOf,
-	nativeLastIndexOf = ArrayProto.lastIndexOf,
-	nativeIsArray = Array.isArray,
-	nativeKeys = Object.keys,
-	nativeBind = FuncProto.bind;
-
 	// Create a safe reference to the Underscore object for use below.
 	var _ = function (obj) {
 		if (obj instanceof _)
@@ -49,9 +30,7 @@ define([], function () {
 	var each = _.each = function (obj, iterator, context) {
 		if (obj == null)
 			return;
-		if (nativeForEach && obj.forEach === nativeForEach) {
-			obj.forEach(iterator, context);
-		} else if (obj.length === +obj.length) {
+		if (obj.length === +obj.length) {
 			for (var i = 0, l = obj.length; i < l; i++) {
 				if (iterator.call(context, obj[i], i, obj) === breaker)
 					return;
@@ -72,12 +51,7 @@ define([], function () {
 		var results = [];
 		if (obj == null)
 			return results;
-		if (nativeMap && obj.map === nativeMap)
-			return obj.map(iterator, context);
-		each(obj, function (value, index, list) {
-			results[results.length] = iterator.call(context, value, index, list);
-		});
-		return results;
+		return obj.map(iterator, context);
 	};
 
 	// Return the first value which passes a truth test. Aliased as `detect`.
@@ -99,13 +73,7 @@ define([], function () {
 		var results = [];
 		if (obj == null)
 			return results;
-		if (nativeFilter && obj.filter === nativeFilter)
-			return obj.filter(iterator, context);
-		each(obj, function (value, index, list) {
-			if (iterator.call(context, value, index, list))
-				results[results.length] = value;
-		});
-		return results;
+		return obj.filter(iterator, context);
 	};
 
 	// Determine if at least one element in the object matches a truth test.
@@ -116,13 +84,8 @@ define([], function () {
 		var result = false;
 		if (obj == null)
 			return result;
-		if (nativeSome && obj.some === nativeSome)
-			return obj.some(iterator, context);
-		each(obj, function (value, index, list) {
-			if (result || (result = iterator.call(context, value, index, list)))
-				return breaker;
-		});
-		return !!result;
+		return obj.some(iterator, context);
+
 	};
 
 	// Determine if the array or object contains a given value (using `===`).
@@ -130,11 +93,7 @@ define([], function () {
 	_.contains = function (obj, target) {
 		if (obj == null)
 			return false;
-		if (nativeIndexOf && obj.indexOf === nativeIndexOf)
-			return obj.indexOf(target) != -1;
-		return any(obj, function (value) {
-			return value === target;
-		});
+		return obj.indexOf(target) != -1;
 	};
 
 	// Convenience version of a common use case of `map`: fetching a property.
@@ -312,15 +271,7 @@ define([], function () {
 
 	// Retrieve the names of an object's properties.
 	// Delegates to **ECMAScript 5**'s native `Object.keys`
-	_.keys = nativeKeys || function (obj) {
-		if (obj !== Object(obj))
-			throw new TypeError('Invalid object');
-		var keys = [];
-		for (var key in obj)
-			if (_.hasKey(obj, key))
-				keys[keys.length] = key;
-		return keys;
-	};
+	_.keys = nativeKeys
 
 	// Retrieve the values of an object's properties.
 	_.values = function (obj) {
@@ -400,9 +351,7 @@ define([], function () {
 
 	// Is a given value an array?
 	// Delegates to ECMA5's native Array.isArray
-	_.isArray = nativeIsArray || function (obj) {
-		return toString.call(obj) == '[object Array]';
-	};
+	_.isArray = nativeIsArray;
 
 	// Is a given variable an object?
 	_.isObject = function (obj) {

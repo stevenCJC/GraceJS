@@ -30,7 +30,37 @@ module.exports = function(grunt) {
 		dst: readOptionalJSON( "dist/.destination.json" ),
 		
 		built: {
-			all: {
+			$:{
+				dest: "dist/G.js",
+				minimum: [
+					"G",
+				],
+				removeWith: {
+					//pp: [ "jquery" ],
+				},
+				 config:{
+					baseUrl: "src/G",
+					name: "grace",
+					out: "dist/grace.js",
+					// We have multiple minify steps
+					optimize: "none",
+					// Include dependencies loaded with require
+					findNestedDependencies: true,
+					// Avoid breaking semicolons inserted by r.js
+					skipSemiColonInsertion: true,
+					wrap: {
+						startFile: "src/wrap/intro.js",
+						endFile: "src/wrap/outro.js"
+					},
+					paths: {
+						jquery:'../jquery',
+						pp:'plugins/$',
+					},
+					rawText: {},
+					onBuildWrite: convert
+				}
+			},
+			grace: {
 				dest: "dist/grace.js",
 				minimum: [
 					"grace",
@@ -40,6 +70,27 @@ module.exports = function(grunt) {
 					//callbacks: [ "deferred" ],
 					//css: [ "effects", "dimensions", "offset" ],
 					//sizzle: [ "css/hiddenVisibleSelectors", "effects/animatedSelector" ]
+				},
+				 config:{
+					baseUrl: "src",
+					name: "grace",
+					out: "dist/grace.js",
+					// We have multiple minify steps
+					optimize: "none",
+					// Include dependencies loaded with require
+					findNestedDependencies: true,
+					// Avoid breaking semicolons inserted by r.js
+					skipSemiColonInsertion: true,
+					wrap: {
+						startFile: "src/wrap/intro.js",
+						endFile: "src/wrap/outro.js"
+					},
+					paths: {
+						jquery:'../jquery',
+						pp:'plugins/$',
+					},
+					rawText: {},
+					onBuildWrite: convert
 				}
 			}
 		},
