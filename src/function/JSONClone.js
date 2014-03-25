@@ -6,4 +6,3 @@ define([], function() {
 	}
 	return JSONClone;
 });
-	
