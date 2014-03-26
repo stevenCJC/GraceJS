@@ -30,34 +30,25 @@ module.exports = function(grunt) {
 		dst: readOptionalJSON( "dist/.destination.json" ),
 		
 		built: {
-			$:{
-				dest: "dist/G.js",
+			$: {
+				dest: "dist/$.js",
 				minimum: [
-					"G",
+					"$",
 				],
 				removeWith: {
-					//pp: [ "jquery" ],
+					//css: [ "effects", "dimensions", "offset" ],
 				},
-				 config:{
-					baseUrl: "src/G",
-					name: "grace",
-					out: "dist/grace.js",
-					// We have multiple minify steps
-					optimize: "none",
-					// Include dependencies loaded with require
-					findNestedDependencies: true,
-					// Avoid breaking semicolons inserted by r.js
-					skipSemiColonInsertion: true,
+				config:{
+					baseUrl: "src",
+					name: "BL",
+					out: "dist/$.js",
 					wrap: {
 						startFile: "src/wrap/intro.js",
 						endFile: "src/wrap/outro.js"
 					},
 					paths: {
-						jquery:'../jquery',
-						pp:'plugins/$',
+						$:'BL/Blink/$',
 					},
-					rawText: {},
-					onBuildWrite: convert
 				}
 			},
 			grace: {
@@ -67,32 +58,21 @@ module.exports = function(grunt) {
 				],
 				removeWith: {
 					pp: [ "jquery" ],
-					//callbacks: [ "deferred" ],
 					//css: [ "effects", "dimensions", "offset" ],
-					//sizzle: [ "css/hiddenVisibleSelectors", "effects/animatedSelector" ]
 				},
 				 config:{
 					baseUrl: "src",
 					name: "grace",
 					out: "dist/grace.js",
-					// We have multiple minify steps
-					optimize: "none",
-					// Include dependencies loaded with require
-					findNestedDependencies: true,
-					// Avoid breaking semicolons inserted by r.js
-					skipSemiColonInsertion: true,
 					wrap: {
 						startFile: "src/wrap/intro.js",
 						endFile: "src/wrap/outro.js"
 					},
 					paths: {
-						jquery:'../jquery',
-						pp:'plugins/$',
+						$:'BL/Blink/$',
 					},
-					rawText: {},
-					onBuildWrite: convert
 				}
-			}
+			},
 		},
 		
 		jshint: {
@@ -157,7 +137,7 @@ module.exports = function(grunt) {
 	grunt.loadTasks( "built" );
 
 	// Short list as a high frequency watch task
-	grunt.registerTask( "dev", [ "built:*:*:-pp",'uglify' ,'jshint' ] );
+	grunt.registerTask( "dev", [ "built:*:*",'uglify' ,'jshint' ] );
 
 	// Default grunt
 	grunt.registerTask( "default", [  "dev", "uglify" ,"watch"] );

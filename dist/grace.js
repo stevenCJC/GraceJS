@@ -1,503 +1,156 @@
 (function(define) {
     define([], function() {
-        //根据路径返回对象
-        //path		数据路径
-        //obj		基础对象
-        //create	是否进行创建路径，如果否，返回null
-        //需考虑末尾/的情况
-        function getObjByPath(path, obj) {
-            path = path.replace(/(^\s*)|(\s*$)/g, "");
-            var tmp;
-            if (path.indexOf("/") > -1) {
-                path = path.split("/");
-                var x;
-                while (x = path.shift()) {
-                    if (typeof obj[x] == "array" || typeof obj[x] == "object") {
-                        obj = obj[x];
-                        if (path.length > 0 && typeof obj != "object" && typeof obj[x] != "array") return;
-                    } else return;
-                }
-                return obj;
-            } else return obj[path];
-        }
-        //根据路径返回对象
-        //path		数据路径
-        //obj		基础对象
-        //create	是否进行创建路径，如果否，返回null
-        //需考虑末尾/的情况
-        function setObjByPath(path, obj, kvp, force) {
-            if (typeof obj != "object" && typeof obj != "array") throw new Error("The second arguments need to be an Object or an Array");
-            path = path.replace(/(^\s*)|(\s*$)/g, "");
-            path = path.split("/");
-            var tail = path.pop();
-            var x;
-            //转到路径
-            while (x = path.shift()) {
-                if (force) obj = obj[x] = obj[x] || {}; else if (!obj[x] && path.length) return false;
+        function _selectorAll(selector, what) {
+            try {
+                return what.querySelectorAll(selector);
+            } catch (e) {
+                return [];
             }
-            ////如果是扩展模式，kvp为path指向的扩展元素，无需直接赋值
-            if (tail) {
-                obj[tail] = kvp;
-                return kvp;
+        }
+        var ArrayProto = Array.prototype;
+        var slice = ArrayProto.slice;
+        function _shimNodes(nodes, obj) {
+            if (!nodes) return;
+            if (nodes.nodeType) return obj.elems[obj.length++] = nodes;
+            if (nodes.elems) {
+                obj.elems = nodes.elems;
+                obj.length = nodes.length;
+            } else if (nodes.length) {
+                nodes.constructor == Array && (obj.elems = obj.elems.concat(nodes));
+                obj.elems = slice.call(nodes);
+                //for(var i=0,len=nodes.length;i<len;i++) obj.elems.push(nodes[i]);
+                obj.length = nodes.length;
+            } else for (var x in nodes) nodes[x] && nodes[x].nodeType && (obj.elems[obj.length++] = nodes[x]);
+        }
+        function _selector(selector, what) {
+            selector = selector.trim();
+            if (selector[0] === "#" && selector.indexOf(".") == -1 && selector.indexOf(" ") === -1 && selector.indexOf(">") === -1) {
+                if (what == document) _shimNodes(what.getElementById(selector.replace("#", "")), this); else _shimNodes(_selectorAll(selector, what), this);
+            } else if (selector[0] === "<" && selector[selector.length - 1] === ">") //html
+            {
+                var tmp = document.createElement("div");
+                tmp.innerHTML = selector.trim();
+                _shimNodes(tmp.childNodes, this);
             } else {
-                if (typeof obj == "array") for (var y in kvp) obj.push(kvp[y]); else if (typeof obj == "object") for (var y in kvp) obj[y] = kvp[y];
-                return obj;
+                _shimNodes(_selectorAll(selector, what), this);
             }
+            return this;
         }
-        function Mediator() {
-            this.channels = {};
+        function $() {
+            if (arguments.length == 1) return new Core(arguments[0]); else if (arguments.length == 2) return new Core(arguments[0], arguments[1]); else if (arguments.length == 3) return new Core(arguments[0], arguments[1], arguments[2]);
         }
-        Mediator.prototype = {
-            constructor: Mediator,
-            publish: function(channel, message) {
-                //根据路径获取对象
-                var cn = getObjByPath(channel, this.channels);
-                if (!cn || !cn.channels || !cn.channels.length) return;
-                var sbcr = cn.channels;
-                var wdg;
-                for (var i = 0; i < sbcr.length; i++) {
-                    sbcr[i](message);
-                }
-            },
-            subscribe: function(channel, callback) {
-                //根据路径生成对象树
-                var cn = getObjByPath(channel, this.channels);
-                if (cn) {
-                    cn = cn.channels || (cn.channels = []);
-                    //将方法加入到监听数组
-                    cn.push(callback);
-                } else setObjByPath(channel, this.channels, {
-                    channels: [ callback ]
-                }, 1);
-            }
+        $.fn = Core.prototype = {
+            constructor: Core,
+            selector: _selector,
+            oldElement: undefined
         };
-        //深克隆函数
-        function JSONClone(item) {
-            return JSON.parse(JSON.stringify(item));
-        }
-        function DSEvent() {
-            this.handle = {
-                //仅当前节点的更新会触发事件
-                "path1/path2": {
-                    all: {}
-                },
-                //关联事件，关联所有子节点的更新
-                "path1/path2/": {
-                    "delete": {}
-                }
-            };
-        }
-        DSEvent.prototype = {
-            constructor: DSEvent,
-            add: function(path, event, namespace, callback) {
-                path = path.replace(/\s/gi, "");
-                if (typeof namespace == "function") {
-                    callback = namespace;
-                    namespace = "none";
-                } else if (typeof event == "function") {
-                    callback = event;
-                    event = "all";
-                    namespace = "none";
-                }
-                var hs = this.handle[path] = this.handle[path] || {};
-                var ev = hs[event] = hs[event] || {};
-                var ns = ev[namespace] = ev[namespace] || [];
-                ns.push(callback);
-            },
-            //删除委托事件
-            del: function(path, event, namespace) {
-                path = path.replace(/\s/gi, "");
-                if (!event && !namespace) {
-                    namespace = "none";
-                    event = "all";
-                } else if (!namespace) {
-                    namespace = "none";
-                }
-                var hs = this.handle[path];
-                if (hs) {
-                    if (event == "all") if (namespace == "none") delete this.handle[path]; else for (var x in hs) {
-                        delete hs[x][namespace];
-                    } else {
-                        if (namespace == "none") {
-                            delete hs[event];
-                        } else {
-                            if (hs[event]) delete hs[event][namespace];
-                        }
-                    }
-                }
-            },
-            trigger: function(e) {
-                var path = e.path.replace(/\s/gi, ""), event = e.event, namespace = e.namespace;
-                if (!namespace && !event) {
-                    namespace = "none";
-                    event = "all";
-                } else if (!namespace) {
-                    namespace = "none";
-                }
-                var isExtend = path.lastIndexOf("/") == path.length - 1;
-                if (isExtend) {
-                    e.currentPath = path;
-                    e.handle = this.handle[path];
-                    if (e.handle) _trigger(e);
-                }
-                var p = path.split("/");
-                if (isExtend) p.pop();
-                while (p.length) {
-                    e.currentPath = p.join("/");
-                    e.handle = this.handle[e.currentPath];
-                    if (e.handle) _trigger(e);
-                    p.pop();
-                    if (p.length) {
-                        e.currentPath = p.join("/") + "/";
-                        e.handle = this.handle[e.currentPath];
-                        if (e.handle) _trigger(e);
-                    }
-                }
-            }
-        };
-        function _trigger(e) {
-            var handles = e.handle, path = e.path, event = e.event, namespace = e.namespace;
-            e = JSONClone(e);
-            delete e["handle"];
-            var es, ns, x, y;
-            if (handles) {
-                if (event == "all") {
-                    //all事件不会引起其他事件的触发
-                    if (namespace == "none") {
-                        if (ns = handles["all"]) for (x in ns) ns[x].forEach(function(fn) {
-                            fn(e);
-                        });
-                    } else {
-                        (ns = handles["all"]) && ns[namespace] && ns[namespace].forEach(function(fn) {
-                            fn(e);
-                        });
-                    }
-                } else {
-                    if (namespace == "none") {
-                        if (ns = handles[event]) for (x in ns) ns[x].forEach(function(fn) {
-                            fn(e);
-                        });
-                        //任何其他事件的触发都会引起事件all触发
-                        if (ns = handles["all"]) for (x in ns) ns[x].forEach(function(fn) {
-                            fn(e);
-                        });
-                    } else {
-                        if (ns = handles[event]) ns[namespace] && ns[namespace].forEach(function(fn) {
-                            fn(e);
-                        });
-                        //任何其他事件的触发都会引起事件all触发
-                        if (ns = handles["all"]) ns[namespace] && ns[namespace].forEach(function(fn) {
-                            fn(e);
-                        });
-                    }
-                }
-            }
-        }
-        var dsevent = new DSEvent();
-        //根据路径返回对象
-        //path		数据路径
-        //obj		基础对象
-        //create	是否进行创建路径，如果否，返回null
-        //需考虑末尾/的情况
-        function delObjByPath(path, obj) {
-            if (typeof obj != "object" && typeof obj != "array") throw new Error("The second arguments need to be an Object or an Array");
-            path = path.replace(/(^\s*)|(\s*$)/g, "");
-            path = path.split("/");
-            var p = path.pop();
-            var x, tail;
-            //转到路径
-            while (x = path.shift()) {
-                if (typeof obj == "object" || typeof obj == "array") obj = obj[x]; else if (!obj) return; else return;
-            }
-            var t = obj[p];
-            delete obj[p];
-            return t;
-        }
-        //数据树节点定义
-        function DS(path, ds) {
-            //当前路径
-            if (path.lastIndexOf("/") == path.length - 1) path = path.substr(0, path.length - 1);
-            this.PATH = path;
-            //返回数据树相应的数据节点
-            this.dataset = getObjByPath(path, ds);
-        }
-        DS.prototype = {
-            //应该具备解析字符串值作为数据来源的功能，如 dom:#id.val,DS:path/path/Count
-            get: function(path) {
-                if (path) {
-                    return getObjByPath(path, this.dataset);
-                } else return this.dataset;
-            },
-            trigger: function(path, event) {
-                if (!event) return;
-                var ev = event.split("."), namespace;
-                event = ev.shift();
-                if (ev.length) namespace = ev.join(".");
-                dsevent.trigger({
-                    path: this.PATH + "/" + path,
-                    event: event,
-                    namespace: namespace || "none"
-                });
-            },
-            on: function(path, event, namespace, callback) {
-                dsevent.add(this.PATH + "/" + path, event, namespace, callback);
-            },
-            off: function(path, event, namespace) {
-                dsevent.del(this.PATH + "/" + path, event, namespace);
-            },
-            "delete": function(path) {
-                var src = delObjByPath(path, this.dataset), oldValue = JSONClone(src);
-                dsevent.trigger({
-                    path: this.PATH + "/" + path,
-                    event: "delete",
-                    namespace: "none",
-                    oldValue: oldValue
-                });
-            },
-            set: function(path, newValue) {
-                var src = getObjByPath(path, this.dataset), oldValue = JSONClone(src);
-                var event = typeof src != "undefined" ? "update" : "create";
-                newValue = setObjByPath(path, this.dataset, newValue, 1);
-                dsevent.trigger({
-                    path: this.PATH + "/" + path,
-                    event: event,
-                    namespace: "none",
-                    newValue: newValue,
-                    oldValue: oldValue
-                });
-            }
-        };
-        function DataSet() {
-            //数据岛的数据树
-            this.dataset = {};
-            //数据事件把柄
-            this.handlers = {};
-        }
-        DataSet.prototype = {
-            //path:	路径
-            //ds:	数据
-            //that:	数据源对象
-            initData: function(path, ds) {
-                if (ds) {
-                    ds = JSONClone(ds);
-                    //JSON克隆
-                    return setObjByPath(path, this.dataset, ds, 1);
-                }
-            },
-            getDS: function(path) {
-                //返回新的数据树节点实例
-                return new DS(path, this.dataset);
-            },
-            //Dataset事件触发
-            trigger: function(path, event) {
-                if (!event) return;
-                var ev = event.split("."), namespace;
-                event = ev.shift();
-                if (ev.length) namespace = ev.join(".");
-                dsevent.trigger({
-                    path: path,
-                    event: event,
-                    namespace: namespace || "none"
-                });
-            },
-            on: function(path, event, namespace, callback) {
-                dsevent.add(path, event, namespace, callback);
-            },
-            off: function(path, event, namespace) {
-                dsevent.del(path, event, namespace);
-            },
-            "delete": function(path) {
-                var src = delObjByPath(path, this.dataset), oldValue = JSONClone(src);
-                dsevent.trigger({
-                    path: path,
-                    event: "delete",
-                    namespace: "none",
-                    oldValue: oldValue
-                });
-            },
-            set: function(path, newValue) {
-                var src = getObjByPath(path, this.dataset), oldValue = JSONClone(src);
-                var event = typeof src != "undefined" ? "update" : "create";
-                newValue = setObjByPath(path, this.dataset, newValue, 1);
-                dsevent.trigger({
-                    path: path,
-                    event: event,
-                    namespace: "none",
-                    newValue: newValue,
-                    oldValue: oldValue
-                });
-            }
-        };
-        function Router() {
-            this.routers = {};
-            //绑定hash改变事件
-            window.addEventListener("hashchange", function(e) {
-                hashRouter(e);
-            }, false);
-        }
-        function hashRouter(e) {
-            //下面两个变量暂无作用
-            var newURL = e.newURL;
-            var oldURL = e.oldURL;
-            //去除#，返回反编码后的路径
-            var hash;
-            if (window.location.hash) hash = decodeURI(window.location.hash).substr(1);
-            if (hash) var hashs = hash.split("/"); else return;
-            //如果没有hash则停止执行
-            var subs, index, subs, param, h;
-            while (h = hashs.pop()) {
-                if (h.indexOf("!") > -1) {
-                    //分拆订阅名称和参数
-                    index = h.indexOf("!");
-                    subs = h.substr(0, index);
-                    param = h.substr(index + 1);
-                } else {
-                    subs = h;
-                }
-                //这里需要扩展param的解析函数
-                G.MD.publish(subs, param);
-            }
-        }
-        function Grace() {
-            //存储widget类
-            this.widget = {};
-            //存储不同的扩展函数
-            this.page = {};
-            //存储不同的扩展函数
-            this.extend = {};
-            //存储原插件碎片
-            this.chips = {};
-            //初始化数据岛对象
-            this.DS = new DataSet();
-            //初始化中介对象
-            this.MD = new Mediator();
-            //初始化路由对象
-            new Router();
-        }
-        Grace.prototype = {
-            /*
-			grace					Grace模块扩展
-			widget					Widget原型扩展
-			widget/init				Widget初始化key解析扩展
-			widget/behavior		Widget定义的接口扩展
-			widget/behavior/event	Widget定义的事件类型接口扩展
-			page					Page原型扩展
-			page/init				Page初始化key解析扩展
-			page/behavior			Page定义的接口扩展
-			page/behavior/event	Page定义的事件类型接口扩展
-			
-		*/
-            Extend: function(target, ex) {
-                //过滤空白符
-                if (!target || !(target = target.replace(/\s/gi, ""))) return;
-                var targets = target.split(",");
-                while (target = targets.pop()) {
-                    if (target.toLowerCase() == "grace") {
-                        //当最高级扩展，同步加入prototype链
-                        for (var x in ex) Grace.prototype[x] = ex[x];
-                    } else {
-                        //针对一些异步初始化的类应先保存
-                        var extend = this.extend[target] || (this.extend[target] = {});
-                        for (var x in ex) {
-                            extend[x] = ex[x];
-                        }
-                    }
-                }
-            }
-        };
-        if (!window.G) window.G = new Grace();
-        var G = window.G;
-        function Engine(s) {
-            this.core = null;
-            //初始化后将存储操作核心
+        function Core(toSelect, what) {
             this.length = 0;
-            this.$(s);
-        }
-        var $$ = function(s) {
-            return new Engine(s);
-        };
-        $$.fn = Engine.prototype;
-        //不依赖任何dom操作框架
-        G.Extend("grace", {
-            //扩展grace的Engine扩展功能
-            //两个必须参数	
-            // proto	原型扩展
-            // extend	属性方法扩展
-            Engine: function(proto, extend) {
-                if (proto) for (var x in proto) $$.fn[x] = proto[x];
-                if (extend) for (var x in extend) $$[x] = extend[x];
-            },
-            $: $$
-        });
-        G.Engine({
-            //引擎内部初始化
-            z_freshCore: function() {
-                var i = 0;
-                var core = this.core;
-                //实现数组方式使用内部元素
-                while (core[i]) {
-                    this[i] = core[i];
-                    i++;
+            this.elems = [];
+            if (!toSelect) {
+                return this;
+            } else if (toSelect instanceof Core && what == undefined) {
+                return toSelect;
+            } else if ($.isFunction(toSelect)) {
+                //////////////
+                return $(document).ready(toSelect);
+            } else if ($.isArray(toSelect) && toSelect.length != undefined) {
+                //Passing in an array or object
+                this.elems = this.elems.concat(toSelect);
+                this.length = toSelect.length;
+                return this;
+            } else if ($.isObject(toSelect) && $.isObject(what)) {
+                //var tmp=$("span");  $("p").find(tmp);
+                if (toSelect.length == undefined) {
+                    if (toSelect.parentNode == what) this.elems[this.length++] = toSelect;
+                } else {
+                    for (var i = 0; i < toSelect.length; i++) if (toSelect.elems[i].parentNode == what) this.elems[this.length++] = toSelect.elems[i];
                 }
-                //返回内部元素个数
-                this.length = core.length;
-            }
-        }, {
-            extend: function(data) {
-                for (var x in data) (function(name, func) {
-                    $$.fn[name] = func;
-                })(x, data[x]);
-            }
-        });
-        // Save the previous value of the `_` variable.
-        var breaker = {};
-        // Save bytes in the minified (but not gzipped) version:
-        var ArrayProto = Array.prototype, ObjProto = Object.prototype, FuncProto = Function.prototype;
-        // Create quick reference variables for speed access to core prototypes.
-        var push = ArrayProto.push, slice = ArrayProto.slice, concat = ArrayProto.concat, toString = ObjProto.toString, hasOwnProperty = ObjProto.hasOwnProperty;
-        // All **ECMAScript 5** native function implementations that we hope to use
-        // are declared here.
-        var nativeForEach = ArrayProto.forEach, nativeMap = ArrayProto.map, nativeReduce = ArrayProto.reduce, nativeReduceRight = ArrayProto.reduceRight, nativeFilter = ArrayProto.filter, nativeEvery = ArrayProto.every, nativeSome = ArrayProto.some, nativeIndexOf = ArrayProto.indexOf, nativeLastIndexOf = ArrayProto.lastIndexOf, nativeIsArray = Array.isArray, nativeKeys = Object.keys, nativeBind = FuncProto.bind;
-        // Create a safe reference to the Underscore object for use below.
-        var _ = function(obj) {
-            if (obj instanceof _) return obj;
-            if (!(this instanceof _)) return new _(obj);
-            this._wrapped = obj;
-        };
-        // Collection Functions
-        // --------------------
-        // The cornerstone, an `each` implementation, aka `forEach`.
-        // Handles objects with the built-in `forEach`, arrays, and raw objects.
-        // Delegates to **ECMAScript 5**'s native `forEach` if available.
-        var each = _.each = function(obj, iterator, context) {
-            if (obj == null) return;
-            if (nativeForEach && obj.forEach === nativeForEach) {
-                obj.forEach(iterator, context);
-            } else if (obj.length === +obj.length) {
-                for (var i = 0, l = obj.length; i < l; i++) {
-                    if (iterator.call(context, obj[i], i, obj) === breaker) return;
+                return this;
+            } else if ($.isObject(toSelect) && what == undefined) {
+                //Single object
+                this.elems[this.length++] = toSelect;
+                return this;
+            } else if (what !== undefined) {
+                if (what instanceof Core) {
+                    return what.find(toSelect);
                 }
             } else {
-                for (var key in obj) {
-                    if (_.hasKey(obj, key)) {
-                        if (iterator.call(context, obj[key], key, obj) === breaker) return;
+                what = document;
+            }
+            return this.selector(toSelect, what);
+        }
+        var each = $.each = function(obj, iterator, context) {
+            if (obj == null) return;
+            if (obj.length === +obj.length) {
+                if (context) for (var i = 0, l = obj.length; i < l; i++) {
+                    if (iterator.call(context, obj[i], i, obj) === false) return;
+                } else for (var i = 0, l = obj.length; i < l; i++) {
+                    if (iterator(obj[i], i, obj) === false) return;
+                }
+            } else {
+                if (context) for (var key in obj) {
+                    if (obj.hasOwnProperty(key)) {
+                        if (iterator.call(context, obj[key], key, obj) === false) return;
+                    }
+                } else for (var key in obj) {
+                    if (obj.hasOwnProperty(key)) {
+                        if (iterator(obj[key], key, obj) === false) return;
                     }
                 }
             }
         };
-        // Return the results of applying the iterator to each element.
-        // Delegates to **ECMAScript 5**'s native `map` if available.
-        _.map = function(obj, iterator, context) {
+        // Return the number of elements in an object.
+        $.size = function(obj) {
+            if (obj == null) return 0;
+            return obj.length === +obj.length ? obj.length : $.keys(obj).length;
+        };
+        // Return a version of the array that does not contain the specified value(s).
+        $.without = function(array) {
+            return $.difference(array, slice.call(arguments, 1));
+        };
+        // Produce a duplicate-free version of the array. If the array has already
+        // been sorted, you have the option of using a faster algorithm.
+        // Aliased as `unique`.
+        $.uniq = $.unique = function(array, isSorted, iterator, context) {
+            if ($.isFunction(isSorted)) {
+                context = iterator;
+                iterator = isSorted;
+                isSorted = false;
+            }
+            var initial = iterator ? $.map(array, iterator, context) : array;
             var results = [];
-            if (obj == null) return results;
-            if (nativeMap && obj.map === nativeMap) return obj.map(iterator, context);
-            each(obj, function(value, index, list) {
-                results[results.length] = iterator.call(context, value, index, list);
+            var seen = [];
+            each(initial, function(value, index) {
+                if (isSorted ? !index || seen[seen.length - 1] !== value : !$.contains(seen, value)) {
+                    seen.push(value);
+                    results.push(array[index]);
+                }
             });
             return results;
         };
+        // Produce an array that contains the union: each distinct element from all of
+        // the passed-in arrays.
+        $.union = function() {
+            return $.uniq(concat.apply(ArrayProto, arguments));
+        };
+        // Take the difference between one array and a number of other arrays.
+        // Only the elements present in just the first array will remain.
+        $.difference = function(array) {
+            var rest = concat.apply(ArrayProto, slice.call(arguments, 1));
+            return $.filter(array, function(value) {
+                return !$.contains(rest, value);
+            });
+        };
+        // Return the results of applying the iterator to each element.
+        // Delegates to **ECMAScript 5**'s native `map` if available.
+        $.map = function(obj, iterator, context) {
+            var results = [];
+            if (obj == null) return results;
+            return obj.map(iterator, context);
+        };
         // Return the first value which passes a truth test. Aliased as `detect`.
-        _.find = function(obj, iterator, context) {
+        $.find = function(obj, iterator, context) {
             var result;
             any(obj, function(value, index, list) {
                 if (iterator.call(context, value, index, list)) {
@@ -510,47 +163,36 @@
         // Return all the elements that pass a truth test.
         // Delegates to **ECMAScript 5**'s native `filter` if available.
         // Aliased as `select`.
-        _.filter = function(obj, iterator, context) {
+        $.filter = function(obj, iterator, context) {
             var results = [];
             if (obj == null) return results;
-            if (nativeFilter && obj.filter === nativeFilter) return obj.filter(iterator, context);
-            each(obj, function(value, index, list) {
-                if (iterator.call(context, value, index, list)) results[results.length] = value;
-            });
-            return results;
+            return obj.filter(iterator, context);
         };
         // Determine if at least one element in the object matches a truth test.
         // Delegates to **ECMAScript 5**'s native `some` if available.
         // Aliased as `any`.
         var any = function(obj, iterator, context) {
-            iterator || (iterator = _.identity);
+            iterator || (iterator = $.identity);
             var result = false;
             if (obj == null) return result;
-            if (nativeSome && obj.some === nativeSome) return obj.some(iterator, context);
-            each(obj, function(value, index, list) {
-                if (result || (result = iterator.call(context, value, index, list))) return breaker;
-            });
-            return !!result;
+            return obj.some(iterator, context);
         };
         // Determine if the array or object contains a given value (using `===`).
         // Aliased as `include`.
-        _.contains = function(obj, target) {
+        $.contains = function(obj, target) {
             if (obj == null) return false;
-            if (nativeIndexOf && obj.indexOf === nativeIndexOf) return obj.indexOf(target) != -1;
-            return any(obj, function(value) {
-                return value === target;
-            });
+            return obj.indexOf(target) != -1;
         };
         // Convenience version of a common use case of `map`: fetching a property.
-        _.pluck = function(obj, key) {
-            return _.map(obj, function(value) {
+        $.pluck = function(obj, key) {
+            return $.map(obj, function(value) {
                 return value[key];
             });
         };
         // Convenience version of a common use case of `filter`: selecting only objects
         // containing specific `key:value` pairs.
-        _.where = function(obj, attrs, first) {
-            if (_.isEmpty(attrs)) return first ? null : [];
+        $.where = function(obj, attrs, first) {
+            if ($.isEmpty(attrs)) return first ? null : [];
             return _[first ? "find" : "filter"](obj, function(value) {
                 for (var key in attrs) {
                     if (attrs[key] !== value[key]) return false;
@@ -560,54 +202,12 @@
         };
         // Convenience version of a common use case of `find`: getting the first object
         // containing specific `key:value` pairs.
-        _.findWhere = function(obj, attrs) {
-            return _.where(obj, attrs, true);
-        };
-        // Return the number of elements in an object.
-        _.size = function(obj) {
-            if (obj == null) return 0;
-            return obj.length === +obj.length ? obj.length : _.keys(obj).length;
-        };
-        // Return a version of the array that does not contain the specified value(s).
-        _.without = function(array) {
-            return _.difference(array, slice.call(arguments, 1));
-        };
-        // Produce a duplicate-free version of the array. If the array has already
-        // been sorted, you have the option of using a faster algorithm.
-        // Aliased as `unique`.
-        _.uniq = _.unique = function(array, isSorted, iterator, context) {
-            if (_.isFunction(isSorted)) {
-                context = iterator;
-                iterator = isSorted;
-                isSorted = false;
-            }
-            var initial = iterator ? _.map(array, iterator, context) : array;
-            var results = [];
-            var seen = [];
-            each(initial, function(value, index) {
-                if (isSorted ? !index || seen[seen.length - 1] !== value : !_.contains(seen, value)) {
-                    seen.push(value);
-                    results.push(array[index]);
-                }
-            });
-            return results;
-        };
-        // Produce an array that contains the union: each distinct element from all of
-        // the passed-in arrays.
-        _.union = function() {
-            return _.uniq(concat.apply(ArrayProto, arguments));
-        };
-        // Take the difference between one array and a number of other arrays.
-        // Only the elements present in just the first array will remain.
-        _.difference = function(array) {
-            var rest = concat.apply(ArrayProto, slice.call(arguments, 1));
-            return _.filter(array, function(value) {
-                return !_.contains(rest, value);
-            });
+        $.findWhere = function(obj, attrs) {
+            return $.where(obj, attrs, true);
         };
         // Delays a function for the given number of milliseconds, and then calls
         // it with the arguments supplied.
-        _.delay = function(func, wait) {
+        $.delay = function(func, wait) {
             var args = slice.call(arguments, 2);
             return setTimeout(function() {
                 return func(args);
@@ -615,12 +215,12 @@
         };
         // Defers a function, scheduling it to run after the current call stack has
         // cleared.
-        _.defer = function(func) {
-            return _.delay.apply(_, [ func, 1 ].concat(slice.call(arguments, 1)));
+        $.defer = function(func) {
+            return $.delay.apply(_, [ func, 1 ].concat(slice.call(arguments, 1)));
         };
         // Returns a function, that, when invoked, will only be triggered at most once
         // during a given window of time.
-        _.throttle = function(func, wait) {
+        $.throttle = function(func, wait) {
             var context, args, timeout, result;
             var previous = 0;
             var later = function() {
@@ -648,7 +248,7 @@
         // be triggered. The function will be called after it stops being called for
         // N milliseconds. If `immediate` is passed, trigger the function on the
         // leading edge, instead of the trailing.
-        _.debounce = function(func, wait, immediate) {
+        $.debounce = function(func, wait, immediate) {
             var timeout, result;
             return function() {
                 var context = this, args = arguments;
@@ -665,7 +265,7 @@
         };
         // Returns a function that will be executed at most one time, no matter how
         // often you call it. Useful for lazy initialization.
-        _.once = function(func) {
+        $.once = function(func) {
             var ran = false, memo;
             return function() {
                 if (ran) return memo;
@@ -676,7 +276,7 @@
             };
         };
         // Returns a function that will only be executed after being called N times.
-        _.after = function(times, func) {
+        $.after = function(times, func) {
             if (times <= 0) return func();
             return function() {
                 if (--times < 1) {
@@ -684,24 +284,89 @@
                 }
             };
         };
-        // Object Functions
-        // ----------------
+        $.until = function(handle, callback, timing) {
+            if (arguments.length == 2) {
+                timing = 200;
+            }
+            var t = setInterval(function() {
+                if (handle()) {
+                    callback();
+                    clearInterval(t);
+                    t = null;
+                }
+            }, timing);
+        };
+        // Is a given array, string, or object empty?
+        // An "empty" object has no enumerable own-properties.
+        $.isEmpty = function(obj) {
+            if (obj == null) return true;
+            if ($.isArray(obj) || $.isString(obj)) return obj.length === 0;
+            for (var key in obj) if ($.hasKey(obj, key)) return false;
+            return true;
+        };
+        // Is a given value a DOM element?
+        $.isElement = function(obj) {
+            return !!(obj && obj.nodeType === 1);
+        };
+        // Is a given value an array?
+        // Delegates to ECMA5's native Array.isArray
+        $.isArray = Array.isArray;
+        // Is a given variable an object?
+        $.isObject = function(obj) {
+            return obj === Object(obj);
+        };
+        // Add some isType methods: isArguments, isFunction, isString, isNumber, isDate, isRegExp.
+        each([ "Arguments", "Function", "String", "Number", "Date", "RegExp" ], function(name) {
+            $["is" + name] = function(obj) {
+                return toString.call(obj) == "[object " + name + "]";
+            };
+        });
+        // Define a fallback version of the method in browsers (ahem, IE), where
+        // there isn't any inspectable "Arguments" type.
+        if (!$.isArguments(arguments)) {
+            $.isArguments = function(obj) {
+                return !!(obj && $.hasKey(obj, "callee"));
+            };
+        }
+        // Optimize `isFunction` if appropriate.
+        if (typeof /./ !== "function") {
+            $.isFunction = function(obj) {
+                return typeof obj === "function";
+            };
+        }
+        // Is a given object a finite number?
+        $.isFinite = function(obj) {
+            return isFinite(obj) && !isNaN(parseFloat(obj));
+        };
+        // Is the given value `NaN`? (NaN is the only number which does not equal itself).
+        $.isNaN = function(obj) {
+            return $.isNumber(obj) && obj != +obj;
+        };
+        // Is a given value a boolean?
+        $.isBoolean = function(obj) {
+            return obj === true || obj === false || toString.call(obj) == "[object Boolean]";
+        };
+        // Is a given value equal to null?
+        $.isNull = function(obj) {
+            return obj === null;
+        };
+        // Is a given variable undefined?
+        $.isUndefined = function(obj) {
+            return obj === void 0;
+        };
+        var ObjProto = Object.prototype;
+        var hasOwnProperty = ObjProto.hasOwnProperty;
         // Retrieve the names of an object's properties.
         // Delegates to **ECMAScript 5**'s native `Object.keys`
-        _.keys = nativeKeys || function(obj) {
-            if (obj !== Object(obj)) throw new TypeError("Invalid object");
-            var keys = [];
-            for (var key in obj) if (_.hasKey(obj, key)) keys[keys.length] = key;
-            return keys;
-        };
+        $.keys = Object.keys;
         // Retrieve the values of an object's properties.
-        _.values = function(obj) {
+        $.values = function(obj) {
             var values = [];
-            for (var key in obj) if (_.hasKey(obj, key)) values.push(obj[key]);
+            for (var key in obj) if ($.hasKey(obj, key)) values.push(obj[key]);
             return values;
         };
         // Extend a given object with all the properties in passed-in object(s).
-        _.extend = function(obj) {
+        $.extend = function(obj) {
             each(slice.call(arguments, 1), function(source) {
                 if (source) {
                     for (var prop in source) {
@@ -712,7 +377,7 @@
             return obj;
         };
         // Return a copy of the object only containing the whitelisted properties.
-        _.pick = function(obj) {
+        $.pick = function(obj) {
             var copy = {};
             var keys = concat.apply(ArrayProto, slice.call(arguments, 1));
             each(keys, function(key) {
@@ -721,495 +386,824 @@
             return copy;
         };
         // Return a copy of the object without the blacklisted properties.
-        _.omit = function(obj) {
+        $.omit = function(obj) {
             var copy = {};
             var keys = concat.apply(ArrayProto, slice.call(arguments, 1));
             for (var key in obj) {
-                if (!_.contains(keys, key)) copy[key] = obj[key];
+                if (!$.contains(keys, key)) copy[key] = obj[key];
             }
             return copy;
         };
         // Create a (shallow-cloned) duplicate of an object.
-        _.clone = function(obj) {
-            if (!_.isObject(obj)) return obj;
-            return _.isArray(obj) ? obj.slice() : _.extend({}, obj);
+        $.clone = function(obj) {
+            if (!$.isObject(obj)) return obj;
+            return $.isArray(obj) ? obj.slice() : $.extend({}, obj);
         };
         // Invokes interceptor with the obj, and then returns obj.
         // The primary purpose of this method is to "tap into" a method chain, in
         // order to perform operations on intermediate results within the chain.
-        _.tap = function(obj, interceptor) {
+        $.tap = function(obj, interceptor) {
             interceptor(obj);
             return obj;
         };
-        // Is a given array, string, or object empty?
-        // An "empty" object has no enumerable own-properties.
-        _.isEmpty = function(obj) {
-            if (obj == null) return true;
-            if (_.isArray(obj) || _.isString(obj)) return obj.length === 0;
-            for (var key in obj) if (_.hasKey(obj, key)) return false;
-            return true;
-        };
-        // Is a given value a DOM element?
-        _.isElement = function(obj) {
-            return !!(obj && obj.nodeType === 1);
-        };
-        // Is a given value an array?
-        // Delegates to ECMA5's native Array.isArray
-        _.isArray = nativeIsArray || function(obj) {
-            return toString.call(obj) == "[object Array]";
-        };
-        // Is a given variable an object?
-        _.isObject = function(obj) {
-            return obj === Object(obj);
-        };
-        // Add some isType methods: isArguments, isFunction, isString, isNumber, isDate, isRegExp.
-        each([ "Arguments", "Function", "String", "Number", "Date", "RegExp" ], function(name) {
-            _["is" + name] = function(obj) {
-                return toString.call(obj) == "[object " + name + "]";
-            };
-        });
-        // Define a fallback version of the method in browsers (ahem, IE), where
-        // there isn't any inspectable "Arguments" type.
-        if (!_.isArguments(arguments)) {
-            _.isArguments = function(obj) {
-                return !!(obj && _.hasKey(obj, "callee"));
-            };
-        }
-        // Optimize `isFunction` if appropriate.
-        if (typeof /./ !== "function") {
-            _.isFunction = function(obj) {
-                return typeof obj === "function";
-            };
-        }
-        // Is a given object a finite number?
-        _.isFinite = function(obj) {
-            return isFinite(obj) && !isNaN(parseFloat(obj));
-        };
-        // Is the given value `NaN`? (NaN is the only number which does not equal itself).
-        _.isNaN = function(obj) {
-            return _.isNumber(obj) && obj != +obj;
-        };
-        // Is a given value a boolean?
-        _.isBoolean = function(obj) {
-            return obj === true || obj === false || toString.call(obj) == "[object Boolean]";
-        };
-        // Is a given value equal to null?
-        _.isNull = function(obj) {
-            return obj === null;
-        };
-        // Is a given variable undefined?
-        _.isUndefined = function(obj) {
-            return obj === void 0;
-        };
         // Shortcut function for checking if an object has a given property directly
         // on itself (in other words, not on a prototype).
-        _.hasKey = function(obj, key) {
+        $.hasKey = function(obj, key) {
             return hasOwnProperty.call(obj, key);
         };
         // Return a random integer between min and max (inclusive).
-        _.random = function(min, max) {
+        $.random = function(min, max) {
             if (max == null) {
                 max = min;
                 min = 0;
             }
             return min + Math.floor(Math.random() * (max - min + 1));
         };
-        // Generate a unique integer id (unique within the entire client session).
-        // Useful for temporary DOM ids.
-        var idCounter = 0;
-        _.uniqueId = function(prefix) {
-            var id = ++idCounter + "";
-            return prefix ? prefix + id : id;
+        /* AJAX functions */
+        function empty() {}
+        var ajaxSettings = {
+            type: "GET",
+            beforeSend: empty,
+            success: empty,
+            error: empty,
+            complete: empty,
+            context: undefined,
+            timeout: 0,
+            crossDomain: null
         };
-        //替换path里面的变量，如{id}
-        function fixPath(path, obj) {
-            return path.replace(/(^\s*)|(\s*$)/g, "").replace(/\{.*?\}/gi, function(m) {
-                return obj[m.replace(/\{|\}/gi, "")];
-            });
-        }
-        var baseClass = {};
-        //新组装一个插件
-        function makeWidget(path, func, behavior, proto) {
-            var root = this;
-            function Widget(p) {
-                //继承，new一个base，把base的状态付给对象
-                if (this.INHERIT) {
-                    var base = this.base = new G.widget[this.INHERIT](p);
-                    for (var x in base) if (base.hasOwnProperty(x)) this[x] = base[x];
+        /**
+	 * Execute an Ajax call with the given options
+	 * options.type - Type of request
+	 * options.beforeSend - function to execute before sending the request
+	 * options.success - success callback
+	 * options.error - error callback
+	 * options.complete - complete callback - callled with a success or error
+	 * options.timeout - timeout to wait for the request
+	 * options.url - URL to make request against
+	 * options.contentType - HTTP Request Content Type
+	 * options.headers - Object of headers to set
+	 * options.dataType - Data type of request
+	 * options.data - data to pass into request.  $.param is called on objects
+	```
+	var opts={
+	type:"GET",
+	success:function(data){},
+	url:"mypage.php",
+	data:{bar:'bar'},
+	}
+	$.ajax(opts);
+	```
+
+	 * @param {Object} options
+	 * @title $.ajax(options)
+	 */
+        $.ajax = function(opts) {
+            var xhr;
+            try {
+                var settings = opts || {};
+                for (var key in ajaxSettings) {
+                    if (typeof settings[key] == "undefined") settings[key] = ajaxSettings[key];
                 }
-                func.call(this, p);
-                //初始化处理阶段
-                for (var x in behavior) if (x != "init") {
-                    //循环各种行为的处理
-                    var f = G.extend[proto.TYPE + "/behavior"][x];
-                    if (f) {
-                        f = f[0];
-                        //返回初始化执行函数
-                        if (f) f.call(this, path, behavior[x], root);
+                if (!settings.url) settings.url = window.location;
+                if (!settings.contentType) settings.contentType = "application/x-www-form-urlencoded";
+                if (!settings.headers) settings.headers = {};
+                if (!("async" in settings) || settings.async !== false) settings.async = true;
+                if (!settings.dataType) settings.dataType = "text/html"; else {
+                    switch (settings.dataType) {
+                      case "script":
+                        settings.dataType = "text/javascript, application/javascript";
+                        break;
+
+                      case "json":
+                        settings.dataType = "application/json";
+                        break;
+
+                      case "xml":
+                        settings.dataType = "application/xml, text/xml";
+                        break;
+
+                      case "html":
+                        settings.dataType = "text/html";
+                        break;
+
+                      case "text":
+                        settings.dataType = "text/plain";
+                        break;
+
+                      default:
+                        settings.dataType = "text/html";
+                        break;
+
+                      case "jsonp":
+                        return $.jsonP(opts);
+                        break;
                     }
                 }
-                //执行初始化
-                var init = behavior.init;
-                if (proto.TYPE == "page") G.extend[proto.TYPE + "/behavior"]["init"][0].call(this, path, behavior["init"], root);
-            }
-            Widget.prototype.PATH = path;
-            if (baseClass.path) {
-                Widget.prototype[baseClass.type] = baseClass.path;
-                if (baseClass.type == "REBUILT") Widget.prototype.baseProto = G.chips[baseClass.path].proto;
-                baseClass.path = null;
-            }
-            var extend = this.extend[proto.TYPE];
-            //需要跟page分开扩展
-            //对widget 和page的内部方法扩展
-            for (var x in extend) Widget.prototype[x] = extend[x];
-            //原型处理阶段，所有原型方法就绪
-            for (var x in behavior) {
-                var f = G.extend[proto.TYPE + "/behavior"][x];
-                if (f) {
-                    f = f[1];
-                    //返回初始化前执行函数 ，应该调整一下
-                    if (f) f.call(this, path, behavior[x], proto);
+                if ($.isObject(settings.data)) settings.data = $.param(settings.data);
+                if (settings.type.toLowerCase() === "get" && settings.data) {
+                    if (settings.url.indexOf("?") === -1) settings.url += "?" + settings.data; else settings.url += "&" + settings.data;
                 }
-            }
-            for (var x in proto) Widget.prototype[x] = proto[x];
-            //返回组装类
-            return Widget;
-        }
-        //深克隆函数
-        function deepClone(item) {
-            if (!item) {
-                return item;
-            }
-            // null, undefined values check 
-            var types = [ Number, String, Boolean ], result;
-            // normalizing primitives if someone did new String('aaa'), or new Number('444');    
-            //一些通过new方式建立的东东可能会类型发生变化，我们在这里要做一下正常化处理 
-            //比如new String('aaa'), or new Number('444') 
-            types.forEach(function(type) {
-                if (item instanceof type) {
-                    result = type(item);
+                if (/=\?/.test(settings.url)) {
+                    return $.jsonP(settings);
                 }
-            });
-            if (typeof result == "undefined") {
-                if (Object.prototype.toString.call(item) === "[object Array]") {
-                    result = [];
-                    item.forEach(function(child, index, array) {
-                        result[index] = deepClone(child);
-                    });
-                } else if (typeof item == "object") {
-                    // testign that this is DOM 
-                    //如果是dom对象，那么用自带的cloneNode处理 
-                    if (item.nodeType && typeof item.cloneNode == "function") {
-                        var result = item.cloneNode(true);
-                    } else if (!item.prototype) {
-                        // check that this is a literal 
-                        // it is an object literal       
-                        //如果是个对象迭代的话，我们可以用for in 迭代来赋值 
-                        result = {};
-                        for (var i in item) {
-                            result[i] = deepClone(item[i]);
-                        }
-                    } else {
-                        // depending what you would like here, 
-                        // just keep the reference, or create new object 
-                        //这里解决的是带构造函数的情况，这里要看你想怎么复制了，深得话，去掉那个false && ，浅的话，维持原有的引用，                 
-                        //但是我不建议你去new一个构造函数来进行深复制，具体原因下面会解释 
-                        if (false && item.constructor) {
-                            // would not advice to do that, reason? Read below 
-                            //朕不建议你去new它的构造函数 
-                            result = new item.constructor();
+                if (settings.crossDomain === null) settings.crossDomain = /^([\w-]+:)?\/\/([^\/]+)/.test(settings.url) && RegExp.$2 != window.location.host;
+                if (!settings.crossDomain) settings.headers = $.extend({
+                    "X-Requested-With": "XMLHttpRequest"
+                }, settings.headers);
+                var abortTimeout;
+                var context = settings.context;
+                var protocol = /^([\w-]+:)\/\//.test(settings.url) ? RegExp.$1 : window.location.protocol;
+                //ok, we are really using xhr
+                xhr = new window.XMLHttpRequest();
+                xhr.onreadystatechange = function() {
+                    var mime = settings.dataType;
+                    if (xhr.readyState === 4) {
+                        clearTimeout(abortTimeout);
+                        var result, error = false;
+                        if (xhr.status >= 200 && xhr.status < 300 || xhr.status === 0 && protocol == "file:") {
+                            if (mime === "application/json" && !/^\s*$/.test(xhr.responseText)) {
+                                try {
+                                    result = JSON.parse(xhr.responseText);
+                                } catch (e) {
+                                    error = e;
+                                }
+                            } else if (mime === "application/xml, text/xml") {
+                                result = xhr.responseXML;
+                            } else if (mime == "text/html") {
+                                result = xhr.responseText;
+                            } else result = xhr.responseText;
+                            //If we're looking at a local file, we assume that no response sent back means there was an error
+                            if (xhr.status === 0 && result.length === 0) error = true;
+                            if (error) settings.error.call(context, xhr, "parsererror", error); else {
+                                settings.success.call(context, result, "success", xhr);
+                            }
                         } else {
-                            result = item;
+                            error = true;
+                            settings.error.call(context, xhr, "error");
                         }
+                        settings.complete.call(context, xhr, error ? "error" : "success");
                     }
-                } else {
-                    result = item;
-                }
-            }
-            return result;
-        }
-        G.Extend("grace", {
-            Widget: function(path, func, behavior, proto) {
-                proto.TYPE = "widget";
-                //设置生成插件类别
-                //需要存储各成分结构，提供复用
-                /*
-				1、行为只有覆盖，不提供向上指针
-				2、原型方法可提供向上原型指针
-				
-				复用分为两种模式：
-					1、重构---生成兄弟关系的新类；
-						a.覆盖base的构造函数，
-						b.可选择继承行为，覆盖行为，
-						c.覆盖原有原型方法，提供base向上原型指针
-						d.执行新的构造函数进行构造
-					2、继承---生成父子关系的新类；
-						a.执行父级构造函数进行初始构造，生成base向上对象指针；
-						b.选择继承行为，覆盖行为，
-						c.原型覆盖
-						d.执行新的构造函数进行构造
-				
-			*/
-                //继承，在这里实现各成分拷贝
-                if (baseClass.path) {
-                    //获取base类
-                    var base = this.widget[baseClass.path];
-                    //获取base构件
-                    var chips = this.chips[baseClass.path];
-                    var options;
-                    //获得继承的行为种类
-                    if (baseClass.options == "*") options = Object.keys(G.extend["widget/behavior"]); else options = baseClass.options;
-                    var tmp = {};
-                    //根据继承行为种类进行拷贝构件
-                    for (var i = 0, len = options.length; i < len; i++) tmp[options[i]] = _.extend({}, chips.behavior[options[i]], behavior[options[i]]);
-                    behavior = _.extend({}, behavior, tmp);
-                    //需要区别是否原生类，如果是原生类，需要继承prototype，如果不是原生类，只需要继承proto
-                    proto = _.extend({}, chips.proto, func.prototype, proto);
-                }
-                this.chips[path] = {
-                    path: path,
-                    func: func,
-                    behavior: behavior,
-                    proto: proto
                 };
-                this.widget[path] = makeWidget.call(this, path, func, behavior, proto);
-            }
-        });
-        //widge page内置方法扩展
-        G.Extend("widget,page", {
-            DS: function(path) {
-                //返回一个DS对象
-                return G.DS.getDS(path);
-            },
-            //类JQ操作对象
-            $: function(s) {
-                return $$(s);
-            },
-            //向中介发布信息
-            publish: function(channel, message) {
-                if (message) G.MD.publish(channel, message); else G.MD.publish(channel);
-            },
-            //初始化一个widget插件，如果是widget调用，限制只能调用同根widget，如果是page调用，则不设限制
-            "new": function(path, p) {
-                var w = this.widget[path];
-                if (this.TYPE == "widget" && w && this.PATH.split("/")[0] == path.split("/")[0] || this.TYPE != "widget" && w) return new w(p);
-            }
-        });
-        //widget page 行为扩展
-        //是否应该考虑吧初始化行为也提到这里来
-        G.Extend("widget/behavior,page/behavior", {
-            //数据岛行为扩展
-            dataset: [ function(path, dataset, root) {
-                var DS = root.DS;
-                dataset = deepClone(dataset);
-                if (dataset.constructor == Array) {
-                    dataset[0] = fixPath(dataset[0], this);
-                    DS.initData(path + "/" + dataset[0], dataset[1]);
-                } else {
-                    DS.initData(path, dataset);
+                xhr.open(settings.type, settings.url, settings.async);
+                if (settings.withCredentials) xhr.withCredentials = true;
+                if (settings.contentType) settings.headers["Content-Type"] = settings.contentType;
+                for (var name in settings.headers) xhr.setRequestHeader(name, settings.headers[name]);
+                if (settings.beforeSend.call(context, xhr, settings) === false) {
+                    xhr.abort();
+                    return false;
                 }
-            }, function() {} ],
-            //util行为扩展，以冒号区分两种util扩展
-            util: [ function(path, util, root) {
-                utils(util, this);
-            }, function(path, util, proto) {} ],
-            //事件绑定扩展
-            //考虑做成独立的内部事件绑定机制，不依赖jquery的事件绑定机制
-            event: [ function(path, event, root) {
-                for (var x in event) bind(this, x);
-            }, function(path, event, proto) {
-                for (var x in event) proto["zzE_" + x] = event[x];
-            } ],
-            //注册订阅
-            subscribe: [ function(path, subs, root) {
-                for (var x in subs) subscribe(this, x);
-            }, function(path, subs, proto) {
-                for (var x in subs) proto["zzS_" + x] = subs[x];
-            } ],
-            //初始化扩展
-            init: [ function(path, init, root) {
-                for (var x in init) {
-                    if (init[x].constructor == String) {
-                        runPageInit(this, fixPath(x, this), this[init[x]]);
-                    } else runPageInit(this, fixPath(x, this), init[x]);
-                }
-            }, function(path, init, root) {} ]
-        });
-        G.Extend("widget/behavior/event,page/behavior/event", {
-            //常规dom事件绑定实现方法
-            //that	事件绑定相关对象
-            //path	事件绑定指令
-            //key	事件函数对应的prototype键
-            event: function(that, path, key) {
-                var index = path.indexOf(" ");
-                var etype = path.substr(0, index);
-                var dom = path.substr(index + 1).split("@");
-                //
-                //如果dom事件有委托
-                if (dom.length == 2) $$(dom[0]).on(etype, dom[1], function(e) {
-                    that[key]($$(this), e);
-                }); else if (dom.length == 1) //如果dom事件没有委托
-                $$(dom[0]).on(etype, function(e) {
-                    that[key]($$(this), e);
-                });
+                if (settings.timeout > 0) abortTimeout = setTimeout(function() {
+                    xhr.onreadystatechange = empty;
+                    xhr.abort();
+                    settings.error.call(context, xhr, "timeout");
+                }, settings.timeout);
+                xhr.send(settings.data);
+            } catch (e) {
+                // General errors (e.g. access denied) should also be sent to the error callback
+                console.log(e);
+                settings.error.call(context, xhr, "error", e);
             }
-        });
-        G.Extend("widget/behavior/init,page/behavior/init", {
-            dom: function(that, target, callback) {
-                var t = $$(target);
-                var set = t.data("set");
-                if (set.constructor == String) set = G.DS.getDS(set);
-                callback.call(that, t, set);
-            }
-        });
-        //初始化utils
-        function utils(d, that) {
-            var func = {}, util = {};
-            for (var x in d) {
-                x = fixPath(x, that);
-                //为了少用一个for循环
-                if (x.indexOf(":") > -1) util[x] = d[x]; else func[x] = d[x];
-            }
-            //调用util扩展方法
-            G.Util(util, func);
-        }
-        //初始化订阅功能
-        function subscribe(that, path) {
-            var key = "zzS_" + path;
-            //对象中对应的执行方法的prototype键
-            path = fixPath(path, that);
-            if (that[key].constructor == String) key = that[key];
-            G.MD.subscribe(path, function(message) {
-                that[key](message);
+            return xhr;
+        };
+        /**
+	 * Shorthand call to an Ajax GET request
+	```
+	$.get("mypage.php?foo=bar",function(data){});
+	```
+
+	 * @param {String} url to hit
+	 * @param {Function} success
+	 * @title $.get(url,success)
+	 */
+        $.get = function(url, success) {
+            return this.ajax({
+                url: url,
+                success: success
             });
-        }
-        //事件函数绑定执行
-        function bind(that, path) {
-            var key = "zzE_" + path;
-            if (that[key].constructor == String) key = that[key];
-            path = fixPath(path, that);
-            var index = path.indexOf(" ");
-            var index2 = path.indexOf(":");
-            if (index > 0 && (index2 > 0 && index < index2 || index2 == -1)) {
-                //冒号在后面或者没有冒号，一定有空格，默认为常规dom事件处理方式
-                var type = "event";
-            } else if (index2 > 0 && (index > 0 && index2 < index || index == -1)) {
-                //冒号在前面或者没有空格，一定有冒号，分析为其他事件处理方式
-                var type = path.substr(0, index2);
-                //也可能是dom方式
-                var path = path.substr(index2 + 1);
+        };
+        /**
+	 * Shorthand call to an Ajax POST request
+	```
+	$.post("mypage.php",{bar:'bar'},function(data){});
+	```
+
+	 * @param {String} url to hit
+	 * @param {Object} [data] to pass in
+	 * @param {Function} success
+	 * @param {String} [dataType]
+	 * @title $.post(url,[data],success,[dataType])
+	 */
+        $.post = function(url, data, success, dataType) {
+            if (typeof data === "function") {
+                success = data;
+                data = {};
             }
-            G.extend[that.TYPE + "/behavior/event"][type](that, path, key);
-        }
-        //插件构造函数执行后就跑初始化程序
-        function runPageInit(that, x, callback) {
-            if (x.indexOf(":") > -1) {
-                var index = x.indexOf(":");
-                var type = x.substr(0, index);
-                //获得key解析类型
-                var target = x.substr(index + 1);
-                //获得key解析对象
-                var init = G.extend[that.TYPE + "/behavior/init"][type];
-                //从扩展获得处理方式
-                if (init) init(that, target, callback); else G.extend[that.TYPE + "/behavior/init"]["dom"](that, x, callback);
+            if (dataType === undefined) dataType = "html";
+            return this.ajax({
+                url: url,
+                type: "POST",
+                data: data,
+                dataType: dataType,
+                success: success
+            });
+        };
+        /**
+	 * Shorthand call to an Ajax request that expects a JSON response
+	```
+	$.getJSON("mypage.php",{bar:'bar'},function(data){});
+	```
+
+	 * @param {String} url to hit
+	 * @param {Object} [data]
+	 * @param {Function} [success]
+	 * @title $.getJSON(url,data,success)
+	 */
+        $.getJSON = function(url, data, success) {
+            if (typeof data === "function") {
+                success = data;
+                data = {};
+            }
+            return this.ajax({
+                url: url,
+                data: data,
+                success: success,
+                dataType: "json"
+            });
+        };
+        /**
+	 * Converts an object into a key/value par with an optional prefix.  Used for converting objects to a query string
+	```
+	var obj={
+	foo:'foo',
+	bar:'bar'
+	}
+	var kvp=$.param(obj,'data');
+	```
+
+	 * @param {Object} object
+	 * @param {String} [prefix]前缀
+	 * @return {String} Key/value pair representation
+	 * @title $.queryString(object,[prefix];
+	 */
+        $.queryString = function(obj, prefix) {
+            var str = [];
+            if (obj instanceof $jqm) {
+                for (var i = 0, len = obj.length; i < len; i++) {
+                    var k = prefix ? prefix + "[]" : obj.elems[i].name, v = obj.elems[i].value;
+                    str.push(k + "=" + encodeURIComponent(v));
+                }
             } else {
-                G.extend[that.TYPE + "/behavior/init"]["dom"](that, x, callback);
-            }
-        }
-        G.Extend("grace", {
-            Page: function(path, cons, behavior, proto) {
-                proto.TYPE = "page";
-                //调用makeWidget函数生成page插件
-                this.page[path] = makeWidget.call(this, path, cons, behavior, proto);
-            }
-        });
-        //提供内部page插件初始化扩展
-        //专门提供page插件内部使用，
-        //限制只能调用同根的page插件
-        G.Extend("page", {
-            //path	调用插件的路径
-            //p		传入参数
-            init: function(path, p) {
-                var w = this.page[path];
-                if (this.TYPE == "page" && w && this.PATH.split("/")[0] == path.split("/")[0]) return new w(p);
-            }
-        });
-        G.Extend("grace", {
-            //domUtils	对dom操作自动处理扩展
-            //funcUtils	为engine添加prototype函数扩展
-            Util: function(domUtils, funcUtils) {
-                //调用$$自身扩展方法
-                $$.extend(funcUtils);
-                var du = $$.dataUtils;
-                for (var x in domUtils) {
-                    if (x.indexOf(":") > -1) {
-                        var xx = x.split(":");
-                        du[xx[0]] = du[xx[0]] || {};
-                        du[xx[0]][xx[1]] = domUtils[x];
-                    } else {
-                        du["util"] = du["util"] || {};
-                        du["util"][x] = domUtils[x];
-                    }
+                for (var p in obj) {
+                    var k = prefix ? prefix + "[" + p + "]" : p, v = obj[p];
+                    str.push($.isObject(v) ? $.queryString(v, k) : k + "=" + encodeURIComponent(v));
                 }
             }
-        });
-        G.Engine({
-            //调用util自动初始化方法进行初始化
-            //utils	初始化方法，逗号隔开
-            util: function(utils) {
-                var du = $$.dataUtils;
-                //如果utils参数存在
-                if (utils && utils.constructor == String) {
-                    utils = utils.replace(/\s/gi, "").split(",");
-                    var u, x;
-                    var uts = du["util"];
-                    while (u = utils.pop()) {
-                        var func = uts[u];
-                        this.find('[data-util="' + u + '"]').each(function(el) {
-                            if (!el[0].inited && func) {
-                                //如果未进行过初始化
-                                func(el, el.data("set"));
-                                el[0].inited = true;
-                            }
-                        }).end();
-                    }
-                } else {
-                    //如果没有utils参数，则初始化所有
-                    for (x in du) {
-                        var t = du[x];
-                        this.find("[data-" + x + "]").each(function(el) {
-                            var u = el.data(x);
-                            if (!el[0].inited && t[u]) {
-                                t[u](el, el.data("set"));
-                                el[0].inited = true;
-                            }
-                        }).end();
+            return str.join("&");
+        };
+        /**
+	 * Used for backwards compatibility.  Uses native JSON.parse function
+	```
+	var obj=$.parseJSON("{\"bar\":\"bar\"}");
+	```
+
+	 * @params {String} string
+	 * @return {Object}
+	 * @title $.parseJSON(string)
+	 */
+        $.parseJSON = function(string) {
+            return JSON.parse(string);
+        };
+        /**
+	 * Helper function to convert XML into  the DOM node representation
+	```
+	var xmlDoc=$.parseXML("<xml><foo>bar</foo></xml>");
+	```
+
+	 * @param {String} string
+	 * @return {Object} DOM nodes
+	 * @title $.parseXML(string)
+	 */
+        $.parseXML = function(string) {
+            return new DOMParser().parseFromString(string, "text/xml");
+        };
+        function cleanUpNode(node, kill) {
+            //kill it before it lays eggs!
+            if (kill && node.dispatchEvent) {
+                var e = $.Event("destroy", {
+                    bubbles: false
+                });
+                node.dispatchEvent(e);
+            }
+            var id = _id(node);
+            if (id && handlers[id]) {
+                for (var key in handlers[id]) node.removeEventListener(handlers[id][key].e, handlers[id][key].proxy, false);
+                delete handlers[id];
+            }
+        }
+        $.cleanUpContent = function(node, itself, kill) {
+            if (!node) return;
+            //cleanup children
+            var elems = $("[_id]", node).elems;
+            if (elems.length > 0) for (var i = 0, len = elems.length; i < len; i++) {
+                cleanUpNode(elems[i], kill);
+            }
+            //cleanUp this node
+            if (itself) cleanUpNode(node, kill);
+        };
+        var fragementRE = /^\s*<(\w+)[^>]*>/;
+        $.extend($.fn, {
+            html: function(html, cleanup) {
+                if (this.length === 0) return this;
+                if (html === undefined) return this.elems[0].innerHTML;
+                for (var i = 0, len = this.length; i < len; i++) {
+                    if (cleanup !== false) $.cleanUpContent(this.elems[i], false, true);
+                    this.elems[i].innerHTML = html;
+                }
+                return this;
+            },
+            text: function(text) {
+                if (this.length === 0) return this;
+                if (text === undefined) return this.elems[0].textContent;
+                for (var i = 0, len = this.length; i < len; i++) {
+                    this.elems[i].textContent = text;
+                }
+                return this;
+            },
+            remove: function(selector) {
+                var elems = $(this).filter(selector).elems;
+                if (elems == undefined) return this;
+                for (var i = 0, len = elems.length; i < len; i++) {
+                    $.cleanUpContent(elems[i], true, true);
+                    elems[i].parentNode.removeChild(elems[i]);
+                }
+                return this;
+            },
+            append: function(element, insert) {
+                if (element && element.length != undefined && element.length === 0) return this;
+                if ($.isArray(element) || $.isObject(element)) element = $(element);
+                var i;
+                for (i = 0; i < this.length; i++) {
+                    if (element.length && typeof element != "string") {
+                        element = $(element);
+                        _insertFragments(element, this.elems[i], insert);
+                    } else {
+                        var obj = fragementRE.test(element) ? $(element) : undefined;
+                        if (obj == undefined || obj.length == 0) {
+                            obj = document.createTextNode(element);
+                        }
+                        if (obj.nodeName != undefined && obj.nodeName.toLowerCase() == "script" && (!obj.type || obj.type.toLowerCase() === "text/javascript")) {
+                            window.eval(obj.innerHTML);
+                        } else if (obj instanceof $.fn.constructor) {
+                            _insertFragments(obj, this.elems[i], insert);
+                        } else {
+                            insert != undefined ? this.elems[i].insertBefore(obj, this.elems[i].firstChild) : this.elems[i].appendChild(obj);
+                        }
                     }
                 }
                 return this;
+            },
+            appendTo: function(selector, insert) {
+                var tmp = $(selector);
+                tmp.append(this);
+                return this;
+            },
+            prependTo: function(selector) {
+                var tmp = $(selector);
+                tmp.append(this, true);
+                return this;
+            },
+            prepend: function(element) {
+                return this.append(element, 1);
+            },
+            before: function(target, after) {
+                if (this.length == 0) return this;
+                target = $(target).eq(0);
+                if (!target) return this;
+                for (var i = 0; i < this.length; i++) {
+                    after ? target.parentNode.insertBefore(this.elems[i], target.nextSibling) : target.parentNode.insertBefore(this.elems[i], target);
+                }
+                return this;
+            },
+            after: function(target) {
+                this.insertBefore(target, true);
+            },
+            clone: function(deep) {
+                deep = deep === false ? false : true;
+                if (this.length == 0) return this;
+                var elems = [];
+                for (var i = 0, len = this.length; i < len; i++) {
+                    elems.push(this.elems[i].cloneNode(deep));
+                }
+                return $(elems);
             }
-        }, {
-            //属性扩展
-            dataUtils: {}
         });
-        G.Extend("grace", {
-            //应用初始化启动程序，需要模块依赖管理框架对各模块进行管理，此模块应该作为最后的模块加载
-            //before 	初始化前执行函数
-            //end		初始化后执行函数 
-            App: function(before, end) {
-                var p, x;
-                before && before();
-                for (x in this.page) {
-                    if (x.indexOf("/") == -1) {
-                        //仅对一级page进行初始化启动
-                        p = this.page[x];
-                        if (p) new p();
+        $.extend($.fn, {
+            attr: function(attr, value) {
+                var id, el;
+                if (this.length === 0) return value === undefined ? undefined : this;
+                if (value === undefined && !$.isObject(attr)) {
+                    id = has_id(this.elems[0]);
+                    return id && _attrCache[id][attr] ? _attrCache[id][attr] : this.elems[0].getAttribute(attr);
+                }
+                for (var i = 0, len = this.length; i < len; i++) {
+                    id = has_id(this.elems[i]);
+                    el = this.elems[i];
+                    if ($.isObject(attr)) {
+                        for (var key in attr) {
+                            $(el).attr(key, attr[key]);
+                        }
+                    } else if ($.isArray(value) || $.isObject(value) || $.isFunction(value)) {
+                        if (!id) id = _id(el);
+                        if (!_attrCache[id]) _attrCache[id] = {};
+                        _attrCache[id][attr] = value;
+                    } else if (value == null && value !== undefined) {
+                        el.removeAttribute(attr);
+                        if (id) _attrCache[id][attr];
+                        delete _attrCache[id][attr];
+                    } else {
+                        el.setAttribute(attr, value);
                     }
                 }
-                end && end();
+                return this;
+            },
+            removeAttr: function(attr) {
+                var attrs = attr.split(/\s+|\,/g), el, at, id;
+                for (var i = 0, len = this.length; i < len; i++) {
+                    el = this.elems[i];
+                    id = has_id(el);
+                    for (var j = 0, lem = attrs.length; j < lem; j++) {
+                        at = attrs[j];
+                        el.removeAttribute(at);
+                        if (id && _attrCache[id][at]) delete _attrCache[id][at];
+                    }
+                }
+                return this;
+            },
+            prop: function(prop, value) {
+                var id, el;
+                if (this.length === 0) return value === undefined ? undefined : this;
+                if (value === undefined && !$.isObject(prop)) {
+                    var res;
+                    id = has_id(this.elems[0]);
+                    var val = id && _propCache[id][prop] ? id && _propCache[id][prop] : !(res = this.elems[0][prop]) && prop in this.elems[0] ? this.elems[0][prop] : res;
+                    return val;
+                }
+                for (var i = 0, len = this.length; i < len; i++) {
+                    el = this.elems[i];
+                    id = has_id(el);
+                    if ($.isObject(prop)) {
+                        for (var key in prop) {
+                            $(el).prop(key, prop[key]);
+                        }
+                    } else if ($.isArray(value) || $.isObject(value) || $.isFunction(value)) {
+                        if (!id) id = _id(el);
+                        if (!_propCache[id]) _propCache[id] = {};
+                        _propCache[id][prop] = value;
+                    } else if (value == null && value !== undefined) {
+                        $(el).removeProp(prop);
+                        if (id) _propCache[id][prop];
+                        delete _propCache[id][prop];
+                    } else {
+                        el[prop] = value;
+                    }
+                }
+                return this;
+            },
+            removeProp: function(prop) {
+                var p = prop.split(/\s+|\,/g), el, pr;
+                for (var i = 0, len = this.length; i < len; i++) {
+                    el = this.elems[i];
+                    for (var j = 0, lem = p.length; j < lem; j++) {
+                        pr = p[j];
+                        if (el[pr]) delete el[pr];
+                        if (el.jqmCacheId && _propCache[el.jqmCacheId][pr]) {
+                            delete _propCache[el.jqmCacheId][pr];
+                        }
+                    }
+                }
+                return this;
+            },
+            parseForm: function() {
+                if (this.length == 0) return "";
+                var params = {}, elems, elem, type, tmp;
+                for (var i = 0, len = this.length; i < len; i++) {
+                    if (elems = this.elems[i].elements) {
+                        for (var j = 0, lem = elems.length; j < lem; j++) {
+                            elem = elems[j];
+                            type = elem.getAttribute("type");
+                            if (elem.nodeName.toLowerCase() != "fieldset" && !elem.disabled && type != "submit" && type != "reset" && type != "button" && (type != "radio" && type != "checkbox" || elem.checked)) {
+                                if (elem.getAttribute("name")) {
+                                    if (elem.type == "select-multiple") {
+                                        tmp = params[elem.getAttribute("name")] = [];
+                                        for (var j = 0; j < elem.options.length; j++) {
+                                            if (elem.options[j].selected) tmp.push(elem.options[j].value);
+                                        }
+                                    } else params[elem.getAttribute("name")] = elem.value;
+                                }
+                            }
+                        }
+                    }
+                }
+                return params;
+            },
+            val: function(value) {
+                if (this.length === 0) return value === undefined ? undefined : this;
+                if (value == undefined) return this.elems[0].value;
+                for (var i = 0, len = this.length; i < len; i++) {
+                    this.elems[i].value = value;
+                }
+                return this;
+            },
+            data: function(key, value) {
+                return this.attr("data-" + key, value);
+            },
+            _id: function(make) {
+                if (make) return _id(this.elems[0]);
+                return has_id(this.elems[0]);
             }
         });
-        return G;
+        $.extend($.fn, {
+            ready: function(callback) {
+                if (document.readyState === "complete" || document.readyState === "loaded" || document.readyState === "interactive") callback(); else document.addEventListener("DOMContentLoaded", callback, false);
+                return this;
+            },
+            is: function(selector) {
+                return !!selector && this.filter(selector).length > 0;
+            }
+        });
+        $.extend($.fn, {
+            setupOld: function(params) {
+                if (params == undefined) return $();
+                params.oldElement = this;
+                return params;
+            },
+            //如果callback返回数据，则返回[数据]，否则默认返回this
+            each: function(callback) {
+                var el = this.elems, tmp, returns = [];
+                for (var i = 0, len = el.length; i < len; i++) {
+                    tmp = callback.call(el[i], i, el);
+                    if (tmp) returns.push(tmp);
+                }
+                if (returns.length) return returns;
+                return this;
+            },
+            find: function(sel) {
+                if (this.length === 0) return this;
+                var elems = [];
+                var tmpElems;
+                for (var i = 0, len = this.length; i < len; i++) {
+                    tmpElems = $(sel, this.elems[i]).elems;
+                    for (var j = 0; j < tmpElems.length; j++) {
+                        elems.push(tmpElems[j]);
+                    }
+                }
+                return $(unique(elems));
+            },
+            parent: function(selector, recursive) {
+                if (this.length == 0) return this;
+                var elems = [];
+                for (var i = 0, len = this.length; i < len; i++) {
+                    var tmp = this.elems[i];
+                    while (tmp.parentNode && tmp.parentNode != document) {
+                        elems.push(tmp.parentNode);
+                        if (tmp.parentNode) tmp = tmp.parentNode;
+                        if (!recursive) break;
+                    }
+                }
+                return this.setupOld($(unique(elems)).filter(selector));
+            },
+            parents: function(selector) {
+                return this.parent(selector, true);
+            },
+            children: function(selector) {
+                if (this.length == 0) return this;
+                var elems = [];
+                for (var i = 0, len = this.length; i < len; i++) {
+                    elems = elems.concat(siblings(this.elems[i].firstChild));
+                }
+                return this.setupOld($(elems).filter(selector));
+            },
+            siblings: function(selector) {
+                if (this.length == 0) return this;
+                var elems = [];
+                for (var i = 0, len = this.length; i < len; i++) {
+                    if (this.elems[i].parentNode) elems = elems.concat(siblings(this.elems[i].parentNode.firstChild, this.elems[i]));
+                }
+                return this.setupOld($(elems).filter(selector));
+            },
+            closest: function(selector, context) {
+                if (this.length == 0) return this;
+                var elems = [], cur = this.elems[0];
+                var start = $(selector, context);
+                if (start.length == 0) return $();
+                while (cur && start.elems.indexOf(cur) == -1) {
+                    cur = cur !== context && cur !== document && cur.parentNode;
+                }
+                return $(cur);
+            },
+            filter: function(selector) {
+                if (this.length == 0) return this;
+                if (selector == undefined) return this;
+                var elems = [];
+                for (var i = 0, len = this.length; i < len; i++) {
+                    var val = this.elems[i];
+                    if (val.parentNode && $(selector, val.parentNode).elems.indexOf(val) >= 0) elems.push(val);
+                }
+                return this.setupOld($(unique(elems)));
+            },
+            not: function(selector) {
+                if (this.length == 0) return this;
+                var elems = [];
+                for (var i = 0, len = this.length; i < len; i++) {
+                    var val = this.elems[i];
+                    if (val.parentNode && $(selector, val.parentNode).elems.indexOf(val) == -1) elems.push(val);
+                }
+                return this.setupOld($(unique(elems)));
+            },
+            end: function() {
+                return this.oldElement != undefined ? this.oldElement : $();
+            },
+            eq: function(ind) {
+                var index;
+                index = index == undefined ? 0 : ind;
+                if (index < 0) index += this.length;
+                return $(this.elems[index] ? this.elems[index] : undefined);
+            },
+            index: function(elem) {
+                return elem ? this.elems.indexOf($(elem)[0]) : this.parent().children().elems.indexOf(this.elems[0]);
+            }
+        });
+        $.extend($.fn, {
+            css: function(attribute, value, obj) {
+                var toAct = obj != undefined ? obj : this.elems[0];
+                if (this.length === 0) return this;
+                if (value == undefined && typeof attribute === "string") {
+                    var styles = window.getComputedStyle(toAct);
+                    return toAct.style[attribute] ? toAct.style[attribute] : window.getComputedStyle(toAct)[attribute];
+                }
+                for (var i = 0, len = this.length; i < len; i++) {
+                    if ($.isObject(attribute)) {
+                        for (var j in attribute) {
+                            this.elems[i].style[j] = attribute[j];
+                        }
+                    } else {
+                        this.elems[i].style[attribute] = value;
+                    }
+                }
+                return this;
+            },
+            hide: function() {
+                if (this.length === 0) return this;
+                for (var i = 0, len = this.length; i < len; i++) {
+                    if (this.css("display", null, this.elems[i]) != "none") {
+                        this.elems[i].setAttribute("jqmOld_display", this.css("display", null, this.elems[i]));
+                        this.elems[i].style.display = "none";
+                    }
+                }
+                return this;
+            },
+            show: function() {
+                if (this.length === 0) return this;
+                for (var i = 0, len = this.length; i < len; i++) {
+                    if (this.css("display", null, this.elems[i]) == "none") {
+                        this.elems[i].style.display = this.elems[i].getAttribute("jqmOld_display") ? this.elems[i].getAttribute("jqmOld_display") : "block";
+                        this.elems[i].removeAttribute("jqmOld_display");
+                    }
+                }
+                return this;
+            },
+            toggle: function(show) {
+                var show2 = show === true ? true : false;
+                for (var i = 0, len = this.length; i < len; i++) {
+                    if (window.getComputedStyle(this.elems[i])["display"] !== "none" || show !== undefined && show2 === false) {
+                        this.elems[i].setAttribute("jqmOld_display", this.elems[i].style.display);
+                        this.elems[i].style.display = "none";
+                    } else {
+                        this.elems[i].style.display = this.elems[i].getAttribute("jqmOld_display") != undefined ? this.elems[i].getAttribute("jqmOld_display") : "block";
+                        this.elems[i].removeAttribute("jqmOld_display");
+                    }
+                }
+                return this;
+            },
+            addClass: function(name) {
+                var el;
+                for (var i = 0, len = this.length; i < len; i++) {
+                    el = this.elems[i];
+                    el.classList.add(name);
+                }
+                return this;
+            },
+            removeClass: function(name) {
+                var el;
+                for (var i = 0, len = this.length; i < len; i++) {
+                    el = this.elems[i];
+                    if (name == undefined) {
+                        el.className = "";
+                        continue;
+                    }
+                    el.classList.remove(name);
+                }
+                return this;
+            },
+            replaceClass: function(name, newName) {
+                var el;
+                for (var i = 0, len = this.length; i < len; i++) {
+                    el = this.elems[i];
+                    if (!newName) {
+                        el.className = name;
+                        continue;
+                    }
+                    el.classList.add(newName);
+                    el.classList.remove(name);
+                }
+                return this;
+            },
+            toggleClass: function(name) {
+                var el;
+                for (var i = 0, len = this.length; i < len; i++) {
+                    if (name == undefined) {
+                        return this;
+                    }
+                    el = this.elems[i];
+                    el.classList.toggle(name);
+                }
+                return this;
+            },
+            hasClass: function(name, element) {
+                if (this.length === 0) return false;
+                if (!element) element = this.elems[0];
+                return element.classList.contains(name);
+            },
+            offset: function() {
+                if (this.length === 0) return this;
+                if (this.elems[0] == window) return {
+                    left: 0,
+                    top: 0,
+                    right: 0,
+                    bottom: 0,
+                    width: window.innerWidth,
+                    height: window.innerHeight
+                }; else var obj = this.elems[0].getBoundingClientRect();
+                return {
+                    left: obj.left + window.pageXOffset,
+                    top: obj.top + window.pageYOffset,
+                    right: obj.right + window.pageXOffset,
+                    bottom: obj.bottom + window.pageYOffset,
+                    width: obj.right - obj.left,
+                    height: obj.bottom - obj.top
+                };
+            },
+            height: function(val) {
+                if (this.length === 0) return this;
+                if (val != undefined) return this.css("height", val);
+                if (this.elems[0] == this.elems[0].window) return window.innerHeight;
+                if (this.elems[0].nodeType == this.elems[0].DOCUMENT_NODE) return this.elems[0].documentElement["offsetheight"]; else {
+                    var tmpVal = this.css("height").replace("px", "");
+                    if (tmpVal) return tmpVal; else return this.offset().height;
+                }
+            },
+            width: function(val) {
+                if (this.length === 0) return this;
+                if (val != undefined) return this.css("width", val);
+                if (this.elems[0] == this.elems[0].window) return window.innerWidth;
+                if (this.elems[0].nodeType == this.elems[0].DOCUMENT_NODE) return this.elems[0].documentElement["offsetwidth"]; else {
+                    var tmpVal = this.css("width").replace("px", "");
+                    if (tmpVal) return tmpVal; else return this.offset().width;
+                }
+            }
+        });
+        $.fn.on = function(event, selector, callback) {
+            return selector === undefined || $.isFunction(selector) ? _bind(this.elems, event, selector) : _delegate(this.elems, selector, event, callback);
+        };
+        $.fn.off = function(event, selector, callback) {
+            return selector === undefined || $.isFunction(selector) ? _unbind(this.elems, event, selector) : _undelegate(this.elems, selector, event, callback);
+        };
+        $.fn.one = function(event, callback) {
+            return this.each(function(i, element) {
+                add(this, event, callback, null, function(fn, type) {
+                    return function() {
+                        var result = fn.apply(element, arguments);
+                        remove(element, type, fn);
+                        return result;
+                    };
+                });
+            });
+        };
+        $.fn.trigger = function(event, data, props) {
+            if (typeof event == "string") event = makeEvent(event, props);
+            event.data = data;
+            for (var i = 0, len = this.length; i < len; i++) {
+                this.elems[i].dispatchEvent(event);
+            }
+            return this;
+        };
+        var eventtrigger = [ "click", "keydown", "keyup", "keypress", "submit", "load", "resize", "change", "select", "error" ];
+        for (var i = 0, len = eventtrigger.length; i < len; i++) (function(i) {
+            $.fn[eventtrigger[i]] = function(cb) {
+                return cb ? _bind(this.elems, eventtrigger[i], cb) : this.trigger(eventtrigger[i]);
+            };
+        })(i);
+        return $;
     });
 })(typeof define != "undefined" ? define : // AMD/RequireJS format if available
 function(deps, factory) {

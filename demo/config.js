@@ -1,8 +1,9 @@
 // JavaScript Document
 var require = { 
-	//baseUrl:'D:/GraceJS/src',
-	baseUrl:'/src',
+	baseUrl:'D:/GraceJS/src',
+	//baseUrl:'/src',
 	paths: {
+		$:'BL/Blink/$',
 		jquery:"../demo/libs/jquery-2.0.0.min",
 		demo:'../demo/demo', 
 		grace:'grace',

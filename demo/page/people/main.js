@@ -1,22 +1,18 @@
-define(['./listitem', './view', 'common'], function (item, view) {
-	
-	G.Use('common');
-	G.Package('people', function (Class, $) {
-		$.require('toLoad', function () {
-			Class('listitem', function () {
-				//构造函数
-				comm(function () {
-					var m = Class('modal');
-					m.modalShowOn('name',function(){
-						
-					});
-				});
-			}, {
-				//行为定义
-			}, {
-				//方法
+define(['./listitem', './view', 'Common','Utils'], function (item, view) {
+	//显式申请包使用权限
+	G.Package('People',['Common','Utils'], function (Class, $) {
+		
+		Class('mainList', function () {
+			G.LoadPackage('Modal', function () {
+				var m = Class('modal');
+				m.modalShowOn('name',function(){});
 			});
+		}, {
+			//行为定义
+		}, {
+			//方法
 		});
+		
 	});
 
 	G.Package('company', function (Class) {
