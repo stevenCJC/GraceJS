@@ -66,6 +66,9 @@ define(['./dataset/DS', './dataset/dsevent', './function/JSONClone', './function
 				oldValue : oldValue
 			});
 		},
+		mix:function(){
+			//末尾为/
+		},
 	}
 
 	return DataSet;

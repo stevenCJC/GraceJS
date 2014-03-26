@@ -1,4 +1,4 @@
-define(['function/getObjByPath','function/setObjByPath'], function(getObjByPath,setObjByPath) {
+define([], function() {
 	function Mediator(){
 		this.channels={};
 	}
