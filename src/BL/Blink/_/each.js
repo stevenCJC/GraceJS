@@ -4,7 +4,6 @@ define(['$'], function($) {
 		if (obj == null)
 			return;
 		if (obj.length === +obj.length) {
-			if(obj instanceof $.fn.constructor) obj=obj.elems;
 			if(context) for (var i = 0, l = obj.length; i < l; i++) {
 					if (iterator.call(context, obj[i], i, obj) === false)
 						return;

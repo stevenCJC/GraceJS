@@ -27,7 +27,7 @@ define(['$','./var/_attrCache','./var/_propCache','./var/_initedCache','blk/func
 	$.clean = function(node, itself, kill){
 		if(!node) return;
 		//cleanup children
-		var elems = $('[_id]',node).elems;
+		var elems = $('[_id]',node);
 		if(elems.length > 0) 
 			for(var i=0,len=elems.length;i<len;i++){
 				cleanUpNode(elems[i], kill);

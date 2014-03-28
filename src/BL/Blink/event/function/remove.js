@@ -1,4 +1,4 @@
-define(['blk/event/var/handlers','blk/function/has_id','blk/function/shim_id','./eachEvent','./findHandlers'], function (handlers,has_id,shim_id,eachEvent,findHandlers) {
+define(['BL/Blink/event/var/handlers','blk/function/has_id','blk/function/shim_id','./eachEvent','./findHandlers'], function (handlers,has_id,shim_id,eachEvent,findHandlers) {
 
 	function remove(element, events, fn, selector) {
 
@@ -9,6 +9,7 @@ define(['blk/event/var/handlers','blk/function/has_id','blk/function/shim_id','.
 			for(var i=0,len=hdls.length;i<len;i++){
 				hdl=hdls[i];
 				delete handlers[id][hdl.i];
+				handlers[id].length--;
 				element.removeEventListener(hdl.e, hdl.proxy, false);
 			};
 		});

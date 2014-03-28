@@ -6,7 +6,7 @@ define(['$','./add','./createProxy'], function ($,add,createProxy) {
 			add(element, event, callback, selector, function(fn) {
 				return function(e) {
 					var evt, match,tmp;
-					match = $(e.target).closest(selector, element).elems[0];
+					match = $(e.target).closest(selector, element)[0];
 					if (match) {
 						evt = $.extend(createProxy(e), {
 							currentTarget: match,

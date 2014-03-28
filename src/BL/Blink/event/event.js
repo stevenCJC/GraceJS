@@ -1,11 +1,11 @@
 define(['$','./function/_bind','./function/_delegate','./function/_unbind','./function/_undelegate','./function/remove','./function/add','./function/makeEvent'], function ($,_bind,_delegate,_unbind,_undelegate,remove,add,makeEvent) {
 	
 	$.fn.on = function(event, selector, callback) {
-		return selector === undefined || $.isFunction(selector) ? _bind(this.elems,event, selector) : _delegate(this.elems,selector, event, callback);
+		return selector === undefined || $.isFunction(selector) ? _bind(this,event, selector) : _delegate(this,selector, event, callback);
 	};
    
 	$.fn.off = function(event, selector, callback) {
-		return selector === undefined || $.isFunction(selector) ? _unbind(this.elems,event, selector) : _undelegate(this.elems,selector, event, callback);
+		return selector === undefined || $.isFunction(selector) ? _unbind(this,event, selector) : _undelegate(this,selector, event, callback);
 	};
 
 	$.fn.one = function(event, callback) {
@@ -26,7 +26,7 @@ define(['$','./function/_bind','./function/_delegate','./function/_unbind','./fu
 			event = makeEvent(event, props);
 		event.data = data;
 		for (var i = 0,len=this.length; i <len ; i++) {
-			this.elems[i].dispatchEvent(event)
+			this[i].dispatchEvent(event)
 		}
 		return this;
 	};
@@ -35,7 +35,7 @@ define(['$','./function/_bind','./function/_delegate','./function/_unbind','./fu
 	for(var i=0,len=eventtrigger.length;i<len;i++)
 		(function(i){
 			$.fn[eventtrigger[i]]=function(cb){
-				return cb?_bind(this.elems,eventtrigger[i],cb):this.trigger(eventtrigger[i]);
+				return cb?_bind(this,eventtrigger[i],cb):this.trigger(eventtrigger[i]);
 			}
 		})(i);
 		

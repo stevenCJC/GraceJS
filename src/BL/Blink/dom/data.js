@@ -6,12 +6,12 @@ define(['$','./var/_attrCache','./var/_propCache','blk/function/_id','blk/functi
 			if (this.length === 0)
 				return (value === undefined) ? undefined : this;            
 			if (value === undefined && !$.isObject(attr)) {
-				id=has_id(this.elems[0]);
-				return (id&&_attrCache[id]&&_attrCache[id][attr])?_attrCache[id][attr]:this.elems[0].getAttribute(attr);
+				id=has_id(this[0]);
+				return (id&&_attrCache[id]&&_attrCache[id][attr])?_attrCache[id][attr]:this[0].getAttribute(attr);
 			}
 			for (var i = 0,len=this.length; i <len ; i++) {
-				id=has_id(this.elems[i]);
-				el=this.elems[i];
+				id=has_id(this[i]);
+				el=this[i];
 				if ($.isObject(attr)) {
 					for (var key in attr) {
 						$(el).attr(key,attr[key]);
@@ -44,7 +44,7 @@ define(['$','./var/_attrCache','./var/_propCache','blk/function/_id','blk/functi
 		removeAttr: function(attr) {
 			var attrs=attr.split(/\s+|\,/g),el,at,id;
 			for (var i = 0,len=this.length; i <len ; i++) {
-				el=this.elems[i];
+				el=this[i];
 				id=has_id(el);
 				if(!id) continue;
 				for(var j=0,lem=attrs.length;j<lem;j++){
@@ -65,13 +65,13 @@ define(['$','./var/_attrCache','./var/_propCache','blk/function/_id','blk/functi
 				return (value === undefined) ? undefined : this;          
 			if (value === undefined && !$.isObject(prop)) {
 				
-				var res;id=has_id(this.elems[0]);
-				var val = (id&&_propCache[id][prop])?(id&&_propCache[id][prop]):!(res=this.elems[0][prop])&&prop in this.elems[0]?this.elems[0][prop]:res;
+				var res;id=has_id(this[0]);
+				var val = (id&&_propCache[id][prop])?(id&&_propCache[id][prop]):!(res=this[0][prop])&&prop in this[0]?this[0][prop]:res;
 				return val;
 			}
 			for (var i = 0,len=this.length; i <len ; i++) {
 				
-				el=this.elems[i];
+				el=this[i];
 				id=has_id(el);
 				
 				if ($.isObject(prop)) {
@@ -106,7 +106,7 @@ define(['$','./var/_attrCache','./var/_propCache','blk/function/_id','blk/functi
 		removeProp: function(prop) {
 			var p=prop.split(/\s+|\,/g),el,pr,id;
 			for (var i = 0,len=this.length; i <len ; i++) {
-				el=this.elems[i];
+				el=this[i];
 				id=has_id(el);
 				if(!id) continue;
 				for (var j = 0,lem=p.length; j <lem ; j++) {
@@ -130,7 +130,7 @@ define(['$','./var/_attrCache','./var/_propCache','blk/function/_id','blk/functi
 				return "";
 			var params = {},elems,elem,type,tmp;
 			for (var i = 0,len=this.length; i <len ; i++) {
-				if(elems= this.elems[i].elements){
+				if(elems= this[i].elements){
 					for(var j=0,lem=elems.length;j<lem;j++){
 						elem=elems[j];
 						type = elem.getAttribute("type");
@@ -160,9 +160,9 @@ define(['$','./var/_attrCache','./var/_propCache','blk/function/_id','blk/functi
 			if (this.length === 0)
 				return (value === undefined) ? undefined : this;
 			if (value == undefined)
-				return this.elems[0].value;
+				return this[0].value;
 			for (var i = 0,len=this.length; i <len ; i++) {
-				this.elems[i].value = value;
+				this[i].value = value;
 			}
 			return this;
 		},
@@ -174,12 +174,12 @@ define(['$','./var/_attrCache','./var/_propCache','blk/function/_id','blk/functi
 		
 
 		_id:function(make){
-			if(make)return _id(this.elems[0]);
-			return has_id(this.elems[0]);
+			if(make)return _id(this[0]);
+			return has_id(this[0]);
 		},
 		
 		clean:function(){
-			$.clean(this.elems);
+			$.clean(this);
 		},
 
 

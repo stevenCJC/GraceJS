@@ -7,11 +7,11 @@ define(['$','./var/_attrCache','./var/_propCache','./var/_initedCache','BL/Blink
 			if (this.length === 0)
 				return this;
 			if (html === undefined)
-				return this.elems[0].innerHTML.replace(/_id\=\"[\w\,]*?\"/ig,'');
+				return this[0].innerHTML.replace(/_id\=\"[\w\,]*?\"/ig,'');
 			for (var i = 0,len=this.length; i <len ; i++) {
 				if(cleanup!==false)
-					$.clean(this.elems[i], false, true);
-				this.elems[i].innerHTML = html;
+					$.clean(this[i], false, true);
+				this[i].innerHTML = html;
 			}
 			return this;
 		},
@@ -20,9 +20,9 @@ define(['$','./var/_attrCache','./var/_propCache','./var/_initedCache','BL/Blink
 			if (this.length === 0)
 				return this;
 			if (text === undefined)
-				return this.elems[0].textContent;
+				return this[0].textContent;
 			for (var i = 0,len=this.length; i <len ; i++) {
-				this.elems[i].textContent = text;
+				this[i].textContent = text;
 			}
 			return this;
 		},
@@ -30,7 +30,7 @@ define(['$','./var/_attrCache','./var/_propCache','./var/_initedCache','BL/Blink
 
 		
 		remove: function(selector) {
-			var elems = $(this).filter(selector).elems;
+			var elems = $(this).filter(selector);
 			if (elems == undefined)
 				return this;
 			for (var i = 0,len=elems.length; i <len ; i++) {
@@ -54,7 +54,7 @@ define(['$','./var/_attrCache','./var/_propCache','./var/_initedCache','BL/Blink
 			for (i = 0; i < this.length; i++) {
 				if (element.length && typeof element != "string") {
 					element = $(element);
-					_insertFragments(element,this.elems[i],insert);
+					_insertFragments(element,this[i],insert);
 				} else {
 					var obj =fragementRE.test(element)?$(element):undefined;
 					if (obj == undefined || obj.length == 0) {
@@ -63,10 +63,10 @@ define(['$','./var/_attrCache','./var/_propCache','./var/_initedCache','BL/Blink
 					if (obj.nodeName != undefined && obj.nodeName.toLowerCase() == "script" && (!obj.type || obj.type.toLowerCase() === 'text/javascript')) {
 						window.eval(obj.innerHTML);
 					} else if(obj instanceof $.fn.constructor) {
-						_insertFragments(obj,this.elems[i],insert);
+						_insertFragments(obj,this[i],insert);
 					}
 					else {
-						insert != undefined ? this.elems[i].insertBefore(obj, this.elems[i].firstChild) : this.elems[i].appendChild(obj);
+						insert != undefined ? this[i].insertBefore(obj, this[i].firstChild) : this[i].appendChild(obj);
 					}
 				}
 			}
@@ -97,7 +97,7 @@ define(['$','./var/_attrCache','./var/_propCache','./var/_initedCache','BL/Blink
 				return this;
 			for (var i = 0; i < this.length; i++)
 			{
-				after ? target.parentNode.insertBefore(this.elems[i], target.nextSibling) : target.parentNode.insertBefore(this.elems[i], target);
+				after ? target.parentNode.insertBefore(this[i], target.nextSibling) : target.parentNode.insertBefore(this[i], target);
 			}
 			return this;
 		},
@@ -114,7 +114,7 @@ define(['$','./var/_attrCache','./var/_propCache','./var/_initedCache','BL/Blink
 				return this;
 			var elems = [],el,id,oid;
 			for (var i = 0,len=this.length; i < len; i++) {
-				el=this.elems[i].cloneNode(deep);
+				el=this[i].cloneNode(deep);
 				oid=r_id(el);
 				if(deep){
 					id=_id(el);

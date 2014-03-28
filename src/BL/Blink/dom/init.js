@@ -22,10 +22,10 @@ define(['$','./var/_initedCache','blk/dom/var/_utilCache','blk/function/_id','BL
 		}else{
 			if(typeof s=='string'){
 				s=s.split(/\s|\,/g);
-				var elems=this.elems,el;
+				var elems=this,el;
 				for(var i=0,len=s.length;i<len;i++){
 					for(var k=0,l=elems.length;k<l;k++){
-						el=this.elems[k];
+						el=this[k];
 						ics=_initedCache[_id(el)] =_initedCache[_id(el)]||[];
 						if(ics.indexOf(s[i])==-1){//过滤已初始化
 							_utilCache[s[i]].call($(el),el);

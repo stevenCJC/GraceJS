@@ -6,6 +6,7 @@ var require = {
 		$:'BL/Blink/$',
 		blk:'BL/Blink',
 		jquery:"../demo/libs/jquery-2.0.0.min",
+		jqm:'../demo/libs/jq.mobi',
 		demo:'../demo/demo', 
 		grace:'grace',
 		//grace:'../dist/grace', 
@@ -16,5 +17,6 @@ var require = {
 	},
 	shim:{
 		//grace:{deps:['pp']}
+		jqm:{exports:'window.jqm'}
 	}
 };

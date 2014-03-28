@@ -1,5 +1,5 @@
 define([], function() {
-	window.__id=window.__id||0;
+	window.__id=window.__id||1;
 	return window.__id;
 });
 

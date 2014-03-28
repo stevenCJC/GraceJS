@@ -128,8 +128,8 @@ define(['$'], function ($) {
 		var str = [];
 		if (obj instanceof $.fn.constructor) {
 			for (var i = 0, len = obj.length; i < len; i++) {
-				var k = prefix ? prefix + "[]" : obj.elems[i].name,
-				v = obj.elems[i].value;
+				var k = prefix ? prefix + "[]" : obj[i].name,
+				v = obj[i].value;
 				str.push((k) + "=" + encodeURIComponent(v));
 			};
 		} else {
