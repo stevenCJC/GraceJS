@@ -1,4 +1,4 @@
-define(['$','./function/unique','./function/siblings','BL/Blink/_/main'], function ($,unique,siblings) {
+define(['$','./function/unique','./function/siblings','./function/_shimNodes','BL/Blink/_/main'], function ($,unique,siblings,_shimNodes) {
 
 	$.extend({
 
@@ -122,6 +122,11 @@ define(['$','./function/unique','./function/siblings','BL/Blink/_/main'], functi
 					elems.push(val);
 			}
 			return this.setupOld($(unique(elems)));
+		},
+		
+		add:function(elems){
+			_shimNodes(elems,this);
+			return this;
 		},
 		
 		end: function() {

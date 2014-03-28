@@ -12,6 +12,7 @@ define(['$','./var/_attrCache','./var/_propCache','./var/_initedCache','BL/Blink
 				if(cleanup!==false)
 					$.clean(this[i], false, true);
 				this[i].innerHTML = html;
+				if(typeof cleanup =='string') this.init(cleanup);
 			}
 			return this;
 		},

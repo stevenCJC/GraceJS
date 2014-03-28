@@ -9,66 +9,75 @@ define(['$','./var/_initedCache','blk/dom/var/_utilCache','blk/function/_id','bl
 	
 	$.fn.init = function (s) {
 		var util,ics;
+		var elems=this.find('[data-util]')
+		if(this.attr('[data-util]')) this.add(elems);
 		if(!s){
 			this.each(function(){
 				var me=$(this);
-				if(util=me.data('util'))
-					me.init(util);
-				me.find('[data-util]').each(function(index, element) {
-					if(util=$(this).data('util'))
-						$(this).init(util);
-				});
-			});
-		}else{
-			if(typeof s=='string'){
-				s=s.split(/\s|\,/g);
-				for(var i=0,len=s.length;i<len;i++){
-					ics=_initedCache[_id(this[0])] =_initedCache[_id(this[0])]||[];
-					if(ics.indexOf(s[i])==-1){//过滤已初始化
-						_utilCache[s[i]].call(this,this[0]);
-						ics.push(s[i]);
-						this.removeAttr('data-util');
+				if(s=me.data('util')){
+					if(typeof s=='string') s=s.split(/\s|\,/g);
+					ics=_initedCache[_id(this)] =_initedCache[_id(this)]||[];
+					for(var i=0,len=s.length;i<len;i++){
+						if(ics.indexOf(s[i])==-1){//过滤已初始化
+							_utilCache[s[i]].call($(this),this);
+							ics.push(s[i]);
+						}
 					}
 				}
-			}
+				this.removeAttribute('data-util');
+			});
+		}else{
+			if(typeof s=='string') s=s.split(/\s|\,/g);
+			this.each(function(){
+				ics=_initedCache[_id(this)] =_initedCache[_id(this)]||[];
+				for(var i=0,len=s.length;i<len;i++){
+					if(ics.indexOf(s[i])==-1){//过滤已初始化
+						_utilCache[s[i]].call($(this),this);
+						ics.push(s[i]);
+					}
+				}
+				this.removeAttribute('data-util');
+			});
 			
 		}
 		return this;
 	}
 	$.fn.destroy=function(s){
 		var id,ics,index;
+		var elems=this.find('[_id]')
+		if(this.attr('[_id]')) this.add(elems);
 		if(s){
-			id=has_id(this[0]);
-			if(!id||!(ics=_initedCache[_id(this[0])])||!ics.length) return;
 			if(typeof s=='string') s=s.split(/\s|\,/g);
-			for(var i=0,len=s.length;i<len;i++){
-				if((index=ics.indexOf(s[i]))!=-1){//过滤已反初始化
-					_utilCache[s[i]+'_'].call(this,this[0]);
-					ics.splice(index,1);
+			for(var k=0,l=this.length;k<l;k++){
+				id=has_id(this[k]);
+				if(!id||!(ics=_initedCache[id])||!ics.length) return;
+				for(var i=0,len=s.length;i<len;i++){
+					if((index=ics.indexOf(s[i]))!=-1){//过滤已反初始化
+						_utilCache[s[i]+'_'].call($(this[k]),this[k]);
+						ics.splice(index,1);
+					}
+				}
+				if(ics.length==0){
+					delete _initedCache[id];
+					shim_id(this[k]);
 				}
 			}
-			if(ics.length==0){
-				delete _initedCache[_id(this[0])];
-				shim_id(this[0]);
-			}
 		}else{
-			this.each(function(){
-				var me=$(this),initeds;
-				if(initeds=_initedCache[has_id(this)])
-					me.destroy(initeds);
-				me.find('[_id]').each(function(index, element) {
-					if(initeds=_initedCache[has_id(this)])
-						$(this).destroy(initeds);
-				});
-			});
+			for(var k=0,l=this.length;k<l;k++){
+				id=has_id(this[k]);
+				if(!id||!(ics=_initedCache[id])||!ics.length) return;
+				for(var i=0,len=ics.length;i<len;i++){
+					_utilCache[ics[i]+'_'].call($(this[k]),this[k]);
+				}
+				delete _initedCache[id];
+				shim_id(this[k]);
+			}
+			
 		}
 		return this;
 	}
 	
 
-	function del(){
-		
-	}
 	
 	
 	return $;
