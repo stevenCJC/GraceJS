@@ -48,6 +48,7 @@ module.exports = function(grunt) {
 					},
 					paths: {
 						$:'BL/Blink/$',
+						blk:'BL/Blink',
 					},
 				}
 			},
@@ -70,6 +71,7 @@ module.exports = function(grunt) {
 					},
 					paths: {
 						$:'BL/Blink/$',
+						blk:'BL/Blink',
 					},
 				}
 			},

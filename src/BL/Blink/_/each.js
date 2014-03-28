@@ -4,12 +4,13 @@ define(['$'], function($) {
 		if (obj == null)
 			return;
 		if (obj.length === +obj.length) {
+			if(obj instanceof $.fn.constructor) obj=obj.elems;
 			if(context) for (var i = 0, l = obj.length; i < l; i++) {
 					if (iterator.call(context, obj[i], i, obj) === false)
 						return;
 				}
 			else for (var i = 0, l = obj.length; i < l; i++) {
-					if (iterator(obj[i], i, obj) === false)
+					if (iterator.call(obj[i], obj[i], i, obj) === false)
 						return;
 				}
 		} else {
@@ -21,7 +22,7 @@ define(['$'], function($) {
 			}
 			else  for (var key in obj) {
 				if (obj.hasOwnProperty(key)) {
-					if (iterator(obj[key], key, obj) === false)
+					if (iterator.call(obj[key], obj[key], i, obj) === false)
 						return;
 				}
 			}

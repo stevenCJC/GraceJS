@@ -1,4 +1,6 @@
-define(['$','./each'], function($,each) {
+define(['$','./each','./var/toString'], function($,each,toString) {
+	
+	$.is$ = function(obj){return obj instanceof $.fn.constructor;}
 	// Is a given array, string, or object empty?
 	// An "empty" object has no enumerable own-properties.
 	$.isEmpty = function (obj) {

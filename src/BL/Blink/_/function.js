@@ -1,4 +1,30 @@
-define(['$'], function($) {
+define(['$','./var/slice'], function($,slice) {
+	
+	$.call=function(func, args, context){
+		context=context||this;
+		switch(args.length){
+			case 0:
+			func.call(context);
+			break;
+			case 1:
+			func.call(context,args[0]);
+			break;
+			case 2:
+			func.call(context,args[0],args[1]);
+			break;
+			case 3:
+			func.call(context,args[0],args[1],args[2]);
+			break;
+			case 4:
+			func.call(context,args[0],args[1],args[2],args[3]);
+			break;
+			case 5:
+			func.call(context,args[0],args[1],args[2],args[3],args[4]);
+			break;
+		}
+	}
+	
+	
 // Delays a function for the given number of milliseconds, and then calls
 	// it with the arguments supplied.
 	$.delay = function (func, wait) {

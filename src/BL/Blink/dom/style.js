@@ -1,6 +1,6 @@
-define(['$'], function ($) {
+define(['$','BL/Blink/_/main'], function ($) {
 
-	$.extend($.fn , {
+	$.extend({
 
 		
 		css: function(attribute, value, obj) {

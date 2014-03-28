@@ -1,17 +1,16 @@
-define(['$','./var/fragementRE'], function ($,fragementRE) {
+define(['$','./var/_attrCache','./var/_propCache','./var/_initedCache','BL/Blink/event/var/handlers','blk/function/r_id','blk/function/_id','./var/fragementRE','./function/_insertFragments','BL/Blink/_/main'], function ($,_attrCache,_propCache,_initedCache,handlers,r_id,_id,fragementRE,_insertFragments) {
 
-	$.extend($.fn , {
+	$.extend({
 
 		
 		html: function(html,cleanup) {
 			if (this.length === 0)
 				return this;
 			if (html === undefined)
-				return this.elems[0].innerHTML;
-
+				return this.elems[0].innerHTML.replace(/_id\=\"[\w\,]*?\"/ig,'');
 			for (var i = 0,len=this.length; i <len ; i++) {
 				if(cleanup!==false)
-					$.cleanUpContent(this.elems[i], false, true);
+					$.clean(this.elems[i], false, true);
 				this.elems[i].innerHTML = html;
 			}
 			return this;
@@ -35,7 +34,7 @@ define(['$','./var/fragementRE'], function ($,fragementRE) {
 			if (elems == undefined)
 				return this;
 			for (var i = 0,len=elems.length; i <len ; i++) {
-				$.cleanUpContent(elems[i], true, true);
+				$.clean(elems[i], true, true);
 				elems[i].parentNode.removeChild(elems[i]);
 			}
 			return this;
@@ -113,9 +112,18 @@ define(['$','./var/fragementRE'], function ($,fragementRE) {
 			deep = deep === false ? false : true;
 			if (this.length == 0)
 				return this;
-			var elems = [];
+			var elems = [],el,id,oid;
 			for (var i = 0,len=this.length; i < len; i++) {
-				elems.push(this.elems[i].cloneNode(deep));
+				el=this.elems[i].cloneNode(deep);
+				oid=r_id(el);
+				if(deep){
+					id=_id(el);
+					_attrCache[id]=$.clone(_attrCache[oid]);
+					_propCache[id]=$.clone(_propCache[oid]);
+					_initedCache[id]=$.clone(_initedCache[oid]);
+					handlers[id]=$.clone(handlers[oid]);
+				}
+				elems.push(el);
 			}
 			
 			return $(elems);

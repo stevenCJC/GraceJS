@@ -1,4 +1,4 @@
-define([], function() {
+define(['BL/Blink/var/__id'], function(__id) {
 		
 	function _id(element) {
 		var id=element.getAttribute('_id');

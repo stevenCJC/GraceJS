@@ -1,4 +1,4 @@
-
+define(['./eachEvent','./parse','blk/event/var/handlers','blk/function/_id'], function (eachEvent,parse,handlers,_id) {
 
 	function add(element, events, fn, selector, getDelegate) {
 		var id = _id(element), 
@@ -25,5 +25,5 @@
 		//element=null;
 	}
 
-
-
+return add;
+});

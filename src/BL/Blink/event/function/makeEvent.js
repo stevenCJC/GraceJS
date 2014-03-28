@@ -1,4 +1,6 @@
-makeEvent = function(type, props) {
+define([], function () {
+	
+	function makeEvent(type, props) {
 		var event = document.createEvent('Events'), 
 		bubbles = true;
 		if (props)
@@ -7,3 +9,5 @@ makeEvent = function(type, props) {
 		event.initEvent(type, bubbles, true, null, null, null, null, null, null, null, null, null, null, null, null);
 		return event;
 	};
+	return makeEvent;
+});

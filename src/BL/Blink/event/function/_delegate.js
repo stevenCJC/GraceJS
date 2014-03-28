@@ -1,4 +1,4 @@
-
+define(['$','./add','./createProxy'], function ($,add,createProxy) {
 	
 	function _delegate(elems,selector, event, callback) {
 		for (var i = 0,len=elems.length; i <len ; i++) {
@@ -18,3 +18,5 @@
 			});
 		}
 	};
+return _delegate;
+});

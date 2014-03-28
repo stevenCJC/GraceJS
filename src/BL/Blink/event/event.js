@@ -1,4 +1,4 @@
-define(['$'], function ($) {
+define(['$','./function/_bind','./function/_delegate','./function/_unbind','./function/_undelegate','./function/remove','./function/add','./function/makeEvent'], function ($,_bind,_delegate,_unbind,_undelegate,remove,add,makeEvent) {
 	
 	$.fn.on = function(event, selector, callback) {
 		return selector === undefined || $.isFunction(selector) ? _bind(this.elems,event, selector) : _delegate(this.elems,selector, event, callback);
@@ -10,10 +10,11 @@ define(['$'], function ($) {
 
 	$.fn.one = function(event, callback) {
 		return this.each(function(i, element) {
+			var el=this;
 			add(this, event, callback, null, function(fn, type) {
 				return function() {
-					var result = fn.apply(element, arguments);
-					remove(element, type, fn);
+					var result = fn.apply(el, arguments);
+					remove(el, type, fn);
 					return result;
 				}
 			});

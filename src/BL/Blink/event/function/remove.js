@@ -1,13 +1,19 @@
-
+define(['blk/event/var/handlers','blk/function/has_id','blk/function/shim_id','./eachEvent','./findHandlers'], function (handlers,has_id,shim_id,eachEvent,findHandlers) {
 
 	function remove(element, events, fn, selector) {
-		
-		var id = _id(element);
+
+		var id = has_id(element);
+		if(!id)return;
 		eachEvent(events || '', fn, function(event, fn) {
-			var hdl=findHandlers(element, event, fn, selector)
-			for(var i=0,len=hdl.length;i<len;i++){
-				delete hdl[i][id][hdl[i].i];
-				element.removeEventListener(handler.e, handler.proxy, false);
+			var hdls=findHandlers(element, event, fn, selector),hdl;
+			for(var i=0,len=hdls.length;i<len;i++){
+				hdl=hdls[i];
+				delete handlers[id][hdl.i];
+				element.removeEventListener(hdl.e, hdl.proxy, false);
 			};
 		});
+		shim_id(element);
 	}
+	
+	return remove;
+});

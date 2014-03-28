@@ -1,5 +1,6 @@
 define(['$'], function ($) {
-
+	
+	
 	/* AJAX functions */
 
 	function empty() {}
@@ -27,7 +28,8 @@ define(['$'], function ($) {
 	 * options.contentType - HTTP Request Content Type
 	 * options.headers - Object of headers to set
 	 * options.dataType - Data type of request
-	 * options.data - data to pass into request.  $.param is called on objects
+	 * options.data - data to pass into request.  $.queryString is called on objects
+	 * options.async
 	```
 	var opts={
 	type:"GET",
@@ -37,12 +39,119 @@ define(['$'], function ($) {
 	}
 	$.ajax(opts);
 	```
-
 	 * @param {Object} options
 	 * @title $.ajax(options)
 	 */
-	$.ajax = function (opts) {
+	
+	$.ajax = function(opts){
+		ajax(opts);
+	};
+
+
+	$.get = function (url) {
+		var t, data={}, dataType='html',success=empty,error=empty;
+		for(var i=1,len=arguments.length;i<len;i++){
+			t=arguments[i];
+			switch(typeof t){
+				case'string':
+				if(t.indexOf('=')>-1) data=t;
+				else {
+					dataType=t;
+				}
+				break;
+				case'object':
+				data=t;
+				break;
+				case'function':
+				if(success===empty)success=t;
+				else error=t;
+				break;
+			}
+		}
+
+		return ajax({
+			url : url,
+			data : data,
+			dataType : dataType,
+			success : success,
+			error:error,
+		});
+	}
+	
+	$.post = function (url) {
+		var t, data={}, dataType='html',success=empty,error=empty;
+		for(var i=1,len=arguments.length;i<len;i++){
+			t=arguments[i];
+			switch(typeof t){
+				case'string':
+				if(t.indexOf('=')>-1) data=t;
+				else {
+					dataType=t;
+				}
+				break;
+				case'object':
+				data=t;
+				break;
+				case'function':
+				if(success===empty)success=t;
+				else error=t;
+				break;
+			}
+		}
+		return ajax({
+			url : url,
+			type : "POST",
+			data : data,
+			dataType : dataType,
+			success : success,
+			error:error,
+		});
+	};
+
+	/**
+	 * Converts an object into a key/value par with an optional prefix.  Used for converting objects to a query string
+	```
+	var obj={
+	foo:'foo',
+	bar:'bar'
+	}
+	var kvp=$.queryString(obj,'data');
+	```
+
+	 * @param {Object} object
+	 * @param {String} [prefix]前缀
+	 * @return {String} Key/value pair representation
+	 * @title $.queryString(object,[prefix];
+	 */
+
+	$.queryString = function (obj, prefix) {
+		var str = [];
+		if (obj instanceof $.fn.constructor) {
+			for (var i = 0, len = obj.length; i < len; i++) {
+				var k = prefix ? prefix + "[]" : obj.elems[i].name,
+				v = obj.elems[i].value;
+				str.push((k) + "=" + encodeURIComponent(v));
+			};
+		} else {
+			for (var p in obj) {
+				var k = prefix ? prefix + "[" + p + "]" : p,
+				v = obj[p];
+				str.push($.isObject(v) ? $.queryString(v, k) : (k) + "=" + encodeURIComponent(v));
+			}
+		}
+		return str.join("&");
+	};
+
+
+	$.parseXML = function (string) {
+		return (new DOMParser).parseFromString(string, "text/xml");
+	};
+	
+	function ajax(opts) {
 		var xhr;
+		
+		opts.error=errCallback(opts);
+		
 		try {
 
 			var settings = opts || {};
@@ -83,13 +192,11 @@ define(['$'], function ($) {
 				default:
 					settings.dataType = "text/html";
 					break;
-				case "jsonp":
-					return $.jsonP(opts);
-					break;
+				
 				}
 			}
 			if ($.isObject(settings.data))
-				settings.data = $.param(settings.data);
+				settings.data = $.queryString(settings.data);
 			if (settings.type.toLowerCase() === "get" && settings.data) {
 				if (settings.url.indexOf("?") === -1)
 					settings.url += "?" + settings.data;
@@ -97,9 +204,6 @@ define(['$'], function ($) {
 					settings.url += "&" + settings.data;
 			}
 
-			if (/=\?/.test(settings.url)) {
-				return $.jsonP(settings);
-			}
 			if (settings.crossDomain === null)
 				settings.crossDomain = /^([\w-]+:)?\/\/([^\/]+)/.test(settings.url) &&
 					RegExp.$2 != window.location.host;
@@ -153,7 +257,6 @@ define(['$'], function ($) {
 			if (settings.withCredentials)
 				xhr.withCredentials = true;
 				
-
 			if (settings.contentType)
 				settings.headers['Content-Type'] = settings.contentType;
 			for (var name in settings.headers)
@@ -177,131 +280,22 @@ define(['$'], function ($) {
 		}
 		return xhr;
 	};
-
-	/**
-	 * Shorthand call to an Ajax GET request
-	```
-	$.get("mypage.php?foo=bar",function(data){});
-	```
-
-	 * @param {String} url to hit
-	 * @param {Function} success
-	 * @title $.get(url,success)
-	 */
-	$.get = function (url, success) {
-		return this.ajax({
-			url : url,
-			success : success
-		});
-	};
-	/**
-	 * Shorthand call to an Ajax POST request
-	```
-	$.post("mypage.php",{bar:'bar'},function(data){});
-	```
-
-	 * @param {String} url to hit
-	 * @param {Object} [data] to pass in
-	 * @param {Function} success
-	 * @param {String} [dataType]
-	 * @title $.post(url,[data],success,[dataType])
-	 */
-	$.post = function (url, data, success, dataType) {
-		if (typeof(data) === "function") {
-			success = data;
-			data = {};
-		}
-		if (dataType === undefined)
-			dataType = "html";
-		return this.ajax({
-			url : url,
-			type : "POST",
-			data : data,
-			dataType : dataType,
-			success : success
-		});
-	};
-	/**
-	 * Shorthand call to an Ajax request that expects a JSON response
-	```
-	$.getJSON("mypage.php",{bar:'bar'},function(data){});
-	```
-
-	 * @param {String} url to hit
-	 * @param {Object} [data]
-	 * @param {Function} [success]
-	 * @title $.getJSON(url,data,success)
-	 */
-	$.getJSON = function (url, data, success) {
-		if (typeof(data) === "function") {
-			success = data;
-			data = {};
-		}
-		return this.ajax({
-			url : url,
-			data : data,
-			success : success,
-			dataType : "json"
-		});
-	};
-
-	/**
-	 * Converts an object into a key/value par with an optional prefix.  Used for converting objects to a query string
-	```
-	var obj={
-	foo:'foo',
-	bar:'bar'
-	}
-	var kvp=$.param(obj,'data');
-	```
-
-	 * @param {Object} object
-	 * @param {String} [prefix]前缀
-	 * @return {String} Key/value pair representation
-	 * @title $.queryString(object,[prefix];
-	 */
-
-	$.queryString = function (obj, prefix) {
-		var str = [];
-		if (obj instanceof $jqm) {
-			for (var i = 0, len = obj.length; i < len; i++) {
-				var k = prefix ? prefix + "[]" : obj.elems[i].name,
-				v = obj.elems[i].value;
-				str.push((k) + "=" + encodeURIComponent(v));
-			};
-		} else {
-			for (var p in obj) {
-				var k = prefix ? prefix + "[" + p + "]" : p,
-				v = obj[p];
-				str.push($.isObject(v) ? $.queryString(v, k) : (k) + "=" + encodeURIComponent(v));
+	
+	function errCallback(opts){
+		if($.DEBUG.open){
+			if(!opts.orgError) opts.orgError=opts.error;
+			else return opts.error;
+			return function(e){
+				var url=$.DEBUG.ajaxRedirect(opts.url,opts.data,opts.method);
+				if(url)
+					ajax({
+						url:url,
+						dataType : opts.dataType,
+						success : opts.success,
+						error :opts.orgError,
+						orgError:1,//避免死循环
+					});
 			}
-		}
-		return str.join("&");
-	};
-	/**
-	 * Used for backwards compatibility.  Uses native JSON.parse function
-	```
-	var obj=$.parseJSON("{\"bar\":\"bar\"}");
-	```
-
-	 * @params {String} string
-	 * @return {Object}
-	 * @title $.parseJSON(string)
-	 */
-	$.parseJSON = function (string) {
-		return JSON.parse(string);
-	};
-	/**
-	 * Helper function to convert XML into  the DOM node representation
-	```
-	var xmlDoc=$.parseXML("<xml><foo>bar</foo></xml>");
-	```
-
-	 * @param {String} string
-	 * @return {Object} DOM nodes
-	 * @title $.parseXML(string)
-	 */
-	$.parseXML = function (string) {
-		return (new DOMParser).parseFromString(string, "text/xml");
-	};
+		}else return opts.error;
+	}
 });

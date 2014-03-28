@@ -1,0 +1,26 @@
+require(['BL'],function($){
+	
+	
+	var a=$('a');
+	if(!$.isString(a))
+		$('a').append('0');
+	$.delay(function(){
+		$.each($('a'),function(a){
+			$(a).append('555');
+		});
+	},1000);
+	$.DEBUG.open=true;
+	$.DEBUG.ajaxRedirect=function(url,data,method){
+		return 'sdf.js';
+	};
+	$('a').one('click',function(e){
+		$.get('config.js',function(d){alert(d)});
+	});
+	$.extendUtil({
+		chzn:function(el){
+			this.html('CHZN!!!');
+		},
+	})
+	$('a').init();
+	
+});

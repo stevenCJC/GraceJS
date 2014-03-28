@@ -1,5 +1,4 @@
-define(["jquery"],
-function($) {
+define(["$"], function($) {
 	$.r=r;
 	function r(url,data,type,datatype,success,error,debug){
 		if(!window.DEBUG&&!url)return;

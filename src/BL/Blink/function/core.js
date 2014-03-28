@@ -1,5 +1,7 @@
 define(['BL/Blink/dom/function/_selector'], function(_selector) {
 	function $(){
+		if(arguments.length==0)
+			return new Core();
 		if(arguments.length==1)
 			return new Core(arguments[0]);
 		else if(arguments.length==2)
@@ -10,14 +12,19 @@ define(['BL/Blink/dom/function/_selector'], function(_selector) {
 	$.fn = Core.prototype = {
 		constructor: Core,
 		selector: _selector,
-		oldElement: undefined
+		oldElement: undefined,
 	};
+	$.DEBUG={
+		open:false,
+		ajaxRedirect:function(url,data,method){},
+	};
+	
 	function Core(toSelect, what) {
 		this.length = 0;
 		this.elems=[];
 		if (!toSelect) {
 			return this;
-		} else if (toSelect instanceof Core && what == undefined) {
+		} else if (toSelect instanceof $.fn.constructor && what == undefined) {
 			return toSelect;
 		} else if ($.isFunction(toSelect)) {
 		//////////////

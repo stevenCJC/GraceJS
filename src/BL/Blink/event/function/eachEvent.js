@@ -1,7 +1,5 @@
+define(['$'], function ($) {
 
-
-
-	
 	function eachEvent(events, fn, iterator) {
 		if ($.isObject(events))
 			$.each(events, iterator);
@@ -11,4 +9,8 @@
 				iterator(e[i], fn);
 			};
 		}
+	
 	}
+	
+	return eachEvent;
+});

@@ -1,5 +1,4 @@
-
-
+define([], function () {
 function siblings(nodes, element) {
 		var elems = [];
 		if (nodes == undefined)
@@ -13,4 +12,5 @@ function siblings(nodes, element) {
 		return elems;
 	}
 
-
+return siblings;
+});

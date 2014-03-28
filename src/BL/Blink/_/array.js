@@ -1,4 +1,4 @@
-define(['$','./each','./var/ArrayProto','./var/slice'], function($,each,ArrayProto,slice) {
+define(['$','./each','./var/ArrayProto','./var/slice','./var/concat'], function($,each,ArrayProto,slice,concat) {
 
 	// Return the number of elements in an object.
 	$.size = function (obj) {

@@ -1,4 +1,6 @@
-function _insertFragments(jqm,container,insert){
+
+define([], function() {
+	function _insertFragments(jqm,container,insert){
 		var frag=document.createDocumentFragment();
 		if(insert){
 			for(var j=jqm.length-1;j>=0;j--)
@@ -16,3 +18,5 @@ function _insertFragments(jqm,container,insert){
 		}
 		frag=null;
 	}
+	return _insertFragments;
+});

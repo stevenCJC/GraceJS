@@ -1,6 +1,6 @@
-define(['$'], function ($) {
+define(['$','./function/unique','./function/siblings','BL/Blink/_/main'], function ($,unique,siblings) {
 
-	$.extend($.fn , {
+	$.extend({
 
 		setupOld: function(params) {
 			if (params == undefined)

@@ -1,4 +1,4 @@
-
+define(['$'], function ($) {
 
 	var returnTrue = function() {
 		return true
@@ -30,4 +30,5 @@
 		})
 		return proxy;
 	}
-	
+	return createProxy;
+});

@@ -1,4 +1,4 @@
-define(['./clean','./CUD','./data','./fn','./query','./style'], function($) {
+define(['./clean','./CUD','./data','./fn','./query','./style','./init'], function($) {
 	return $;
 });
 

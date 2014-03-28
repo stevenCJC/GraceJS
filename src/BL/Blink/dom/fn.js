@@ -1,6 +1,6 @@
-define(['$'], function ($) {
+define(['$','BL/Blink/_/main'], function ($) {
 
-	$.extend($.fn , {
+	$.extend({
 
 		ready: function(callback) {
 			if (document.readyState === "complete" || document.readyState === "loaded"||document.readyState==="interactive") 

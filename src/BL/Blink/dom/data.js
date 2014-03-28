@@ -1,13 +1,13 @@
-define(['$'], function ($) {
+define(['$','./var/_attrCache','./var/_propCache','blk/function/_id','blk/function/has_id','blk/function/shim_id','BL/Blink/_/main'], function ($,_attrCache,_propCache,_id,has_id,shim_id) {
 
-	$.extend($.fn , {
+	$.extend({
 		attr: function(attr, value) {
 			var id,el;
 			if (this.length === 0)
 				return (value === undefined) ? undefined : this;            
 			if (value === undefined && !$.isObject(attr)) {
 				id=has_id(this.elems[0]);
-				return (id&&_attrCache[id][attr])?_attrCache[id][attr]:this.elems[0].getAttribute(attr);
+				return (id&&_attrCache[id]&&_attrCache[id][attr])?_attrCache[id][attr]:this.elems[0].getAttribute(attr);
 			}
 			for (var i = 0,len=this.length; i <len ; i++) {
 				id=has_id(this.elems[i]);
@@ -32,6 +32,7 @@ define(['$'], function ($) {
 					el.removeAttribute(attr);
 					if(id) _attrCache[id][attr];
 						delete _attrCache[id][attr];
+					shim_id(el);
 				}
 				else{
 					el.setAttribute(attr, value);
@@ -45,12 +46,14 @@ define(['$'], function ($) {
 			for (var i = 0,len=this.length; i <len ; i++) {
 				el=this.elems[i];
 				id=has_id(el);
+				if(!id) continue;
 				for(var j=0,lem=attrs.length;j<lem;j++){
 					at=attrs[j];
 					el.removeAttribute(at);
-					if(id&&_attrCache[id][at])
+					if(id&&_attrCache[id]&&_attrCache[id][at])
 						delete _attrCache[id][at];
 				}
+				shim_id(el);
 			}
 			return this;
 		},
@@ -91,6 +94,7 @@ define(['$'], function ($) {
 					$(el).removeProp(prop);
 					if(id) _propCache[id][prop];
 						delete _propCache[id][prop];
+					shim_id(el);
 				}
 				else{
 					el[prop]= value;
@@ -100,17 +104,20 @@ define(['$'], function ($) {
 		},
 		
 		removeProp: function(prop) {
-			var p=prop.split(/\s+|\,/g),el,pr;
+			var p=prop.split(/\s+|\,/g),el,pr,id;
 			for (var i = 0,len=this.length; i <len ; i++) {
 				el=this.elems[i];
+				id=has_id(el);
+				if(!id) continue;
 				for (var j = 0,lem=p.length; j <lem ; j++) {
 					pr=p[j];
 					if(el[pr])
 						delete el[pr];
-					if(el.jqmCacheId&&_propCache[el.jqmCacheId][pr]){
-							delete _propCache[el.jqmCacheId][pr];
+					if(id&&_propCache[id]&&_propCache[id][pr]){
+							delete _propCache[id][pr];
 					}
 				}
+				shim_id(el);
 			}
 			return this;
 		},
@@ -164,13 +171,16 @@ define(['$'], function ($) {
 		data: function(key, value) {
 			return this.attr('data-' + key, value);
 		},
-
+		
 
 		_id:function(make){
 			if(make)return _id(this.elems[0]);
 			return has_id(this.elems[0]);
 		},
 		
+		clean:function(){
+			$.clean(this.elems);
+		},
 
 
 	});
