@@ -1,10 +1,8 @@
 require(['BL'],function($){
 	
 	var html= $('div:first-child')[0].outerHTML,t='';
-	for(var i=0;i<100;i++) $('body').append(html);
-	console.time('BL')
-	$('a').one('click',function(){});
-	console.timeEnd('BL')
+	for(var i=0;i<2;i++) $('body').append(html);
+	
 	
 	
 	
@@ -12,8 +10,16 @@ require(['BL'],function($){
 		'util:chzn':function(el){
 			this.html('CHZN!!!');
 		},
+		'util:chzn_':function(el){
+			this.html('??');
+		},
 	})
 	
 	$('a').init();
-	
+	console.time('BL')
+	var a2=$('a[_id]').eq(2)
+	a2.attr("sdf",44);
+	a2.destroy();
+	a2.removeAttr('sdf');
+	console.timeEnd('BL')
 });

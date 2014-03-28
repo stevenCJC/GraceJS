@@ -132,7 +132,7 @@ define(['$','./function/unique','./function/siblings','BL/Blink/_/main'], functi
 	   
 		eq:function(ind){
 			var index;
-			index = index == undefined ? 0 : ind;
+			index = ind == undefined ? 0 : ind;
 			if (index < 0)
 				index += this.length;
 			return $((this[index]) ? this[index] : undefined);

@@ -1,13 +1,13 @@
-define(['$','./var/_attrCache','./var/_propCache','./var/_initedCache','blk/function/r_id','BL/Blink/_/main'], function ($,_attrCache,_propCache,_initedCache,r_id) {
+define(['$','./var/_attrCache','./var/_propCache','./var/_initedCache','blk/function/r_id','blk/function/has_id','BL/Blink/event/function/makeEvent','BL/Blink/_/main'], function ($,_attrCache,_propCache,_initedCache,r_id,has_id,makeEvent) {
 
 	function cleanUpNode(node, kill){
 		//kill it before it lays eggs!
 		if(kill && node.dispatchEvent){
-			var e = $.Event('destroy', {bubbles:false});
+			var e = makeEvent('destroy', {bubbles:false});
 			node.dispatchEvent(e);
 		}
 		
-		var id = _id(node);
+		var id = has_id(node);
 		
 		if(id){
 			if(handlers[id]){
@@ -18,7 +18,10 @@ define(['$','./var/_attrCache','./var/_propCache','./var/_initedCache','blk/func
 			
 			if(_attrCache[id]) delete _attrCache[id];
 			if(_propCache[id]) delete _propCache[id];
-			if(_initedCache[id]) delete _initedCache[id];
+			if(_initedCache[id]){
+				$(node).distroy();
+				delete _initedCache[id];
+			}
 			r_id(node);
 		}
 	}
