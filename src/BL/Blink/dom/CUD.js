@@ -3,16 +3,17 @@ define(['$','./var/_attrCache','./var/_propCache','./var/_initedCache','BL/Blink
 	$.extend({
 
 		
-		html: function(html,cleanup) {
+		html: function(html,init) {
 			if (this.length === 0)
 				return this;
 			if (html === undefined)
 				return this[0].innerHTML.replace(/_id\=\"[\w\,]*?\"/ig,'');
 			for (var i = 0,len=this.length; i <len ; i++) {
-				if(cleanup!==false)
-					$.clean(this[i], false, true);
+				$.clean(this[i], false, true);
 				this[i].innerHTML = html;
-				if(typeof cleanup =='string') this.init(cleanup);
+				if(typeof init !== false){
+					this.init(init);
+				}
 			}
 			return this;
 		},
@@ -68,6 +69,7 @@ define(['$','./var/_attrCache','./var/_propCache','./var/_initedCache','BL/Blink
 					}
 					else {
 						insert != undefined ? this[i].insertBefore(obj, this[i].firstChild) : this[i].appendChild(obj);
+						////////////////////$(obj)
 					}
 				}
 			}
