@@ -6,7 +6,10 @@ require(['BL'],function($){
 	if(!$.isString(a))
 		$('a').append('0');
 	
-	
+	$.each($('a'),function(a){
+		a.append('555');
+		
+	});
 	
 	
 });
