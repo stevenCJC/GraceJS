@@ -106,7 +106,7 @@ define(['$','./function/unique','./function/siblings','./function/_shimNodes','B
 			var elems = [];
 			for (var i = 0,len=this.length; i <len ; i++) {
 				var val = this[i];
-				if (val.parentNode && $(selector, val.parentNode).indexOf(val) >= 0)
+				if (val.parentNode && $(selector, val.parentNode).index(val) >= 0)
 					elems.push(val);
 			}
 			return this.setupOld($(unique(elems)));

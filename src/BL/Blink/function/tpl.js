@@ -1,6 +1,6 @@
-define(["jquery",'utils/tips'],
-function($,tips) {
-	window.TPL=window.TPL||{};
+define(["jquery",'./function/template'],
+function($,template) {
+	//window.TPL=window.TPL||{};
 	
 	$.loadTPL = function(tplName,options){
 		

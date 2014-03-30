@@ -1,4 +1,4 @@
-define(['./core'], function(G) {
+define([], function() {
 	function template(text,moduleName,settings) {
 		var	slice = Array.prototype.slice;
 	

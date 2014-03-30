@@ -16,34 +16,37 @@ var ArrayProto = Array.prototype;
 var slice = ArrayProto.slice;
 
 
+	function unique(arr) {
+		for (var i = 0,len=arr.length; i < len; i++) {
+			if (arr.indexOf(arr[i]) != i) {
+				arr.splice(i, 1);
+				i--;
+			}
+		}
+		return arr;
+	}
+
 	
 	function _shimNodes(nodes,obj){
 		if(!nodes)
 			return;
+		var i=0;
 		if(nodes.nodeType)
-			return obj.elems[obj.length++]=nodes;
-		if(nodes.elems){
-			obj.elems=nodes.elems;
-			obj.length=nodes.length;
-		}else if(nodes.length){
-			nodes.constructor==Array&&(obj.elems=obj.elems.concat(nodes));
-			obj.elems=slice.call(nodes);
-			//for(var i=0,len=nodes.length;i<len;i++) obj.elems.push(nodes[i]);
-			obj.length=nodes.length;
-		}else for(var x in nodes) nodes[x]&&nodes[x].nodeType&&(obj.elems[obj.length++]=nodes[x]);
+			return obj[obj.length++]=nodes;
+		for(var i=0,len=nodes.length;i<len;i++) {
+			obj[obj.length++]=nodes[i];
+		}
 	}
 
 	
 	function _selector(selector, what) {
 		selector=selector.trim();
-		
-		if (selector[0] === "#" && selector.indexOf(".")==-1 && selector.indexOf(" ")===-1 && selector.indexOf(">")===-1){
+		if (selector[0] === "#" && selector.indexOf(",")==-1 && selector.indexOf(".")==-1 && selector.indexOf(" ")===-1 && selector.indexOf(">")===-1){
 			if (what == document)
 				_shimNodes(what.getElementById(selector.replace("#", "")),this);
 			else
 				_shimNodes(_selectorAll(selector, what),this);
-		} else if (selector[0] === "<" && selector[selector.length - 1] === ">")  //html
-		{
+		}  else if (selector[0] === "<" && selector[selector.length - 1] === ">"){
 			var tmp = document.createElement("div");
 			tmp.innerHTML = selector.trim();
 			_shimNodes(tmp.childNodes,this);
@@ -53,22 +56,27 @@ var slice = ArrayProto.slice;
 		return this;
 	}
 
-	function $(){
-		if(arguments.length==1)
-			return new Core(arguments[0]);
-		else if(arguments.length==2)
-			return new Core(arguments[0],arguments[1]);
-		else if(arguments.length==3)
-			return new Core(arguments[0],arguments[1],arguments[2]);
+	function $(s,w){
+		return new Core(s,w);
 	}
 	$.fn = Core.prototype = {
 		constructor: Core,
 		selector: _selector,
-		oldElement: undefined
+		oldElement: undefined,
+		forEach: [].forEach,
+		reduce: [].reduce,
+		push: [].push,
+		indexOf: [].indexOf,
+		concat: [].concat,
+		slice: [].slice,
 	};
+	$.DEBUG={
+		open:false,
+		ajaxRedirect:function(url,data,method){},
+	};
+	
 	function Core(toSelect, what) {
 		this.length = 0;
-		this.elems=[];
 		if (!toSelect) {
 			return this;
 		} else if (toSelect instanceof Core && what == undefined) {
@@ -76,22 +84,23 @@ var slice = ArrayProto.slice;
 		} else if ($.isFunction(toSelect)) {
 		//////////////
 			return $(document).ready(toSelect);
-		} else if ($.isArray(toSelect) && toSelect.length != undefined) { //Passing in an array or object
-			this.elems=this.elems.concat(toSelect);
-			this.length=toSelect.length;
-			return this;
+		} else if ($.isArray(toSelect) || toSelect.length != undefined&&!$.isString(toSelect)) { //Passing in an array or object
+			for (var i = 0; i < toSelect.length; i++)
+                    this[this.length++] = toSelect[i];
+            return this;
 		} else if ($.isObject(toSelect) && $.isObject(what)) { //var tmp=$("span");  $("p").find(tmp);
 			if (toSelect.length == undefined) {
 				if (toSelect.parentNode == what)
-					this.elems[this.length++] = toSelect;
+					this[this.length++] = toSelect;
 			} else {
 				for (var i = 0; i < toSelect.length; i++)
-					if (toSelect.elems[i].parentNode == what)
-						this.elems[this.length++] = toSelect.elems[i];
+					if (toSelect[i].parentNode == what)
+						this[this.length++] = toSelect[i];
 			}
 			return this;
 		} else if ($.isObject(toSelect) && what == undefined) { //Single object
-			this.elems[this.length++] = toSelect;
+			if (toSelect.nodeType)
+				this[this.length++] = toSelect;
 			return this;
 		} else if (what !== undefined) {
 			if (what instanceof Core) {
@@ -118,7 +127,7 @@ var slice = ArrayProto.slice;
 						return;
 				}
 			else for (var i = 0, l = obj.length; i < l; i++) {
-					if (iterator(obj[i], i, obj) === false)
+					if (iterator.call(obj[i], obj[i], i, obj) === false)
 						return;
 				}
 		} else {
@@ -130,12 +139,14 @@ var slice = ArrayProto.slice;
 			}
 			else  for (var key in obj) {
 				if (obj.hasOwnProperty(key)) {
-					if (iterator(obj[key], key, obj) === false)
+					if (iterator.call(obj[key], obj[key], i, obj) === false)
 						return;
 				}
 			}
 		}
 	};
+var concat = ArrayProto.concat;
+
 
 
 	// Return the number of elements in an object.
@@ -265,6 +276,32 @@ var slice = ArrayProto.slice;
 		return $.where(obj, attrs, true);
 	};
 
+	
+	$.call=function(func, args, context){
+		context=context||this;
+		switch(args.length){
+			case 0:
+			func.call(context);
+			break;
+			case 1:
+			func.call(context,args[0]);
+			break;
+			case 2:
+			func.call(context,args[0],args[1]);
+			break;
+			case 3:
+			func.call(context,args[0],args[1],args[2]);
+			break;
+			case 4:
+			func.call(context,args[0],args[1],args[2],args[3]);
+			break;
+			case 5:
+			func.call(context,args[0],args[1],args[2],args[3],args[4]);
+			break;
+		}
+	}
+	
+	
 // Delays a function for the given number of milliseconds, and then calls
 	// it with the arguments supplied.
 	$.delay = function (func, wait) {
@@ -372,7 +409,13 @@ var slice = ArrayProto.slice;
 			}
 		},timing);
 	}
+var ObjProto = Object.prototype;
 
+var toString = ObjProto.toString;
+
+
+	
+	$.is$ = function(obj){return obj instanceof $.fn.constructor;}
 	// Is a given array, string, or object empty?
 	// An "empty" object has no enumerable own-properties.
 	$.isEmpty = function (obj) {
@@ -393,7 +436,9 @@ var slice = ArrayProto.slice;
 
 	// Is a given value an array?
 	// Delegates to ECMA5's native Array.isArray
-	$.isArray = Array.isArray;
+	$.isArray = function(obj){
+		return obj instanceof Array && obj['push'] != undefined;
+	};
 
 	// Is a given variable an object?
 	$.isObject = function (obj) {
@@ -446,11 +491,7 @@ var slice = ArrayProto.slice;
 	$.isUndefined = function (obj) {
 		return obj === void 0;
 	};
-var ObjProto = Object.prototype;
-
-var hasOwnProperty = ObjProto.hasOwnProperty;
-
-
+var _utilCache ={};
 
 	// Retrieve the names of an object's properties.
 	// Delegates to **ECMAScript 5**'s native `Object.keys`
@@ -463,19 +504,30 @@ var hasOwnProperty = ObjProto.hasOwnProperty;
 			if ($.hasKey(obj, key))
 				values.push(obj[key]);
 		return values;
-	};
-
-	// Extend a given object with all the properties in passed-in object(s).
-	$.extend = function (obj) {
-		each(slice.call(arguments, 1), function (source) {
-			if (source) {
-				for (var prop in source) {
-					obj[prop] = source[prop];
-				}
+	};	
+	
+	
+	$.extend = function(target) {
+		var ukey,key;
+		if (target == undefined)
+			target = this;
+		if (arguments.length === 1&&$.isObject(target)) { 
+			for (key in target){
+				ukey=key.split(':');
+				if(ukey.length==1)$.fn[key] = target[key];
+				else if(ukey[0]=='util') _utilCache[ukey[1]]=target[key];
 			}
-		});
-		return obj;
+			return;
+		} else {
+			var a= slice.call(arguments, 1);
+			for(var i=0,len=a.length;i<len;i++)
+				for (key in a[i])
+					target[key] = a[i][key];
+		}
+		return target;
 	};
+	
+
 
 	// Return a copy of the object only containing the whitelisted properties.
 	$.pick = function (obj) {
@@ -516,7 +568,7 @@ var hasOwnProperty = ObjProto.hasOwnProperty;
 	// Shortcut function for checking if an object has a given property directly
 	// on itself (in other words, not on a prototype).
 	$.hasKey = function (obj, key) {
-		return hasOwnProperty.call(obj, key);
+		return obj.hasOwnProperty(key);
 	};
 
 	// Return a random integer between min and max (inclusive).
@@ -529,7 +581,8 @@ var hasOwnProperty = ObjProto.hasOwnProperty;
 	};
 
 
-
+	
+	
 	/* AJAX functions */
 
 	function empty() {}
@@ -557,7 +610,8 @@ var hasOwnProperty = ObjProto.hasOwnProperty;
 	 * options.contentType - HTTP Request Content Type
 	 * options.headers - Object of headers to set
 	 * options.dataType - Data type of request
-	 * options.data - data to pass into request.  $.param is called on objects
+	 * options.data - data to pass into request.  $.queryString is called on objects
+	 * options.async
 	```
 	var opts={
 	type:"GET",
@@ -567,12 +621,119 @@ var hasOwnProperty = ObjProto.hasOwnProperty;
 	}
 	$.ajax(opts);
 	```
-
 	 * @param {Object} options
 	 * @title $.ajax(options)
 	 */
-	$.ajax = function (opts) {
+	
+	$.ajax = function(opts){
+		ajax(opts);
+	};
+
+
+	$.get = function (url) {
+		var t, data={}, dataType='html',success=empty,error=empty;
+		for(var i=1,len=arguments.length;i<len;i++){
+			t=arguments[i];
+			switch(typeof t){
+				case'string':
+				if(t.indexOf('=')>-1) data=t;
+				else {
+					dataType=t;
+				}
+				break;
+				case'object':
+				data=t;
+				break;
+				case'function':
+				if(success===empty)success=t;
+				else error=t;
+				break;
+			}
+		}
+
+		return ajax({
+			url : url,
+			data : data,
+			dataType : dataType,
+			success : success,
+			error:error,
+		});
+	}
+	
+	$.post = function (url) {
+		var t, data={}, dataType='html',success=empty,error=empty;
+		for(var i=1,len=arguments.length;i<len;i++){
+			t=arguments[i];
+			switch(typeof t){
+				case'string':
+				if(t.indexOf('=')>-1) data=t;
+				else {
+					dataType=t;
+				}
+				break;
+				case'object':
+				data=t;
+				break;
+				case'function':
+				if(success===empty)success=t;
+				else error=t;
+				break;
+			}
+		}
+		return ajax({
+			url : url,
+			type : "POST",
+			data : data,
+			dataType : dataType,
+			success : success,
+			error:error,
+		});
+	};
+
+	/**
+	 * Converts an object into a key/value par with an optional prefix.  Used for converting objects to a query string
+	```
+	var obj={
+	foo:'foo',
+	bar:'bar'
+	}
+	var kvp=$.queryString(obj,'data');
+	```
+
+	 * @param {Object} object
+	 * @param {String} [prefix]前缀
+	 * @return {String} Key/value pair representation
+	 * @title $.queryString(object,[prefix];
+	 */
+
+	$.queryString = function (obj, prefix) {
+		var str = [];
+		if (obj instanceof $.fn.constructor) {
+			for (var i = 0, len = obj.length; i < len; i++) {
+				var k = prefix ? prefix + "[]" : obj[i].name,
+				v = obj[i].value;
+				str.push((k) + "=" + encodeURIComponent(v));
+			};
+		} else {
+			for (var p in obj) {
+				var k = prefix ? prefix + "[" + p + "]" : p,
+				v = obj[p];
+				str.push($.isObject(v) ? $.queryString(v, k) : (k) + "=" + encodeURIComponent(v));
+			}
+		}
+		return str.join("&");
+	};
+
+
+	$.parseXML = function (string) {
+		return (new DOMParser).parseFromString(string, "text/xml");
+	};
+	
+	function ajax(opts) {
 		var xhr;
+		
+		opts.error=errCallback(opts);
+		
 		try {
 
 			var settings = opts || {};
@@ -613,13 +774,11 @@ var hasOwnProperty = ObjProto.hasOwnProperty;
 				default:
 					settings.dataType = "text/html";
 					break;
-				case "jsonp":
-					return $.jsonP(opts);
-					break;
+				
 				}
 			}
 			if ($.isObject(settings.data))
-				settings.data = $.param(settings.data);
+				settings.data = $.queryString(settings.data);
 			if (settings.type.toLowerCase() === "get" && settings.data) {
 				if (settings.url.indexOf("?") === -1)
 					settings.url += "?" + settings.data;
@@ -627,9 +786,6 @@ var hasOwnProperty = ObjProto.hasOwnProperty;
 					settings.url += "&" + settings.data;
 			}
 
-			if (/=\?/.test(settings.url)) {
-				return $.jsonP(settings);
-			}
 			if (settings.crossDomain === null)
 				settings.crossDomain = /^([\w-]+:)?\/\/([^\/]+)/.test(settings.url) &&
 					RegExp.$2 != window.location.host;
@@ -683,7 +839,6 @@ var hasOwnProperty = ObjProto.hasOwnProperty;
 			if (settings.withCredentials)
 				xhr.withCredentials = true;
 				
-
 			if (settings.contentType)
 				settings.headers['Content-Type'] = settings.contentType;
 			for (var name in settings.headers)
@@ -707,154 +862,85 @@ var hasOwnProperty = ObjProto.hasOwnProperty;
 		}
 		return xhr;
 	};
-
-	/**
-	 * Shorthand call to an Ajax GET request
-	```
-	$.get("mypage.php?foo=bar",function(data){});
-	```
-
-	 * @param {String} url to hit
-	 * @param {Function} success
-	 * @title $.get(url,success)
-	 */
-	$.get = function (url, success) {
-		return this.ajax({
-			url : url,
-			success : success
-		});
-	};
-	/**
-	 * Shorthand call to an Ajax POST request
-	```
-	$.post("mypage.php",{bar:'bar'},function(data){});
-	```
-
-	 * @param {String} url to hit
-	 * @param {Object} [data] to pass in
-	 * @param {Function} success
-	 * @param {String} [dataType]
-	 * @title $.post(url,[data],success,[dataType])
-	 */
-	$.post = function (url, data, success, dataType) {
-		if (typeof(data) === "function") {
-			success = data;
-			data = {};
-		}
-		if (dataType === undefined)
-			dataType = "html";
-		return this.ajax({
-			url : url,
-			type : "POST",
-			data : data,
-			dataType : dataType,
-			success : success
-		});
-	};
-	/**
-	 * Shorthand call to an Ajax request that expects a JSON response
-	```
-	$.getJSON("mypage.php",{bar:'bar'},function(data){});
-	```
-
-	 * @param {String} url to hit
-	 * @param {Object} [data]
-	 * @param {Function} [success]
-	 * @title $.getJSON(url,data,success)
-	 */
-	$.getJSON = function (url, data, success) {
-		if (typeof(data) === "function") {
-			success = data;
-			data = {};
-		}
-		return this.ajax({
-			url : url,
-			data : data,
-			success : success,
-			dataType : "json"
-		});
-	};
-
-	/**
-	 * Converts an object into a key/value par with an optional prefix.  Used for converting objects to a query string
-	```
-	var obj={
-	foo:'foo',
-	bar:'bar'
-	}
-	var kvp=$.param(obj,'data');
-	```
-
-	 * @param {Object} object
-	 * @param {String} [prefix]前缀
-	 * @return {String} Key/value pair representation
-	 * @title $.queryString(object,[prefix];
-	 */
-
-	$.queryString = function (obj, prefix) {
-		var str = [];
-		if (obj instanceof $jqm) {
-			for (var i = 0, len = obj.length; i < len; i++) {
-				var k = prefix ? prefix + "[]" : obj.elems[i].name,
-				v = obj.elems[i].value;
-				str.push((k) + "=" + encodeURIComponent(v));
-			};
-		} else {
-			for (var p in obj) {
-				var k = prefix ? prefix + "[" + p + "]" : p,
-				v = obj[p];
-				str.push($.isObject(v) ? $.queryString(v, k) : (k) + "=" + encodeURIComponent(v));
+	
+	function errCallback(opts){
+		if($.DEBUG.open){
+			if(!opts.orgError) opts.orgError=opts.error;
+			else return opts.error;
+			return function(e){
+				var url=$.DEBUG.ajaxRedirect(opts.url,opts.data,opts.method);
+				if(url)
+					ajax({
+						url:url,
+						dataType : opts.dataType,
+						success : opts.success,
+						error :opts.orgError,
+						orgError:1,//避免死循环
+					});
 			}
-		}
-		return str.join("&");
-	};
-	/**
-	 * Used for backwards compatibility.  Uses native JSON.parse function
-	```
-	var obj=$.parseJSON("{\"bar\":\"bar\"}");
-	```
+		}else return opts.error;
+	}
 
-	 * @params {String} string
-	 * @return {Object}
-	 * @title $.parseJSON(string)
-	 */
-	$.parseJSON = function (string) {
-		return JSON.parse(string);
-	};
-	/**
-	 * Helper function to convert XML into  the DOM node representation
-	```
-	var xmlDoc=$.parseXML("<xml><foo>bar</foo></xml>");
-	```
+var _attrCache ={};
+var _propCache ={};
+var _initedCache ={};
 
-	 * @param {String} string
-	 * @return {Object} DOM nodes
-	 * @title $.parseXML(string)
-	 */
-	$.parseXML = function (string) {
-		return (new DOMParser).parseFromString(string, "text/xml");
-	};
+	function r_id(element) {
+		if(!element)return;
+		var id=parseInt(element.getAttribute('_id'))
+		element.removeAttribute('_id');
+		return id;
+	}
 
+		
+	function has_id(element){
+		if(!element)return;
+		return parseInt(element.getAttribute('_id'));
+	}
+
+	
+	function makeEvent(type, props) {
+		var event = document.createEvent('Events'), 
+		bubbles = true;
+		if (props)
+			for (var name in props)
+				(name == 'bubbles') ? (bubbles = !!props[name]) : (event[name] = props[name]);
+		event.initEvent(type, bubbles, true, null, null, null, null, null, null, null, null, null, null, null, null);
+		return event;
+	};
 
 
 	function cleanUpNode(node, kill){
 		//kill it before it lays eggs!
 		if(kill && node.dispatchEvent){
-			var e = $.Event('destroy', {bubbles:false});
+			var e = makeEvent('destroy', {bubbles:false});
 			node.dispatchEvent(e);
 		}
-		var id = _id(node);
-		if(id && handlers[id]){
-			for(var key in handlers[id])
-				node.removeEventListener(handlers[id][key].e, handlers[id][key].proxy, false);
-			delete handlers[id];
+		
+		var id = has_id(node);
+		
+		if(id){
+			if(handlers[id]){
+				for(var key in handlers[id])
+					node.removeEventListener(handlers[id][key].e, handlers[id][key].proxy, false);
+				delete handlers[id];
+			}
+			
+			if(_attrCache[id]) delete _attrCache[id];
+			if(_propCache[id]) delete _propCache[id];
+			if(_initedCache[id]){
+				$(node).distroy();
+				delete _initedCache[id];
+			}
+			r_id(node);
 		}
 	}
 	
-	$.cleanUpContent = function(node, itself, kill){
+	
+	$.clean = function(node, itself, kill){
 		if(!node) return;
 		//cleanup children
-		var elems = $('[_id]',node).elems;
+		var elems = $('[_id]',node);
 		if(elems.length > 0) 
 			for(var i=0,len=elems.length;i<len;i++){
 				cleanUpNode(elems[i], kill);
@@ -862,23 +948,58 @@ var hasOwnProperty = ObjProto.hasOwnProperty;
 		//cleanUp this node
 		if(itself) cleanUpNode(node, kill);
 	}
+var handlers ={};
+var __id =1;
+
+		
+	function _id(element) {
+		if(!element)return;
+		var id=parseInt(element.getAttribute('_id'));
+		if(id) return id;
+		else{
+			id=__id++;
+			element.setAttribute('_id',id);
+			return id;
+		}
+	}
 var fragementRE = /^\s*<(\w+)[^>]*>/
 
 
 
-	$.extend($.fn , {
+	function _insertFragments(jqm,container,insert){
+		var frag=document.createDocumentFragment();
+		if(insert){
+			for(var j=jqm.length-1;j>=0;j--)
+			{
+				frag.insertBefore(jqm[j],frag.firstChild);
+			}
+			container.insertBefore(frag,container.firstChild);
+		
+		}
+		else {
+		
+			for(var j=0;j<jqm.length;j++)
+				frag.appendChild(jqm[j]);
+			container.appendChild(frag);
+		}
+		frag=null;
+	}
+
+
+	$.extend({
 
 		
-		html: function(html,cleanup) {
+		html: function(html,init) {
 			if (this.length === 0)
 				return this;
 			if (html === undefined)
-				return this.elems[0].innerHTML;
-
+				return this[0].innerHTML.replace(/_id\=\"[\w\,]*?\"/ig,'');
 			for (var i = 0,len=this.length; i <len ; i++) {
-				if(cleanup!==false)
-					$.cleanUpContent(this.elems[i], false, true);
-				this.elems[i].innerHTML = html;
+				$.clean(this[i], false, true);
+				this[i].innerHTML = html;
+				if(typeof init !== false){
+					this.init(init);
+				}
 			}
 			return this;
 		},
@@ -887,9 +1008,9 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 			if (this.length === 0)
 				return this;
 			if (text === undefined)
-				return this.elems[0].textContent;
+				return this[0].textContent;
 			for (var i = 0,len=this.length; i <len ; i++) {
-				this.elems[i].textContent = text;
+				this[i].textContent = text;
 			}
 			return this;
 		},
@@ -897,11 +1018,11 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 
 		
 		remove: function(selector) {
-			var elems = $(this).filter(selector).elems;
+			var elems = $(this).filter(selector);
 			if (elems == undefined)
 				return this;
 			for (var i = 0,len=elems.length; i <len ; i++) {
-				$.cleanUpContent(elems[i], true, true);
+				$.clean(elems[i], true, true);
 				elems[i].parentNode.removeChild(elems[i]);
 			}
 			return this;
@@ -910,18 +1031,23 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 
 
 		
-		append: function(element, insert) {
+		append: function(element, init, insert, clone) {
+			if(typeof clone=='undefined') clone=true;
 			if (element && element.length != undefined && element.length === 0)
 				return this;
 			if ($.isArray(element) || $.isObject(element))
 				element = $(element);
-			var i;
+			var i,cloned;
 			
 			
 			for (i = 0; i < this.length; i++) {
+				
 				if (element.length && typeof element != "string") {
-					element = $(element);
-					_insertFragments(element,this.elems[i],insert);
+					cloned = clone?$(element).clone(1):$(element);
+					_insertFragments(cloned,this[i],insert);
+					if(typeof init !== false){
+						cloned.init(init);
+					}
 				} else {
 					var obj =fragementRE.test(element)?$(element):undefined;
 					if (obj == undefined || obj.length == 0) {
@@ -930,78 +1056,138 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 					if (obj.nodeName != undefined && obj.nodeName.toLowerCase() == "script" && (!obj.type || obj.type.toLowerCase() === 'text/javascript')) {
 						window.eval(obj.innerHTML);
 					} else if(obj instanceof $.fn.constructor) {
-						_insertFragments(obj,this.elems[i],insert);
-					}
-					else {
-						insert != undefined ? this.elems[i].insertBefore(obj, this.elems[i].firstChild) : this.elems[i].appendChild(obj);
+						_insertFragments(obj,this[i],insert);
+						if(typeof init !== false){
+							obj.init(init);
+						}
+					} else {
+						insert ? this[i].insertBefore(obj, this[i].firstChild) : this[i].appendChild(obj);
+						if(typeof init !== false){
+							obj.init(init);
+						}
+						
 					}
 				}
 			}
 			return this;
 		},
 		
-		appendTo:function(selector,insert){
+		appendTo:function(selector,init){
 			var tmp=$(selector);
-			tmp.append(this);
+			tmp.append(this,init,false,false);
 			return this;
 		},
 		
-		prependTo:function(selector){
+		prependTo:function(selector,init){
 			var tmp=$(selector);
-			tmp.append(this,true);
+			tmp.append(this, init, true, false);
 			return this;
 		},
 		
-		prepend: function(element) {
-			return this.append(element, 1);
+		prepend: function(element,init) {
+			return this.append(element, init, true,true);
 		},
 		
-		before: function(target, after) {
+		beforeTo: function(target, init, after) {
 			if (this.length == 0)
 				return this;
-			target = $(target).eq(0);
-			if (!target)
+			var targets = $(target);
+			if (!targets||!targets.parent().length)
 				return this;
-			for (var i = 0; i < this.length; i++)
-			{
-				after ? target.parentNode.insertBefore(this.elems[i], target.nextSibling) : target.parentNode.insertBefore(this.elems[i], target);
+			for(var j=0,l=targets.length;j<l;j++){
+				target = targets[j];
+				for (var i = 0; i < this.length; i++)
+				{
+					after ? target.parentNode.insertBefore(this[i], target.nextSibling) : target.parentNode.insertBefore(this[i], target);
+				}
+			}
+			if(typeof init !== false){
+				this.init(init);
 			}
 			return this;
 		},
 		
-	   after: function(target) {
-			this.insertBefore(target, true);
+	   afterTo: function(target,init) {
+			this.beforeTo(target,init, true);
 		},
 		
+		before: function(content, init) {
+			var obj=$(content);
+			if((!obj||!obj.length)&&typeof content == 'string')
+				obj =$(document.createTextNode(content))
+			obj.beforeTo(this,init);
+			return this;
+		},
+		
+	   after: function(content,init) {
+			var obj=$(content);
+			if((!obj||!obj.length)&&typeof content == 'string')
+				obj =$(document.createTextNode(content))
+			obj.beforeTo(this,init,true);
+		},
 
 		
 		clone: function(deep) {
 			deep = deep === false ? false : true;
 			if (this.length == 0)
 				return this;
-			var elems = [];
+			var elems = [],el,id,oid,els;
 			for (var i = 0,len=this.length; i < len; i++) {
-				elems.push(this.elems[i].cloneNode(deep));
+				el=$(this[i].cloneNode(deep));
+				if(deep){
+					if(el.attr('[_id]')){
+						clone(el[0]);
+					}
+					el.find('[_id]').each(function(index, element) {
+						clone(this);
+					});
+				}else {
+					r_id(el[0]);
+					el.find('[_id]').each(function(index, element) {
+						r_id(this);
+					});
+				}
+				elems.push(el[0]);
 			}
 			
 			return $(elems);
+			function clone(elems){
+				oid=r_id(elems);
+				id=_id(elems);
+				if(_attrCache[oid])_attrCache[id]=$.clone(_attrCache[oid]);
+				if(_propCache[oid])_propCache[id]=$.clone(_propCache[oid]);
+				if(_initedCache[oid])_initedCache[id]=$.clone(_initedCache[oid]);
+				if(handlers[oid])handlers[id]=$.clone(handlers[oid])
+			}
 		},
 
 	});
 
+	function shim_id(element) {
+		if(!element)return;
+		var id=parseInt(element.getAttribute('_id'));
+		var keys=Object.keys;
+		if((id)&&
+			(!_attrCache[id]||!keys(_attrCache[id]).length)&&
+			(!_propCache[id]||!keys(_propCache[id]).length)&&
+			(!_initedCache[id]||!_initedCache[id].length)&&
+			(!handlers[id]||!handlers[id].length)) 
+				element.removeAttribute('_id');
+	}
 
-	$.extend($.fn , {
+
+	$.extend({
 		attr: function(attr, value) {
 			var id,el;
 			if (this.length === 0)
 				return (value === undefined) ? undefined : this;            
 			if (value === undefined && !$.isObject(attr)) {
-				id=has_id(this.elems[0]);
-				return (id&&_attrCache[id][attr])?_attrCache[id][attr]:this.elems[0].getAttribute(attr);
+				id=has_id(this[0]);
+				return (id&&_attrCache[id]&&_attrCache[id][attr])?_attrCache[id][attr]:this[0].getAttribute(attr);
 			}
 			for (var i = 0,len=this.length; i <len ; i++) {
-				id=has_id(this.elems[i]);
-				el=this.elems[i];
+				id=has_id(this[i]);
+				el=this[i];
 				if ($.isObject(attr)) {
 					for (var key in attr) {
 						$(el).attr(key,attr[key]);
@@ -1022,6 +1208,7 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 					el.removeAttribute(attr);
 					if(id) _attrCache[id][attr];
 						delete _attrCache[id][attr];
+					shim_id(el);
 				}
 				else{
 					el.setAttribute(attr, value);
@@ -1033,14 +1220,16 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 		removeAttr: function(attr) {
 			var attrs=attr.split(/\s+|\,/g),el,at,id;
 			for (var i = 0,len=this.length; i <len ; i++) {
-				el=this.elems[i];
+				el=this[i];
 				id=has_id(el);
+				if(!id) continue;
 				for(var j=0,lem=attrs.length;j<lem;j++){
 					at=attrs[j];
 					el.removeAttribute(at);
-					if(id&&_attrCache[id][at])
+					if(id&&_attrCache[id]&&_attrCache[id][at])
 						delete _attrCache[id][at];
 				}
+				shim_id(el);
 			}
 			return this;
 		},
@@ -1052,13 +1241,13 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 				return (value === undefined) ? undefined : this;          
 			if (value === undefined && !$.isObject(prop)) {
 				
-				var res;id=has_id(this.elems[0]);
-				var val = (id&&_propCache[id][prop])?(id&&_propCache[id][prop]):!(res=this.elems[0][prop])&&prop in this.elems[0]?this.elems[0][prop]:res;
+				var res;id=has_id(this[0]);
+				var val = (id&&_propCache[id][prop])?(id&&_propCache[id][prop]):!(res=this[0][prop])&&prop in this[0]?this[0][prop]:res;
 				return val;
 			}
 			for (var i = 0,len=this.length; i <len ; i++) {
 				
-				el=this.elems[i];
+				el=this[i];
 				id=has_id(el);
 				
 				if ($.isObject(prop)) {
@@ -1081,6 +1270,7 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 					$(el).removeProp(prop);
 					if(id) _propCache[id][prop];
 						delete _propCache[id][prop];
+					shim_id(el);
 				}
 				else{
 					el[prop]= value;
@@ -1090,17 +1280,20 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 		},
 		
 		removeProp: function(prop) {
-			var p=prop.split(/\s+|\,/g),el,pr;
+			var p=prop.split(/\s+|\,/g),el,pr,id;
 			for (var i = 0,len=this.length; i <len ; i++) {
-				el=this.elems[i];
+				el=this[i];
+				id=has_id(el);
+				if(!id) continue;
 				for (var j = 0,lem=p.length; j <lem ; j++) {
 					pr=p[j];
 					if(el[pr])
 						delete el[pr];
-					if(el.jqmCacheId&&_propCache[el.jqmCacheId][pr]){
-							delete _propCache[el.jqmCacheId][pr];
+					if(id&&_propCache[id]&&_propCache[id][pr]){
+							delete _propCache[id][pr];
 					}
 				}
+				shim_id(el);
 			}
 			return this;
 		},
@@ -1113,7 +1306,7 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 				return "";
 			var params = {},elems,elem,type,tmp;
 			for (var i = 0,len=this.length; i <len ; i++) {
-				if(elems= this.elems[i].elements){
+				if(elems= this[i].elements){
 					for(var j=0,lem=elems.length;j<lem;j++){
 						elem=elems[j];
 						type = elem.getAttribute("type");
@@ -1143,9 +1336,9 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 			if (this.length === 0)
 				return (value === undefined) ? undefined : this;
 			if (value == undefined)
-				return this.elems[0].value;
+				return this[0].value;
 			for (var i = 0,len=this.length; i <len ; i++) {
-				this.elems[i].value = value;
+				this[i].value = value;
 			}
 			return this;
 		},
@@ -1154,19 +1347,22 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 		data: function(key, value) {
 			return this.attr('data-' + key, value);
 		},
-
+		
 
 		_id:function(make){
-			if(make)return _id(this.elems[0]);
-			return has_id(this.elems[0]);
+			if(make)return _id(this[0]);
+			return has_id(this[0]);
 		},
 		
+		clean:function(){
+			$.clean(this);
+		},
 
 
 	});
 
 
-	$.extend($.fn , {
+	$.extend({
 
 		ready: function(callback) {
 			if (document.readyState === "complete" || document.readyState === "loaded"||document.readyState==="interactive") 
@@ -1182,8 +1378,21 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 
 	});
 
+function siblings(nodes, element) {
+		var elems = [];
+		if (nodes == undefined)
+			return elems;
+		
+		for (; nodes; nodes = nodes.nextSibling) {
+			if (nodes.nodeType == 1 && nodes !== element) {
+				elems.push(nodes);
+			}
+		}
+		return elems;
+	}
 
-	$.extend($.fn , {
+
+	$.extend({
 
 		setupOld: function(params) {
 			if (params == undefined)
@@ -1194,7 +1403,7 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 		
 		//如果callback返回数据，则返回[数据]，否则默认返回this
 		each: function(callback) {
-			var el=this.elems,tmp,returns=[];
+			var el=this,tmp,returns=[];
 			for(var i=0,len=el.length;i<len;i++){
 				tmp=callback.call(el[i], i, el);
 				if(tmp)returns.push(tmp);
@@ -1211,7 +1420,7 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 			var elems = [];
 			var tmpElems;
 			for (var i = 0,len=this.length; i <len ; i++) {
-				tmpElems = $(sel, this.elems[i]).elems;
+				tmpElems = $(sel, this[i]);
 				for (var j = 0; j < tmpElems.length; j++) {
 					elems.push(tmpElems[j]);
 				}
@@ -1225,7 +1434,7 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 				return this;
 			var elems = [];
 			for (var i = 0,len=this.length; i <len ; i++) {
-				var tmp=this.elems[i];
+				var tmp=this[i];
 				while(tmp.parentNode&&tmp.parentNode!=document){
 					elems.push(tmp.parentNode);
 					if(tmp.parentNode)
@@ -1247,7 +1456,7 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 				return this;
 			var elems = [];
 			for (var i = 0,len=this.length; i <len ; i++) {
-				elems = elems.concat(siblings(this.elems[i].firstChild));
+				elems = elems.concat(siblings(this[i].firstChild));
 			}
 			return this.setupOld($((elems)).filter(selector));
 		
@@ -1258,8 +1467,8 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 				return this;
 			var elems = [];
 			for (var i = 0,len=this.length; i <len ; i++) {
-				if (this.elems[i].parentNode)
-					elems = elems.concat(siblings(this.elems[i].parentNode.firstChild, this.elems[i]));
+				if (this[i].parentNode)
+					elems = elems.concat(siblings(this[i].parentNode.firstChild, this[i]));
 			}
 			return this.setupOld($(elems).filter(selector));
 		},
@@ -1268,12 +1477,12 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 			if (this.length == 0)
 				return this;
 			var elems = [], 
-			cur = this.elems[0];
+			cur = this[0];
 			
 			var start = $(selector, context);
 			if (start.length == 0)
 				return $();
-			while (cur && start.elems.indexOf(cur) == -1) {
+			while (cur && start.indexOf(cur) == -1) {
 				cur = cur !== context && cur !== document && cur.parentNode;
 			}
 			return $(cur);
@@ -1288,8 +1497,8 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 				return this;
 			var elems = [];
 			for (var i = 0,len=this.length; i <len ; i++) {
-				var val = this.elems[i];
-				if (val.parentNode && $(selector, val.parentNode).elems.indexOf(val) >= 0)
+				var val = this[i];
+				if (val.parentNode && $(selector, val.parentNode).index(val) >= 0)
 					elems.push(val);
 			}
 			return this.setupOld($(unique(elems)));
@@ -1300,11 +1509,16 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 				return this;
 			var elems = [];
 			for (var i = 0,len=this.length; i <len ; i++) {
-				var val = this.elems[i];
-				if (val.parentNode && $(selector, val.parentNode).elems.indexOf(val) == -1)
+				var val = this[i];
+				if (val.parentNode && $(selector, val.parentNode).indexOf(val) == -1)
 					elems.push(val);
 			}
 			return this.setupOld($(unique(elems)));
+		},
+		
+		add:function(elems){
+			_shimNodes(elems,this);
+			return this;
 		},
 		
 		end: function() {
@@ -1315,25 +1529,25 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 	   
 		eq:function(ind){
 			var index;
-			index = index == undefined ? 0 : ind;
+			index = ind == undefined ? 0 : ind;
 			if (index < 0)
 				index += this.length;
-			return $((this.elems[index]) ? this.elems[index] : undefined);
+			return $((this[index]) ? this[index] : undefined);
 		},
 		
 		index:function(elem){
-			return elem?this.elems.indexOf($(elem)[0]):this.parent().children().elems.indexOf(this.elems[0]);
+			return elem?this.indexOf($(elem)[0]):this.parent().children().indexOf(this[0]);
 		},
 		
 
 	});
 
 
-	$.extend($.fn , {
+	$.extend({
 
 		
 		css: function(attribute, value, obj) {
-			var toAct = obj != undefined ? obj : this.elems[0];
+			var toAct = obj != undefined ? obj : this[0];
 			if (this.length === 0)
 				return this;
 			if (value == undefined && typeof (attribute) === "string") {
@@ -1343,10 +1557,10 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 			for (var i = 0,len=this.length; i <len ; i++) {
 				if ($.isObject(attribute)) {
 					for (var j in attribute) {
-						this.elems[i].style[j] = attribute[j];
+						this[i].style[j] = attribute[j];
 					}
 				} else {
-					this.elems[i].style[attribute] = value;
+					this[i].style[attribute] = value;
 				}
 			}
 			return this;
@@ -1356,9 +1570,9 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 			if (this.length === 0)
 				return this;
 			for (var i = 0,len=this.length; i <len ; i++) {
-				if (this.css("display", null, this.elems[i]) != "none") {
-					this.elems[i].setAttribute("jqmOld_display", this.css("display", null, this.elems[i]));
-					this.elems[i].style.display = "none";
+				if (this.css("display", null, this[i]) != "none") {
+					this[i].setAttribute("jqmOld_display", this.css("display", null, this[i]));
+					this[i].style.display = "none";
 				}
 			}
 			return this;
@@ -1368,9 +1582,9 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 			if (this.length === 0)
 				return this;
 			for (var i = 0,len=this.length; i <len ; i++) {
-				if (this.css("display", null, this.elems[i]) == "none") {
-					this.elems[i].style.display = this.elems[i].getAttribute("jqmOld_display") ? this.elems[i].getAttribute("jqmOld_display") : 'block';
-					this.elems[i].removeAttribute("jqmOld_display");
+				if (this.css("display", null, this[i]) == "none") {
+					this[i].style.display = this[i].getAttribute("jqmOld_display") ? this[i].getAttribute("jqmOld_display") : 'block';
+					this[i].removeAttribute("jqmOld_display");
 				}
 			}
 			return this;
@@ -1379,12 +1593,12 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 		toggle: function(show) {
 			var show2 = show === true ? true : false;
 			for (var i = 0,len=this.length; i <len ; i++) {
-				if (window.getComputedStyle(this.elems[i])['display'] !== "none" || (show !== undefined && show2 === false)) {
-					this.elems[i].setAttribute("jqmOld_display", this.elems[i].style.display)
-					this.elems[i].style.display = "none";
+				if (window.getComputedStyle(this[i])['display'] !== "none" || (show !== undefined && show2 === false)) {
+					this[i].setAttribute("jqmOld_display", this[i].style.display)
+					this[i].style.display = "none";
 				} else {
-					this.elems[i].style.display = this.elems[i].getAttribute("jqmOld_display") != undefined ? this.elems[i].getAttribute("jqmOld_display") : 'block';
-					this.elems[i].removeAttribute("jqmOld_display");
+					this[i].style.display = this[i].getAttribute("jqmOld_display") != undefined ? this[i].getAttribute("jqmOld_display") : 'block';
+					this[i].removeAttribute("jqmOld_display");
 				}
 			}
 			return this;
@@ -1394,7 +1608,7 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 		addClass: function(name) {
 			var el;
 			for (var i = 0,len=this.length; i <len ; i++) {
-				el = this.elems[i];
+				el = this[i];
 				el.classList.add(name);
 			}
 			return this;
@@ -1403,7 +1617,7 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 		removeClass: function(name) {
 			var el;
 			for (var i = 0,len=this.length; i <len ; i++) {
-				el = this.elems[i];
+				el = this[i];
 				if (name == undefined) {
 					el.className = '';
 					continue;
@@ -1417,7 +1631,7 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 		replaceClass: function(name, newName) {
 			var el;
 			for (var i = 0,len=this.length; i <len ; i++) {
-				el = this.elems[i];
+				el = this[i];
 				if (!newName) {
 					el.className = name;
 					continue;
@@ -1434,7 +1648,7 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 				if (name == undefined) {
 					return this;
 				}
-				el = this.elems[i];
+				el = this[i];
 				el.classList.toggle(name);
 			}
 			return this;
@@ -1444,7 +1658,7 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 			if (this.length === 0)
 				return false;
 			if (!element)
-				element = this.elems[0];
+				element = this[0];
 			return element.classList.contains(name);
 		},
 
@@ -1452,7 +1666,7 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 		offset: function() {
 			if (this.length === 0)
 				return this;
-			if(this.elems[0]==window)
+			if(this[0]==window)
 				return {
 					left:0,
 					top:0,
@@ -1462,7 +1676,7 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 					height:window.innerHeight
 				}
 			else
-				var obj = this.elems[0].getBoundingClientRect();
+				var obj = this[0].getBoundingClientRect();
 			return {
 				left: obj.left + window.pageXOffset,
 				top: obj.top + window.pageYOffset,
@@ -1478,10 +1692,10 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 				return this;
 			if(val!=undefined)
 				return this.css("height",val);
-			if(this.elems[0]==this.elems[0].window)
+			if(this[0]==this[0].window)
 				return window.innerHeight;
-			if(this.elems[0].nodeType==this.elems[0].DOCUMENT_NODE)
-				return this.elems[0].documentElement['offsetheight'];
+			if(this[0].nodeType==this[0].DOCUMENT_NODE)
+				return this[0].documentElement['offsetheight'];
 			else{
 				var tmpVal=this.css("height").replace("px","");
 				if(tmpVal)
@@ -1496,10 +1710,10 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 				return this;
 			 if(val!=undefined)
 				return this.css("width",val);
-			if(this.elems[0]==this.elems[0].window)
+			if(this[0]==this[0].window)
 				return window.innerWidth;
-			if(this.elems[0].nodeType==this.elems[0].DOCUMENT_NODE)
-				return this.elems[0].documentElement['offsetwidth'];
+			if(this[0].nodeType==this[0].DOCUMENT_NODE)
+				return this[0].documentElement['offsetwidth'];
 			else{
 				var tmpVal=this.css("width").replace("px","");
 				if(tmpVal)
@@ -1511,21 +1725,252 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 	});
 
 
+	//	
+	//	[data-util="chzn"]	使用$().chzn()自动初始化；使用$().chzn_()或$().chznDestroy()反初始化
+	//	
+	//	初始化后更改属性 [data-destroy="chzn"]
+	//	
+
+	
+	$.fn.init = function (s) {
+		var util,ics;
+		var elems=this.find('[data-util]')
+		elems.add(this.filter('[data-util]'));
+		if(!s){
+			elems.each(function(){
+				var me=$(this);
+				if(s=me.data('util')){
+					this.removeAttribute('data-util');
+					if(typeof s=='string') s=s.split(/\s|\,/g);
+					ics=_initedCache[_id(this)] =_initedCache[_id(this)]||[];
+					for(var i=0,len=s.length;i<len;i++){
+						if(ics.indexOf(s[i])==-1){//过滤已初始化
+							ics.push(s[i]);
+							_utilCache[s[i]].call($(this),this);
+						}
+					}
+				}
+				
+			});
+		}else{
+			if(typeof s=='string') s=s.split(/\s|\,/g);
+			elems.each(function(){
+				ics=_initedCache[_id(this)] =_initedCache[_id(this)]||[];
+				for(var i=0,len=s.length;i<len;i++){
+					if(ics.indexOf(s[i])==-1){//过滤已初始化
+						ics.push(s[i]);
+						_utilCache[s[i]].call($(this),this);
+						
+					}
+				}
+			});
+			
+		}
+		return this;
+	}
+	$.fn.destroy=function(s){
+		var id,ics,index;
+		var elems=this.find('[_id]')
+		elems.add(this.filter('[_id]'));
+		if(s){
+			if(typeof s=='string') s=s.split(/\s|\,/g);
+			for(var k=0,l=elems.length;k<l;k++){
+				id=has_id(elems[k]);
+				if(!id||!(ics=_initedCache[id])||!ics.length) return;
+				for(var i=0,len=s.length;i<len;i++){
+					if((index=ics.indexOf(s[i]))!=-1){//过滤已反初始化
+						_utilCache[s[i]+'_'].call($(elems[k]),elems[k]);
+						ics.splice(index,1);
+					}
+				}
+				if(ics.length==0){
+					delete _initedCache[id];
+					shim_id(elems[k]);
+				}
+			}
+		}else{
+			for(var k=0,l=elems.length;k<l;k++){
+				id=has_id(elems[k]);
+				if(!id||!(ics=_initedCache[id])||!ics.length) return;
+				for(var i=0,len=ics.length;i<len;i++){
+					_utilCache[ics[i]+'_'].call($(elems[k]),elems[k]);
+				}
+				delete _initedCache[id];
+				shim_id(elems[k]);
+			}
+			
+		}
+		return this;
+	}
+
+
+
+	function eachEvent(events, fn, iterator) {
+		if ($.isObject(events))
+			$.each(events, iterator);
+		else{
+			var e=events.split(/\s|\,/);
+			for(var i=0,len=e.length;i<len;i++){
+				iterator(e[i], fn);
+			};
+		}
+	
+	}
+
+	function parse(event) {
+		var parts = ('' + event).split('.');
+		return {
+			e: parts[0],
+			ns: parts.slice(1).sort().join(' ')
+		};
+	}
+
+
+	function add(element, events, fn, selector, getDelegate) {
+		var id = _id(element), 
+		set = (handlers[id] || (handlers[id] = []));
+		eachEvent(events, fn, function(event, fn) {
+			var delegate = getDelegate && getDelegate(fn, event), 
+			callback = delegate || fn;
+			var proxyfn = function(event) {
+				var result = callback.apply(element, [event].concat(event.data));
+				if (result === false)
+					event.preventDefault();
+				return result;
+			};
+			var handler = $.extend(parse(event), {
+				fn: fn,
+				proxy: proxyfn,
+				sel: selector,
+				del: delegate,
+				i: set.length
+			});
+			set.push(handler);
+			element.addEventListener(handler.e, proxyfn, false);
+		});
+		//element=null;
+	}
+
+	function _bind(elems,event, callback) {
+		for (var i = 0,len=elems.length; i <len ; i++) {
+			add(elems[i], event, callback);
+		}
+	};
+
+
+	var returnTrue = function() {
+		return true
+	}, 
+	returnFalse = function() {
+		return false
+	}, 
+	eventMethods = {
+		preventDefault: 'isDefaultPrevented',
+		stopImmediatePropagation: 'isImmediatePropagationStopped',
+		stopPropagation: 'isPropagationStopped'
+	};
+	
+	function createProxy(event) {
+		var proxy = $.extend({
+			originalEvent: event
+		}, event);
+		$.each(eventMethods, function(name, predicate) {
+			proxy[name] = function() {
+				this[predicate] = returnTrue;					
+				if (name == "stopImmediatePropagation" || name == "stopPropagation"){
+					event.cancelBubble = true;
+					if(!event[name])
+						return;
+				}
+				return event[name].apply(event, arguments);
+			};
+			proxy[predicate] = returnFalse;
+		})
+		return proxy;
+	}
+
+	
+	function _delegate(elems,selector, event, callback) {
+		for (var i = 0,len=elems.length; i <len ; i++) {
+			var element = elems[i];
+			add(element, event, callback, selector, function(fn) {
+				return function(e) {
+					var evt, match,tmp;
+					match = $(e.target).closest(selector, element)[0];
+					if (match) {
+						evt = $.extend(createProxy(e), {
+							currentTarget: match,
+							liveFired: element
+						});
+						return fn.apply(match, [evt].concat([].slice.call(arguments, 1)));
+					}
+				}
+			});
+		}
+	};
+
+	
+	function findHandlers(element, event, fn, selector) {
+		event = parse(event);
+		if (event.ns)
+			var matcher = matcherFor(event.ns);
+		return (has_id(element)&&handlers[has_id(element)] || []).filter(function(handler) {
+			return handler && (!event.e || handler.e == event.e) && (!event.ns || matcher.test(handler.ns)) && (!fn || handler.fn == fn || (typeof handler.fn === 'function' && typeof fn === 'function' && "" + handler.fn === "" + fn)) && (!selector || handler.sel == selector);
+		});
+	}
+	
+		
+	function matcherFor(ns) {
+		return new RegExp('(?:^| )' + ns.replace(' ', ' .* ?') + '(?: |$)');
+	}
+
+
+	function remove(element, events, fn, selector) {
+
+		var id = has_id(element);
+		if(!id)return;
+		eachEvent(events || '', fn, function(event, fn) {
+			var hdls=findHandlers(element, event, fn, selector),hdl;
+			for(var i=0,len=hdls.length;i<len;i++){
+				hdl=hdls[i];
+				delete handlers[id][hdl.i];
+				handlers[id].length--;
+				element.removeEventListener(hdl.e, hdl.proxy, false);
+			};
+		});
+		shim_id(element);
+	}
+
+	function _unbind(elems,event, callback) {
+		for (var i = 0,len=elems.length; i <len ; i++) {
+			remove(elems[i], event, callback);
+		}
+	};
+
+
+	function _undelegate(elems,selector, event, callback) {
+		for (var i = 0,len=elems.length; i <len ; i++) {
+			remove(elems[i], event, callback, selector);
+		}
+		return this;
+	}
+
 	
 	$.fn.on = function(event, selector, callback) {
-		return selector === undefined || $.isFunction(selector) ? _bind(this.elems,event, selector) : _delegate(this.elems,selector, event, callback);
+		return selector === undefined || $.isFunction(selector) ? _bind(this,event, selector) : _delegate(this,selector, event, callback);
 	};
    
 	$.fn.off = function(event, selector, callback) {
-		return selector === undefined || $.isFunction(selector) ? _unbind(this.elems,event, selector) : _undelegate(this.elems,selector, event, callback);
+		return selector === undefined || $.isFunction(selector) ? _unbind(this,event, selector) : _undelegate(this,selector, event, callback);
 	};
 
 	$.fn.one = function(event, callback) {
 		return this.each(function(i, element) {
+			var el=this;
 			add(this, event, callback, null, function(fn, type) {
 				return function() {
-					var result = fn.apply(element, arguments);
-					remove(element, type, fn);
+					var result = fn.apply(el, arguments);
+					remove(el, type, fn);
 					return result;
 				}
 			});
@@ -1537,7 +1982,7 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 			event = makeEvent(event, props);
 		event.data = data;
 		for (var i = 0,len=this.length; i <len ; i++) {
-			this.elems[i].dispatchEvent(event)
+			this[i].dispatchEvent(event)
 		}
 		return this;
 	};
@@ -1546,7 +1991,7 @@ var fragementRE = /^\s*<(\w+)[^>]*>/
 	for(var i=0,len=eventtrigger.length;i<len;i++)
 		(function(i){
 			$.fn[eventtrigger[i]]=function(cb){
-				return cb?_bind(this.elems,eventtrigger[i],cb):this.trigger(eventtrigger[i]);
+				return cb?_bind(this,eventtrigger[i],cb):this.trigger(eventtrigger[i]);
 			}
 		})(i);
 

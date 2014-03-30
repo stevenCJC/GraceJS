@@ -1,18 +1,17 @@
 define(['BL/Blink/dom/function/_selector'], function(_selector) {
-	function $(){
-		if(arguments.length==0)
-			return new Core();
-		if(arguments.length==1)
-			return new Core(arguments[0]);
-		else if(arguments.length==2)
-			return new Core(arguments[0],arguments[1]);
-		else if(arguments.length==3)
-			return new Core(arguments[0],arguments[1],arguments[2]);
+	function $(s,w){
+		return new Core(s,w);
 	}
 	$.fn = Core.prototype = {
 		constructor: Core,
 		selector: _selector,
 		oldElement: undefined,
+		forEach: [].forEach,
+		reduce: [].reduce,
+		push: [].push,
+		indexOf: [].indexOf,
+		concat: [].concat,
+		slice: [].slice,
 	};
 	$.DEBUG={
 		open:false,
@@ -28,10 +27,10 @@ define(['BL/Blink/dom/function/_selector'], function(_selector) {
 		} else if ($.isFunction(toSelect)) {
 		//////////////
 			return $(document).ready(toSelect);
-		} else if ($.isArray(toSelect) && toSelect.length != undefined) { //Passing in an array or object
+		} else if ($.isArray(toSelect) || toSelect.length != undefined&&!$.isString(toSelect)) { //Passing in an array or object
 			for (var i = 0; i < toSelect.length; i++)
                     this[this.length++] = toSelect[i];
-                return this;
+            return this;
 		} else if ($.isObject(toSelect) && $.isObject(what)) { //var tmp=$("span");  $("p").find(tmp);
 			if (toSelect.length == undefined) {
 				if (toSelect.parentNode == what)
@@ -43,7 +42,8 @@ define(['BL/Blink/dom/function/_selector'], function(_selector) {
 			}
 			return this;
 		} else if ($.isObject(toSelect) && what == undefined) { //Single object
-			this[this.length++] = toSelect;
+			if (toSelect.nodeType)
+				this[this.length++] = toSelect;
 			return this;
 		} else if (what !== undefined) {
 			if (what instanceof Core) {

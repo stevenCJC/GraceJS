@@ -27,6 +27,13 @@ define(['$','./var/slice'], function($,slice) {
 	
 // Delays a function for the given number of milliseconds, and then calls
 	// it with the arguments supplied.
+	/*
+		1、一定时间段内触发多次，期间执行最后一次
+		2、一定时间段内触发多次，期间仅执行一次
+		3、多个时间段内触发多次，在上次结束后一定时间间隔后才执行第二次
+		4、每次触发，在上次结束后一定时间间隔后才执行
+		5、until
+	*/
 	$.delay = function (func, wait) {
 		var args = slice.call(arguments, 2);
 		return setTimeout(function () {

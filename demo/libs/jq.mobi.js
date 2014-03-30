@@ -176,7 +176,7 @@ if (!window.jq || typeof (jq) !== "function") {
 
 			selector=selector.trim();
             
-            if (selector[0] === "#" && selector.indexOf(".")==-1 && selector.indexOf(" ")===-1 && selector.indexOf(">")===-1){
+            if (selector[0] === "#" && selector.indexOf(".")==-1 && selector.indexOf(",")==-1 && selector.indexOf(" ")===-1 && selector.indexOf(">")===-1){
                 if (what == document)
                     _shimNodes(what.getElementById(selector.replace("#", "")),this);
                 else

@@ -21,34 +21,37 @@ define(['$','./each','./var/toString'], function($,each,toString) {
 
 	// Is a given value an array?
 	// Delegates to ECMA5's native Array.isArray
-	$.isArray = Array.isArray;
+	$.isArray = function(obj){
+		return obj.constructor==Array;
+	};
 
 	// Is a given variable an object?
 	$.isObject = function (obj) {
-		return obj === Object(obj);
+		return obj.constructor === Object;
 	};
-
-	// Add some isType methods: isArguments, isFunction, isString, isNumber, isDate, isRegExp.
-	each(['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp'], function (name) {
-		$['is' + name] = function (obj) {
-			return toString.call(obj) == '[object ' + name + ']';
-		};
-	});
-
+	$.isDate = function (obj) {
+		return obj.constructor === Date;
+	};
+	
+	$.isRegExp = function (obj) {
+		return obj.constructor === RegExp;
+	};
+	
+	$.isFunction = function (obj) {
+		return typeof obj === 'function';
+	};
+	$.isNumber = function (obj) {
+		return typeof obj === 'number';
+	};
+	$.isString = function (obj) {
+		return typeof obj === 'string';
+	};
 	// Define a fallback version of the method in browsers (ahem, IE), where
 	// there isn't any inspectable "Arguments" type.
-	if (!$.isArguments(arguments)) {
-		$.isArguments = function (obj) {
-			return !!(obj && $.hasKey(obj, 'callee'));
-		};
-	}
+	$.isArguments = function (obj) {
+		return !!(obj && $.hasKey(obj, 'callee'));
+	};
 
-	// Optimize `isFunction` if appropriate.
-	if (typeof(/./) !== 'function') {
-		$.isFunction = function (obj) {
-			return typeof obj === 'function';
-		};
-	}
 
 	// Is a given object a finite number?
 	$.isFinite = function (obj) {

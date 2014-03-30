@@ -45,18 +45,23 @@ define(['$','./var/_attrCache','./var/_propCache','./var/_initedCache','BL/Blink
 
 
 		
-		append: function(element, insert) {
+		append: function(element, init, insert, clone) {
+			if(typeof clone=='undefined') clone=true;
 			if (element && element.length != undefined && element.length === 0)
 				return this;
 			if ($.isArray(element) || $.isObject(element))
 				element = $(element);
-			var i;
+			var i,cloned;
 			
 			
 			for (i = 0; i < this.length; i++) {
+				
 				if (element.length && typeof element != "string") {
-					element = $(element);
-					_insertFragments(element,this[i],insert);
+					cloned = clone?$(element).clone(1):$(element);
+					_insertFragments(cloned,this[i],insert);
+					if(typeof init !== false){
+						cloned.init(init);
+					}
 				} else {
 					var obj =fragementRE.test(element)?$(element):undefined;
 					if (obj == undefined || obj.length == 0) {
@@ -66,70 +71,108 @@ define(['$','./var/_attrCache','./var/_propCache','./var/_initedCache','BL/Blink
 						window.eval(obj.innerHTML);
 					} else if(obj instanceof $.fn.constructor) {
 						_insertFragments(obj,this[i],insert);
-					}
-					else {
-						insert != undefined ? this[i].insertBefore(obj, this[i].firstChild) : this[i].appendChild(obj);
-						////////////////////$(obj)
+						if(typeof init !== false){
+							obj.init(init);
+						}
+					} else {
+						insert ? this[i].insertBefore(obj, this[i].firstChild) : this[i].appendChild(obj);
+						if(typeof init !== false){
+							obj.init(init);
+						}
+						
 					}
 				}
 			}
 			return this;
 		},
 		
-		appendTo:function(selector,insert){
+		appendTo:function(selector,init){
 			var tmp=$(selector);
-			tmp.append(this);
+			tmp.append(this,init,false,false);
 			return this;
 		},
 		
-		prependTo:function(selector){
+		prependTo:function(selector,init){
 			var tmp=$(selector);
-			tmp.append(this,true);
+			tmp.append(this, init, true, false);
 			return this;
 		},
 		
-		prepend: function(element) {
-			return this.append(element, 1);
+		prepend: function(element,init) {
+			return this.append(element, init, true,true);
 		},
 		
-		before: function(target, after) {
+		beforeTo: function(target, init, after) {
 			if (this.length == 0)
 				return this;
-			target = $(target).eq(0);
-			if (!target)
+			var targets = $(target);
+			if (!targets||!targets.parent().length)
 				return this;
-			for (var i = 0; i < this.length; i++)
-			{
-				after ? target.parentNode.insertBefore(this[i], target.nextSibling) : target.parentNode.insertBefore(this[i], target);
+			for(var j=0,l=targets.length;j<l;j++){
+				target = targets[j];
+				for (var i = 0; i < this.length; i++)
+				{
+					after ? target.parentNode.insertBefore(this[i], target.nextSibling) : target.parentNode.insertBefore(this[i], target);
+				}
+			}
+			if(typeof init !== false){
+				this.init(init);
 			}
 			return this;
 		},
 		
-	   after: function(target) {
-			this.insertBefore(target, true);
+	   afterTo: function(target,init) {
+			this.beforeTo(target,init, true);
 		},
 		
+		before: function(content, init) {
+			var obj=$(content);
+			if((!obj||!obj.length)&&typeof content == 'string')
+				obj =$(document.createTextNode(content))
+			obj.beforeTo(this,init);
+			return this;
+		},
+		
+	   after: function(content,init) {
+			var obj=$(content);
+			if((!obj||!obj.length)&&typeof content == 'string')
+				obj =$(document.createTextNode(content))
+			obj.beforeTo(this,init,true);
+		},
 
 		
 		clone: function(deep) {
 			deep = deep === false ? false : true;
 			if (this.length == 0)
 				return this;
-			var elems = [],el,id,oid;
+			var elems = [],el,id,oid,els;
 			for (var i = 0,len=this.length; i < len; i++) {
-				el=this[i].cloneNode(deep);
-				oid=r_id(el);
+				el=$(this[i].cloneNode(deep));
 				if(deep){
-					id=_id(el);
-					_attrCache[id]=$.clone(_attrCache[oid]);
-					_propCache[id]=$.clone(_propCache[oid]);
-					_initedCache[id]=$.clone(_initedCache[oid]);
-					handlers[id]=$.clone(handlers[oid]);
+					if(el.attr('[_id]')){
+						clone(el[0]);
+					}
+					el.find('[_id]').each(function(index, element) {
+						clone(this);
+					});
+				}else {
+					r_id(el[0]);
+					el.find('[_id]').each(function(index, element) {
+						r_id(this);
+					});
 				}
-				elems.push(el);
+				elems.push(el[0]);
 			}
 			
 			return $(elems);
+			function clone(elems){
+				oid=r_id(elems);
+				id=_id(elems);
+				if(_attrCache[oid])_attrCache[id]=$.clone(_attrCache[oid]);
+				if(_propCache[oid])_propCache[id]=$.clone(_propCache[oid]);
+				if(_initedCache[oid])_initedCache[id]=$.clone(_initedCache[oid]);
+				if(handlers[oid])handlers[id]=$.clone(handlers[oid])
+			}
 		},
 
 	});

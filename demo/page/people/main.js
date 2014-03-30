@@ -4,8 +4,10 @@ define(['./listitem', './view', 'Common','Utils'], function (item, view) {
 		
 		Class('mainList', function () {
 			G.LoadPackage('Modal', function () {
-				var m = Class('modal');
+				var m = new Class.modal('people',{age:12,id:123,name:'steven'});
 				m.modalShowOn('name',function(){});
+				$('#sdf').tpl({id:'',url:''},m);
+				$('#sdf').tpl('peoplelist',m);
 			});
 		}, {
 			//行为定义
@@ -18,7 +20,7 @@ define(['./listitem', './view', 'Common','Utils'], function (item, view) {
 	G.Package('company', function (Class) {
 		Class('classname', function () {
 			//构造函数
-			var p = new Class('people');
+			//var p = new Class('people');
 
 		}, {
 			//行为定义

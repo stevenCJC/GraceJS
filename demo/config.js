@@ -4,6 +4,7 @@ var require = {
 	baseUrl:'/src',
 	paths: {
 		$:'BL/Blink/$',
+		BLs:'../dist/$',
 		blk:'BL/Blink',
 		jquery:"../demo/libs/jquery-2.0.0.min",
 		jqm:'../demo/libs/jq.mobi',
