@@ -1,8 +1,8 @@
-define(['./var/requiredPackages','./var/__require','./var/loadQueue','./function/makeLoad','./class/Class'],function(requiredPackages,__require,loadQueue,makeLoad,Class){
+define(['./var/requiredPackages','./var/__require','./var/loadQueue','./function/makeLoad','./class/Class','BL/Blink/main'],function(requiredPackages,__require,loadQueue,makeLoad,Class,$){
 
 	function Package(packageName,deps,callback){
-		
-		
+		Class.PACKAGE=packageName;
+		callback(Class,$);
 		
 		
 	}
