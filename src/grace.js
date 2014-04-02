@@ -1,8 +1,1 @@
-define([
-	'BL/Blink/main',
-], function($) {
-
-	return $;
-});
-
-
+// JavaScript Document

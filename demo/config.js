@@ -6,6 +6,7 @@ var require = {
 		$:'BL/Blink/$',
 		BLs:'../dist/$',
 		blk:'BL/Blink',
+		p:'oop/package',
 		jquery:"../demo/libs/jquery-2.0.0.min",
 		jqm:'../demo/libs/jq.mobi',
 		demo:'../demo/demo', 

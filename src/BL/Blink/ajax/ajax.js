@@ -290,8 +290,18 @@ define(['$'], function ($) {
 				if(url)
 					ajax({
 						url:url,
-						dataType : opts.dataType,
-						success : opts.success,
+						dataType : 'html',
+						success :function(data){
+							try{
+								if(datatype=='json') {
+									var d="var json="+data;
+									eval(d);
+								}
+							}catch(e){
+								opts.orgError(e);
+							}
+							opts.success(json||data);
+						},
 						error :opts.orgError,
 						orgError:1,//避免死循环
 					});

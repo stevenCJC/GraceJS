@@ -32,3 +32,24 @@
 
 
 
+
+requirejs
+require一个文件，直接对象下载后callback马上执行，直接对象的callback等待其他依赖对象下载后再执行
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
