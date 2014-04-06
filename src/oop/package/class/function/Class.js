@@ -7,7 +7,6 @@ define([], function() {
 		
 	}
 	
-	Class.prototype.PACKAGE='people';
 	
 	
 	return Class;
