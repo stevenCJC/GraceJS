@@ -7,19 +7,22 @@ var require = {
 		BLs:'../dist/$',
 		blk:'BL/Blink',
 		p:'oop/package',
-		jquery:"../demo/libs/jquery-2.0.0.min",
-		jqm:'../demo/libs/jq.mobi',
-		demo:'../demo/demo', 
+		jquery:"../demo2/libs/jquery-2.0.0.min",
+		jqm:'../demo2/libs/jq.mobi',
+		demo:'../demo2/demo', 
 		grace:'grace',
 		//grace:'../dist/grace', 
-		pages:'../demo/page',
-		utils:'../demo/utils',
-		widgets:'../demo/widgets',
+		pages:'../demo2/page',
+		utils:'../demo2/utils',
+		widgets:'../demo2/widgets',
 		pp:'plugins/$',
 	},
 	shim:{
 		//grace:{deps:['pp']}
 		jqm:{exports:'window.jqm'}
 	},
-	packages: ["cart", "store"]
+	packages: [
+		{name:'people',		main:'../demo2/people/main'}, 
+		{name:'common',		main:'../demo2/common/main'}
+	],
 };

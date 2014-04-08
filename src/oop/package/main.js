@@ -1,5 +1,5 @@
 define([
-	'./var/package',
+	'./var/Package',
 ], function($) {
 
 	return $;
