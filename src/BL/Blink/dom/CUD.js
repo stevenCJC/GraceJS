@@ -76,9 +76,9 @@ define(['$','./var/_attrCache','./var/_propCache','./var/_initedCache','BL/Blink
 						}
 					} else {
 						insert ? this[i].insertBefore(obj, this[i].firstChild) : this[i].appendChild(obj);
-						if(typeof init !== false){
-							obj.init(init);
-						}
+						/*if(typeof init !== false){
+							$(obj).init(init);
+						}*/
 						
 					}
 				}

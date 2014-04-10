@@ -1,8 +1,8 @@
 require(['package'],function(G){
 	setTimeout(function(){
-		G.Package.load('people',function(C,$){
+		G.Package.load(['people','common'],function(C,$){
 			console.log(C);
-			alert('yeah!!')
+			//alert('yeah!!')
 		});
 	},2000);
 });

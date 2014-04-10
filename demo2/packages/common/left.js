@@ -9,6 +9,15 @@ G.Package(['pck'],function (Class, $) {
 		//方法
 		
 	});
+	Class('view', function () {
+		
+	}, {
+		//行为定义
+		
+	}, {
+		//方法
+		
+	});
 	
 });
 	

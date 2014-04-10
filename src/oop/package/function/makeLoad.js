@@ -5,7 +5,7 @@ define(['oop/package/var/requiredPackages','oop/package/var/__require','oop/pack
 		var re=loadQueue[0];
 		if(loadQueue.length) {
 			var n=re.name[re.loadedLength];
-			if(requiredPackages.indexOf(n)>-1){
+			if(requiredPackages[n]){
 				re.loadedLength++;
 				if(re.loadedLength==re.length){
 					loadQueue.shift();

@@ -1,7 +1,7 @@
 /*auto*/
 //这里引入什么文件只要包含包定义就会成为本包的一部分
 require(['pcks/people/index','pcks/people/view','pcks/people/edit','utils/chzn'], function () {
-	alert('2');
+	//alert('2');
 	//G.Package('people').Init();
 	//加载过程构建本包，构建本包后，开始构建依赖包，叶子节点构建完毕后开始执行
 	//可在Require调用callback的时候调用本包初始化，开始加载依赖包
@@ -10,8 +10,8 @@ require(['pcks/people/index','pcks/people/view','pcks/people/edit','utils/chzn']
 
 //先加载此基本配置，包名、依赖包、初始化函数
 G.Package.Main('people',function(Class,$){//Class不作构建
-	
-	
+	console.log(Class);
+	$('a').append('sdf');
 	
 	
 	
