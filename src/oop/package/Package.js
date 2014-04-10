@@ -1,11 +1,8 @@
-define(['./var/requiredPackages','./var/__require','./var/loadQueue','./function/makeLoad','./class/Class','BL/Blink/main'],function(requiredPackages,__require,loadQueue,makeLoad,Class,$){
+define(['./var/requiredPackages','./var/__require','./var/loadQueue','./function/makeLoad','./class/function/Class','BL/Blink/main','./function/require'],function(requiredPackages,__require,loadQueue,makeLoad,Class,$){
 	
 	// 常规方法，不用 new
-	function Package(packageName,deps,callback){
-		Class.PACKAGE=packageName;
+	function Package(deps,callback){
 		callback(Class,$);
-		
-		
 	}
 	
 	Package.load=function(name,callback){
@@ -18,7 +15,9 @@ define(['./var/requiredPackages','./var/__require','./var/loadQueue','./function
 		
 	}
 	
-	
+	Package.Main=function(packageName,init){
+		Class.PACKAGE=packageName;
+	}
 	
 	
 	

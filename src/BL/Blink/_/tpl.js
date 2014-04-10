@@ -1,4 +1,4 @@
-define(['$','./template/underscore','./var/_tpl'], function($,template,_tpls) {
+define(['$','./template/underscore','./var/_tpls'], function($,template,_tpls) {
 	
 	$.tpl=function(tplName, options){
 		

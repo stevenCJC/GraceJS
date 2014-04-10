@@ -1,4 +1,4 @@
-define(['oop/package/var/requiredPackages','package/var/__require','package/var/loadQueue',],function(requiredPackages,__require,loadQueue){
+define(['oop/package/var/requiredPackages','oop/package/var/__require','oop/package/var/loadQueue',],function(requiredPackages,__require,loadQueue){
 
 
 	function makeLoad(){

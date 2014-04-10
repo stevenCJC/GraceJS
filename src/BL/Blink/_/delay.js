@@ -28,11 +28,10 @@ define(['$','./var/slice'], function($,slice) {
 // Delays a function for the given number of milliseconds, and then calls
 	// it with the arguments supplied.
 	/*
-		1、一定时间段内触发多次，期间执行最后一次
+		1、一定时间段内触发多次，期间最后一次延迟后执行
 		2、一定时间段内触发多次，期间仅执行一次
-		3、多个时间段内触发多次，在上次结束后一定时间间隔后才执行第二次
-		4、每次触发，在上次结束后一定时间间隔后才执行
-		5、until
+		3、每次触发，在上次结束后一定时间间隔后才执行
+		4、until
 	*/
 	$.delay = function (func, wait) {
 		var args = slice.call(arguments, 2);
@@ -49,7 +48,7 @@ define(['$','./var/slice'], function($,slice) {
 
 	// Returns a function, that, when invoked, will only be triggered at most once
 	// during a given window of time.
-	$.throttle = function (func, wait) {
+	$.callFirst = function (func, wait) {
 		var context,
 		args,
 		timeout,
@@ -76,7 +75,24 @@ define(['$','./var/slice'], function($,slice) {
 			return result;
 		};
 	};
-
+	
+	
+	$.callLast=function(func, wait) {
+		var context, args, timeout;
+		
+		function thr() {
+			context = this;
+			args = arguments;
+			clearTimeout(timeout);
+			timeout = setTimeout(function() {
+				func.apply(context, args);
+			}, wait);
+		};
+		thr.stop=function(){
+			clearTimeout(timeout);
+		};
+		return thr;
+	};
 	// Returns a function, that, as long as it continues to be invoked, will not
 	// be triggered. The function will be called after it stops being called for
 	// N milliseconds. If `immediate` is passed, trigger the function on the

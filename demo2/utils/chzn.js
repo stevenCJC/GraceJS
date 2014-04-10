@@ -1,5 +1,5 @@
 define(['grace'],function(G){
-	G.Util({
+	/*G.Util({
 		
 		//自动初始化
 		//不提供$$内部环境，仅提供两个参数
@@ -39,7 +39,7 @@ define(['grace'],function(G){
 		
 		
 	});
-
+*/
 });
 
 

@@ -1,5 +1,5 @@
 define([
-	'package/main',
+	'oop/main',
 ], function(G) {
 	
 	return G
