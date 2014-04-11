@@ -16,7 +16,7 @@ G.Package(['common'],function (Class, $) {
 		Subscribe:{},
 		Init:{},
 		Load:{},
-		
+		Destroy:{},
 		
 	}, {
 		//方法
