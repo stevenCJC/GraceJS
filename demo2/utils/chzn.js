@@ -1,4 +1,5 @@
-define(['grace'],function(G){
+define(['$'],function($){
+	//$.fn.chzn=function(t){this.append(t);}
 	/*G.Util({
 		
 		//自动初始化

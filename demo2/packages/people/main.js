@@ -11,9 +11,10 @@ require(['pcks/people/index','pcks/people/view','pcks/people/edit','utils/chzn']
 //先加载此基本配置，包名、依赖包、初始化函数
 G.Package.Main('people',function(Class,$){//Class不作构建
 	console.log(Class);
-	$('a').append('sdf');
-	
-	
+	//$('a').chzn(' people ');
+	var index=new Class.index('#aaa');
+	var index=new Class.index('a');
+	//var index=new Class.left();
 	
 	
 });

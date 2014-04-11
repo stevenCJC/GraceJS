@@ -24,6 +24,7 @@ var require = {
 	},
 	packages: [
 		{name:'people',		main:'../../demo2/packages/people/main'}, 
-		{name:'common',		main:'../../demo2/packages/common/main'}
+		{name:'common',		main:'../../demo2/packages/common/main'},
+		{name:'base',		main:'../../demo2/packages/base/main'}
 	],
 };

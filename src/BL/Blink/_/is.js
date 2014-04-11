@@ -27,7 +27,7 @@ define(['$','./each','./var/toString'], function($,each,toString) {
 
 	// Is a given variable an object?
 	$.isObject = function (obj) {
-		return obj.constructor === Object;
+		return typeof obj === 'object';
 	};
 	$.isDate = function (obj) {
 		return obj.constructor === Date;

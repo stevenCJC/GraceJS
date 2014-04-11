@@ -9,7 +9,7 @@ require(['pcks/common/header','pcks/common/left','utils/chzn'], function () {
 //先加载此基本配置，包名、依赖包、初始化函数
 G.Package.Main('common',function(Class,$){//Class不作构建
 	console.log(Class);
-	$('a').append('ccc');
+	$('a').append(' common ');
 	
 	
 	

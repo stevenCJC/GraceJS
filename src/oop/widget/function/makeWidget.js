@@ -10,13 +10,13 @@ define(['../core','oop/baseClass'], function(G,baseClass) {
 			//继承，new一个base，把base的状态付给对象
 			if(this.INHERIT){
 				var base=this.base=new G.widget[this.INHERIT](p);
-				for(var x in base)if(base.hasOwnProperty(x))this[x]=base[x];
+				for(var x in base) if(base.hasOwnProperty(x))this[x]=base[x];
 			}
 			
 			func.call(this,p);
 			//初始化处理阶段
 			for(var x in behavior) if(x!='init'){//循环各种行为的处理
-				var f=G.extend[proto.TYPE+'/behavior'][x]
+				var f=G.extend[proto.TYPE+'/behavior'][x];
 				if(f){
 					f=f[0];//返回初始化执行函数
 					if(f)f.call(this,path,behavior[x],root);
