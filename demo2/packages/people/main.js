@@ -13,7 +13,7 @@ G.Package.Main('people',function(Class,$){//Class不作构建
 	console.log(Class);
 	//$('a').chzn(' people ');
 	var index=new Class.index('#aaa');
-	var index=new Class.index('a');
+	var left=new Class.left('a');
 	//var index=new Class.left();
 	
 	

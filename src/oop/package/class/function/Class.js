@@ -1,16 +1,19 @@
-define(['oop/package/var/requiredPackages','oop/package/class/var/_behavior','oop/package/class/behavior/event','oop/package/class/behavior/util'], function(requiredPackages,_behavior) {
+define(['oop/package/var/packages','oop/package/class/var/_behavior','oop/package/class/behavior/event','oop/package/class/behavior/util','oop/package/class/behavior/dataset','oop/package/class/behavior/subscribe'], function(packages,_behavior) {
 	
 	
 	function Class(cons,behavior,proto){
+		
 		//获取类名
 		var name=cons.prototype.constructor.name;
 		if(!name) throw new Error('the constructor should be named.');
+		//设置包名
+		cons.prototype.PACKAGE=Class.PACKAGE;
 		//维护代码干净，添加行为属性存储行为信息
 		cons.prototype.BEHAVIOR=behavior;
 		//设置原型
 		for(var x in proto) cons.prototype[x]=proto[x];
-		//行为在类构建期执行的行为
 		
+		//行为在类构建期执行的行为
 		for(var x in behavior) _behavior[x].Build(behavior[x],cons);
 		
 		

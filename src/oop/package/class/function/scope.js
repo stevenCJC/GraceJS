@@ -1,4 +1,4 @@
-define(['oop/package/var/requiredPackages'], function(requiredPackages) {
+define(['oop/package/var/packages'], function(packages) {
 	/*
 		同名类会被覆盖
 	*/
@@ -12,7 +12,7 @@ define(['oop/package/var/requiredPackages'], function(requiredPackages) {
 		}
 		var pkg,samename=[],pkgn={},PKG={};
 		for(var i=0,len=names.length;i<len;i++){
-			pkg=requiredPackages[names[i]];
+			pkg=packages[names[i]];
 			for(var x in pkg.classes) {
 				if(Class){
 					if(!Class[x]){

@@ -3,7 +3,7 @@ require(['package'],function(G){
 		console.time('index');
 		G.App(['people'],function(C,$){
 			console.log(C);
-			console.log(window.requiredPackages)
+			console.log(window.packages);
 			$('a').chzn(' index ');
 			console.timeEnd('index');
 			//alert('yeah!!')

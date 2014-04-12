@@ -1,4 +1,4 @@
-define(['./dataset/DS', './dataset/dsevent', './function/JSONClone', './function/getObjByPath', './function/setObjByPath', './function/delObjByPath'], function (DS, dsevent, JSONClone, getObjByPath, setObjByPath, delObjByPath) {
+define(['./DS', './dsevent', 'function/JSONClone', 'function/getObjByPath', 'function/setObjByPath', 'function/delObjByPath'], function (DS, dsevent, JSONClone, getObjByPath, setObjByPath, delObjByPath) {
 
 	function DataSet() {
 		//数据岛的数据树

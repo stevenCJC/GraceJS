@@ -1,4 +1,4 @@
-define(['./var/requiredPackages','./var/currentPackage','./var/loadPackageInit','./function/Package','./var/loadQueue','./function/makeLoad','./function/addLoadQueue','./class/function/Class','./class/function/scope','BL/Blink/main','./function/require'],function(requiredPackages,currentPackage,loadPackageInit,Package,loadQueue,makeLoad,addLoadQueue,Class,scope,$){
+define(['./var/packages','./var/currentPackage','./var/loadPackageInit','./function/Package','./var/loadQueue','./function/makeLoad','./function/addLoadQueue','./class/function/Class','./class/function/scope','dataset/dataset','mediator/mediator','BL/Blink/main','./function/require'],function(packages,currentPackage,loadPackageInit,Package,loadQueue,makeLoad,addLoadQueue,Class,scope,Dataset,Mediator,$){
 	
 	
 	
@@ -16,27 +16,40 @@ define(['./var/requiredPackages','./var/currentPackage','./var/loadPackageInit',
 			init=deps;
 			deps=[];
 		}
-		currentPackage.name=packageName;
-		Package.CURRENTPACKAGE=packageName;
-		var package=requiredPackages[packageName]={};
+		//currentPackage.name=packageName;
+		Package.CURRENT=packageName;
+		
+		var packageContext=packages[packageName]={};
 		Class.PACKAGE=packageName;
-		package.deps=deps;
-		package.name=packageName;
-		package.classes={};
-		package.scope={};
-		package.inited=false;
-		package.Class=function(){
-			Class.apply(package,arguments);
+		packageContext.deps=deps;
+		packageContext.name=packageName;
+		packageContext.classes={};
+		packageContext.scope={};
+		packageContext.inited=false;
+		packageContext.Class=function(){
+			Class.apply(packageContext,arguments);
 		};
-		package.init=function(){
-			init(scope(package.deps,package),$);
-			package.inited=true;
+		
+		packageContext.$=function(a,b){
+			return $(a,b);
+		};
+		for(var x in $)packageContext.$[x]=$[x];
+		packageContext.$.publish=function(){
+			
+		};
+		
+		packageContext.dataset=new Dataset();
+		packageContext.mediator=new Mediator();
+		
+		packageContext.init=function(){
+			init(scope(packageContext.deps,packageContext),packageContext.$);
+			packageContext.inited=true;
 		};
 		
 		//不支持单个类的加载
-		package.Class.Load=function(name,onAllLoad){
+		packageContext.Class.Load=function(name,onAllLoad){
 			setTimeout(function(){
-				addLoadQueue(name,onAllLoad,package);
+				addLoadQueue(name,onAllLoad,packageContext);
 			},1);
 		}
 		

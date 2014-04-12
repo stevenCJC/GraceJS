@@ -15,7 +15,7 @@ define(['oop/package/var/loadPackageInit','oop/package/var/loadQueue','./makeLoa
 		
 		if(name==loadQueue[0].name) makeLoad();
 		function init(){
-			//for(var i=0,len=name.length;i<len;i++) requiredPackages[name[i]].init();
+			//for(var i=0,len=name.length;i<len;i++) packages[name[i]].init();
 			if(package) {
 				onAllLoad(scope(name,package),$);
 			}else {

@@ -12,11 +12,14 @@ G.Package(['common'],function (Class, $) {
 			'util:chzn':'chzn',
 			chzn:'chzn',
 		},
-		Dataset:{},
-		Subscribe:{},
-		Init:{},
-		Load:{},
-		Destroy:{},
+		//Dataset:{},
+		//Subscribe:{
+		//	'!alert':'alert',//监听全局，本包内也起作用
+		//	'tips':'alert',//监听本包，全局不起作用
+		//},
+		//Init:{},
+		//Load:{},
+		//Destroy:{},
 		
 	}, {
 		//方法
