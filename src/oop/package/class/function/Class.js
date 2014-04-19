@@ -1,7 +1,29 @@
 define(['oop/package/var/packages','oop/package/class/var/_behavior','oop/package/class/behavior/event','oop/package/class/behavior/util','oop/package/class/behavior/dataset','oop/package/class/behavior/subscribe'], function(packages,_behavior) {
 	
+	/*
+		@options 	string	Extend:pkgName.className
+							Rebuild:pkgName.className
+							Partial:className
+					object	{Extend:Class.PKG.pkgName.className,Partial:'className'}
+		
+	*/
 	
-	function Class(cons,behavior,proto){
+	function Class(options,cons,behavior,proto){
+		var args=arguments;
+		var c=options.constructor;
+		if(c==String||(c==Object&&(c['Extend']||c['Rebuild']||c['Partial']))){
+			
+		}else if(c==Function){
+			cons=options;
+			options=null;
+		}else if(c==Object&&(!c['extend']&&!c['rebuild']&&!c['partial'])){
+			
+		}
+		
+		
+		
+		
+		
 		
 		//获取类名
 		var name=cons.prototype.constructor.name;
@@ -55,7 +77,7 @@ define(['oop/package/var/packages','oop/package/class/var/_behavior','oop/packag
 		this.classes[name]= Constructor;
 		
 		
-		
+		return Constructor;
 		
 	}
 	
