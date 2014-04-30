@@ -11,4 +11,4 @@ G.Package(['common'],function (Class, $) {
 	});
 	
 });
-	
+

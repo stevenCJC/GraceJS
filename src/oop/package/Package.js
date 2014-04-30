@@ -25,6 +25,7 @@ define(['./var/packages','./var/currentPackage','./var/loadPackageInit','./funct
 		packageContext.name=packageName;
 		packageContext.classes={};
 		packageContext.scope={};
+		packageContext.partial={};
 		packageContext.inited=false;
 		packageContext.Class=function(){
 			Class.apply(packageContext,arguments);
