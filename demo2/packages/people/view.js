@@ -10,5 +10,53 @@ G.Package(['common'],function (Class, $) {
 		
 	});
 	
+	Class(function cons_behav() {
+		
+	},{
+		Event:{
+			'click body@{id}':'alert',
+		},
+	});
+	
+	Class(function cons_proto() {
+		
+	},{
+		sjdkf:function(){},
+	});
+	
+	Class('behav_proto',{
+		Event:{
+			'click body@{id}':'alert',
+		},
+	},{
+		sjdkf:function(){},
+	});
+
+	Class('behav',{
+		Event:{
+			'click body@{id}':'alert',
+		},
+	});
+	var c=Class(function view_func() {
+		
+	});
+	Class({Partial:'behavvvvv',Extend:'cons_behav'},{
+		Event:{
+			'enter body@{id}':'alert',
+		},
+	});
+	Class('Partial:behavvvvv',{
+		Event:{
+			'dblclick body@{id}':'alert',
+		},
+	});
+	new Class.behavvvvv();
+	Class({Partial:'proto',Extend:c},{
+		sjdkf:function(){},
+	});
+	Class('Partial:proto',{
+		ssss:function(){},
+	});
+	
 });
 	

@@ -10,7 +10,7 @@ define(['oop/package/var/packages','oop/package/var/loadPackageInit','oop/packag
 				if(re.loadedLength==re.length){
 					//re.callback();//一组包加载完后执行callback
 					var loaded=loadQueue.shift(),init;
-					if(!loadQueue.length){
+					if(!loadQueue.length){//所有包加载完毕
 						while(init=loadPackageInit.pop())init();
 						//re.callback();//一组包加载完后执行
 					}

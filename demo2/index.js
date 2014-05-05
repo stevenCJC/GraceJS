@@ -4,6 +4,7 @@ require(['package'],function(G){
 		G.App(['people'],function(C,$){
 			console.log(C);
 			console.log(window.packages);
+			new C.index();
 			$('a').chzn(' index ');
 			console.timeEnd('index');
 			//alert('yeah!!')

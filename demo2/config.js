@@ -1,6 +1,7 @@
 // JavaScript Document
 var require = { 
 	//baseUrl:'D:/GraceJS/src',
+	waitSeconds:6000,
 	baseUrl:'/src',
 	paths: {
 		$:'BL/Blink/$',

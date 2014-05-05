@@ -20,28 +20,39 @@ define(['./var/packages','./var/currentPackage','./var/loadPackageInit','./funct
 		Package.CURRENT=packageName;
 		
 		var packageContext=packages[packageName]={};
-		Class.PACKAGE=packageName;
 		packageContext.deps=deps;
 		packageContext.name=packageName;
 		packageContext.classes={};
 		packageContext.scope={};
 		packageContext.partial={};
 		packageContext.inited=false;
+		packageContext.handlers=[];
 		packageContext.Class=function(){
-			Class.apply(packageContext,arguments);
+			var tmp;
+			if(arguments.length==1&&arguments[0].constructor==String) 
+				if(arguments[0].indexOf('.')==-1)
+					return packageContext.scope[arguments[0]];
+				else {
+					tmp=arguments[0].split('.');
+					return packages[tmp[0]].classes[tmp[1]];
+				}
+			tmp=Class.apply(packageContext,arguments);
+			
+			return tmp;
 		};
 		
 		packageContext.$=function(a,b){
 			return $(a,b);
 		};
 		for(var x in $)packageContext.$[x]=$[x];
+		
+		packageContext.dataset=new Dataset();
+		packageContext.mediator=new Mediator();
 		packageContext.$.publish=function(){
 			
 		};
 		
-		packageContext.dataset=new Dataset();
-		packageContext.mediator=new Mediator();
-		
+		//包加载完后的初始化	去2Q
 		packageContext.init=function(){
 			init(scope(packageContext.deps,packageContext),packageContext.$);
 			packageContext.inited=true;
