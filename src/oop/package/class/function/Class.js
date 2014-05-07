@@ -8,7 +8,7 @@ define(['oop/package/var/packages','oop/package/class/var/_behavior','oop/packag
 		
 	*/
 	
-	
+	//类构造器
 	function Class(){
 		
 		var options,name,cons,behavior,proto,that=this;
@@ -107,8 +107,9 @@ define(['oop/package/var/packages','oop/package/class/var/_behavior','oop/packag
 			if(proto) part.proto=$.extend(part.proto||{},proto);
 			
 			if(cons&&!cons.EMPTY||options['Extend']&&options['Extend'].constructor==Function) {
+				//对象创建时执行构造
 				this.scope[name]=this.Class[name]=this.classes[name]=function(){
-					//仅执行一次
+					//删除局部类标识，执行构造
 					delete part.options.Partial;
 					var c=Class.call(that,part.options,part.cons,part.behavior,part.proto);
 					switch(arguments.length){
@@ -133,7 +134,7 @@ define(['oop/package/var/packages','oop/package/class/var/_behavior','oop/packag
 		//继承处理
 		if(extend){
 			var _cons,_behav,beh;
-			_cons=options[extend].prototype.CONSTRUCTOR;
+			_cons=options[extend].prototype.constructor;
 			if(_cons){//如果是原型类
 				_behav=options[extend].prototype.BEHAVIOR;
 				if(_behav){
@@ -163,8 +164,7 @@ define(['oop/package/var/packages','oop/package/class/var/_behavior','oop/packag
 			
 			if(_cons) Constructor.prototype.BASECLASS=_cons.prototype.PACKAGE+'.'+_cons.prototype.NAME;
 			
-			if(extend=='Extend') Constructor.prototype.Base=options[extend].prototype;
-			else delete Constructor.prototype.Base;
+			Constructor.prototype.Base=options[extend].prototype;
 			
 			if(behavior) {
 				//维护代码干净，添加行为属性存储行为信息
@@ -195,7 +195,7 @@ define(['oop/package/var/packages','oop/package/class/var/_behavior','oop/packag
 		
 		
 		function Constructor(){
-			// Extend ： base独立执行，继承状态，执行子类初始化
+			// Extend ： 方法重载，执行子类初始化！！！！！
 			// Rebuilt： 仅执行子类初始化 
 			if(extend=='Extend'&&_cons){
 				var me;

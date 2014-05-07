@@ -1,4 +1,4 @@
-define(['./var/packages','./var/currentPackage','./var/loadPackageInit','./function/Package','./var/loadQueue','./function/makeLoad','./function/addLoadQueue','./class/function/Class','./class/function/scope','dataset/dataset','mediator/mediator','BL/Blink/main','./function/require'],function(packages,currentPackage,loadPackageInit,Package,loadQueue,makeLoad,addLoadQueue,Class,scope,Dataset,Mediator,$){
+define(['./var/packages','./var/currentPackage','./var/runtimeInit','./var/buildtimeInit','./function/Package','./var/loadQueue','./function/loadNextPackage','./function/addLoadQueue','./class/function/Class','./class/function/scope','dataset/dataset','mediator/mediator','BL/Blink/main','./function/require'],function(packages,currentPackage,runtimeInit,buildtimeInit,Package,loadQueue,loadNextPackage,addLoadQueue,Class,scope,Dataset,Mediator,$){
 	
 	
 	
@@ -27,6 +27,7 @@ define(['./var/packages','./var/currentPackage','./var/loadPackageInit','./funct
 		packageContext.partial={};
 		packageContext.inited=false;
 		packageContext.handlers=[];
+		//类构造器
 		packageContext.Class=function(){
 			var tmp;
 			if(arguments.length==1&&arguments[0].constructor==String) 
@@ -52,13 +53,29 @@ define(['./var/packages','./var/currentPackage','./var/loadPackageInit','./funct
 			
 		};
 		
-		//包加载完后的初始化	去2Q
-		packageContext.init=function(){
-			init(scope(packageContext.deps,packageContext),packageContext.$);
-			packageContext.inited=true;
-		};
 		
-		//不支持单个类的加载
+		
+		//包构建后期执行包的构建
+		buildtimeInit.push(function(){
+			//执行scope，分部类构建和继承类构建
+			scope(packageContext.deps,packageContext);
+			
+			
+			
+			
+		});
+		
+		
+		//包加载完后的执行期初始化
+		//添加包初始化到队列
+		runtimeInit.push(function(){
+			//init(scope(packageContext.deps,packageContext),packageContext.$);
+			init(packageContext.scope,packageContext.$);
+			packageContext.inited=true;
+		});
+		
+		//包加载，不支持单个类的加载
+		//onAllLoad：包加载完后执行
 		packageContext.Class.Load=function(name,onAllLoad){
 			setTimeout(function(){
 				addLoadQueue(name,onAllLoad,packageContext);

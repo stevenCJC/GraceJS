@@ -1,4 +1,4 @@
-define(['oop/package/var/packages','oop/package/var/loadPackageInit','oop/package/function/addLoadQueue','oop/package/var/__require','oop/package/var/loadQueue','oop/package/function/makeLoad'],function(packages,loadPackageInit,addLoadQueue,__require,loadQueue,makeLoad){
+define(['oop/package/var/packages','oop/package/var/runtimeInit','oop/package/var/buildtimeInit','oop/package/function/addLoadQueue','oop/package/var/__require','oop/package/var/loadQueue','oop/package/function/loadNextPackage'],function(packages,runtimeInit,buildtimeInit,addLoadQueue,__require,loadQueue,loadNextPackage){
 
 	
 	
@@ -8,26 +8,30 @@ define(['oop/package/var/packages','oop/package/var/loadPackageInit','oop/packag
 			cb.apply(window,arguments);//执行require callback
 			
 			if(!loadQueue||!loadQueue[0]) return;
-			var ue=loadQueue[0];//已加载的包
-			var name=ue.name[ue.loadedLength];
+			//正在加载的一组包
+			var pkgGroup=loadQueue[0];
+			//获得当前刚刚加载完的包名
+			var name=pkgGroup.name[pkgGroup.loadedLength];
+			//获得当前刚刚加载完的包
 			var package=packages[name];
-			
+			//获得当前包的依赖包组，添加到待加载组队列
 			if(package.deps&&package.deps.length){
 				addLoadQueue(package.deps,function(){},package);//把依赖包加入到加载序列
-			}/*else{
-				package.init();
-			}*/
-			//package.init();//此时ue.loadedLength指向刚刚完成加载的包
-			loadPackageInit.push(package.init);
-			ue.loadedLength++;
-			if(ue.loadedLength==ue.length){
-				var loaded=loadQueue.shift(),init;
-				if(!loadQueue.length){
-					while(init=loadPackageInit.pop())init();
-					//ue.callback();//一组包加载完后执行
-				}
 			}
-			makeLoad();
+			
+			/*pkgGroup.loadedLength++;
+			//如果当前包为包组的最后一个包，则进行各个包的初始化
+			if(pkgGroup.loadedLength==pkgGroup.length){
+				//从加载组队列中删除当前加载组
+				var loaded=loadQueue.shift(),init;
+				//如果加载队列为空
+				if(!loadQueue.length){
+					while(init=buildtimeInit.pop())init();
+					while(init=runtimeInit.pop())init();
+				}
+			}*/
+			
+			loadNextPackage();
 			
 			
 		});

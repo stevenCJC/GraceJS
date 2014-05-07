@@ -4,7 +4,6 @@ define(['oop/package/function/addLoadQueue'],function(addLoadQueue){
 		addLoadQueue(deps,init);
 	}
 	
-	
 	return App;
 
 });

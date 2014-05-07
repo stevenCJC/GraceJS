@@ -2,17 +2,22 @@ define(['oop/package/var/packages'], function(packages) {
 	/*
 		同名类会被覆盖
 	*/
+	//创建包所包含的类集合
+	//package：当前构造器
 	function scope(names,package){
 		var scp={},name,Class;
 		if(package){
 			name=package.name;
 			Class=package.Class;
 			scp=package.scope;
-			if(names.indexOf(name)==-1)names.push(name);//把本包名置后，以优先覆盖
+			//把本包名置后，以优先覆盖
+			if(names.indexOf(name)==-1)names.push(name);
 		}
 		var pkg,samename=[],pkgn={},PKG={};
+		//获取每个包的classes属性
 		for(var i=0,len=names.length;i<len;i++){
 			pkg=packages[names[i]];
+			//把每个包的自己所属的class添加到当前Class构造器
 			for(var x in pkg.classes) {
 				if(Class){
 					if(!Class[x]){
@@ -21,17 +26,17 @@ define(['oop/package/var/packages'], function(packages) {
 						//Class[pkg.name]=pkg.classes[x];
 					}
 				}
-				if(!scp[x]){
-					scp[x]=pkg.classes[x];
-				}else{
-					console.log('some Class named '+x+' was overrided.');
-					//scp[pkg.name]=pkg.classes[x];
-				}
+				
+				//构造scope，存储所有相关包域的所有类
+				if(scp[x])console.log('some Class named '+x+' was overrided.');
+				scp[x]=pkg.classes[x];
+				
 			}
-			
+			//存储各个包命名空间
 			PKG[names[i]]=pkg.classes;
 			
 		}
+		//包含命名空间的scope
 		scp.PKG=PKG;
 		if(Class) Class.PKG=PKG;
 		

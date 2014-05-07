@@ -1,27 +1,24 @@
-define(['oop/package/var/loadPackageInit','oop/package/var/loadQueue','./makeLoad','oop/package/class/function/scope','BL/Blink/main'],function(loadPackageInit,loadQueue,makeLoad,scope,$){
+define(['oop/package/var/runtimeInit','oop/package/var/loadQueue','./loadNextPackage','oop/package/class/function/scope','BL/Blink/main'],function(runtimeInit,loadQueue,loadNextPackage,scope,$){
 	
 	
-	
-	function addLoadQueue(name,onAllLoad,package){//与当前包无关
+	//添加加载队列，加载所依赖的一系列包；
+	function addLoadQueue(name,onAllLoad,pkgs){//与当前包无关
 		if(name.constructor==String) name=[name];
-		if(!loadQueue.length) 
-			loadPackageInit.push(init);
+		
+		//在加载队列中push一组待加载的包
 		loadQueue.push({
 			name:name,
 			length:name.length,
 			loadedLength:0,
-			callback:init
 		});
+		//如果队列为空，就马上启动加载
+		if(name==loadQueue[0].name) loadNextPackage();
 		
-		if(name==loadQueue[0].name) makeLoad();
-		function init(){
-			//for(var i=0,len=name.length;i<len;i++) packages[name[i]].init();
-			if(package) {
-				onAllLoad(scope(name,package),$);
-			}else {
+		////App调用初始化，作为第一个加入
+		if(!pkgs&&!loadQueue.length) 
+			runtimeInit.push(function (){
 				onAllLoad(scope(name),$);
-			}
-		};
+			});
 	};
 	
 
