@@ -1,4 +1,4 @@
-define(['oop/package/var/packages','oop/package/var/runtimeInit','oop/package/var/buildtimeInit','oop/package/var/__require','oop/package/var/loadQueue',],function(packages,runtimeInit,buildtimeInit,__require,loadQueue){
+define(['oop/package/var/packages','oop/package/var/statusInfo','oop/package/var/runtimeInit','oop/package/var/buildtimeInit','oop/package/var/__require','oop/package/var/loadQueue',],function(packages,statusInfo,runtimeInit,buildtimeInit,__require,loadQueue){
 
 	//启动加载动作，有部分包可能已经加载过，需要过滤
 	function loadNextPackage(){
@@ -19,8 +19,11 @@ define(['oop/package/var/packages','oop/package/var/runtimeInit','oop/package/va
 					var loaded=loadQueue.shift(),init;
 					//如果加载队列为空
 					if(!loadQueue.length){
+						statusInfo.pkgState='building';
 						while(init=buildtimeInit.pop())init();
+						statusInfo.pkgState='running';
 						while(init=runtimeInit.pop())init();
+						statusInfo.pkgState='ready';
 					}
 				}
 				//继续执行加载动作

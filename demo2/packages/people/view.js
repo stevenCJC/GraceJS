@@ -50,7 +50,7 @@ G.Package(['common'],function (Class, $) {
 			'dblclick body@{id}':'alert',
 		},
 	});
-	new Class.behavvvvv();
+	//new Class.behavvvvv();
 	Class({Partial:'proto',Extend:c},{
 		sjdkf:function(){},
 	});

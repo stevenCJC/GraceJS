@@ -1,4 +1,4 @@
-define(['oop/package/var/packages','oop/package/var/buildtimeInit','oop/package/var/statusInfo','oop/package/class/var/_behavior','oop/package/class/behavior/event','oop/package/class/behavior/util','oop/package/class/behavior/dataset','oop/package/class/behavior/subscribe'], function(packages,buildtimeInit,statusInfo,_behavior) {
+define(['oop/package/var/packages','oop/package/class/var/_behavior','oop/package/class/behavior/event','oop/package/class/behavior/util','oop/package/class/behavior/dataset','oop/package/class/behavior/subscribe'], function(packages,_behavior) {
 	
 	/*
 		@options 	string	Extend:pkgName.className
@@ -106,23 +106,33 @@ define(['oop/package/var/packages','oop/package/var/buildtimeInit','oop/package/
 			}
 			if(proto) part.proto=$.extend(part.proto||{},proto);
 			
-			//如果是对象类
-			if(!this.classes[name]&&!cons&&!part.cons&&proto){
+			if(cons&&!cons.EMPTY||options['Extend']&&options['Extend'].constructor==Function) {
+				//对象创建时执行构造
+				this.scope[name]=this.Class[name]=this.classes[name]=function(){
+					//删除局部类标识，执行构造
+					delete part.options.Partial;
+					var c=Class.call(that,part.options,part.cons,part.behavior,part.proto);
+					switch(arguments.length){
+						case 0:
+						return new c();
+						break;case 1:
+						return new c(arguments[0]);
+						break;case 2:
+						return new c(arguments[0],arguments[1]);
+						break;case 3:
+						return new c(arguments[0],arguments[1],arguments[2]);
+						break;
+					}
+				}
+				
+			}else if(!this.classes[name]&&!cons&&!part.cons&&proto){
 				this.scope[name]=this.Class[name]=this.classes[name]=part.proto;
 			}
-			//如果当前不是构建期，则推到构建期再构建
-			if(statusInfo.pkgState!='building'){
-				var that=this;
-				buildtimeInit.push(function(){
-					delete part.options['Partial'];
-					Class.call(that,part.options,part.cons,part.behavior,part.proto);
-				});
-				return;
-			}
+			return;
 		}
 		
 		//继承处理
-		if(extend&&statusInfo.pkgState=='building'){
+		if(extend){
 			var _cons,_behav,beh;
 			_cons=options[extend].prototype.constructor;
 			if(_cons){//如果是原型类
@@ -146,13 +156,6 @@ define(['oop/package/var/packages','oop/package/var/buildtimeInit','oop/package/
 				proto=_.extend({},options[extend]||{},proto||{});
 				if(!Object.keys(proto).length) proto=null;
 			}
-		}else if(extend){
-			var that=this;
-			//如果当前不是构建期，则推到构建期再构建
-			buildtimeInit.push(function(){
-				if(!that.classes[name])Class.call(that,options,cons,behavior,proto);
-			});
-			return;
 		}
 		
 		//构造器处理
@@ -161,7 +164,7 @@ define(['oop/package/var/packages','oop/package/var/buildtimeInit','oop/package/
 			
 			if(_cons) Constructor.prototype.BASECLASS=_cons.prototype.PACKAGE+'.'+_cons.prototype.NAME;
 			
-			if(extend)Constructor.prototype.Base=options[extend].prototype;
+			Constructor.prototype.Base=options[extend].prototype;
 			
 			if(behavior) {
 				//维护代码干净，添加行为属性存储行为信息

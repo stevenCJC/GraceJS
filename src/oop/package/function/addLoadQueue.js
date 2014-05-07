@@ -5,20 +5,24 @@ define(['oop/package/var/runtimeInit','oop/package/var/loadQueue','./loadNextPac
 	function addLoadQueue(name,onAllLoad,pkgs){//与当前包无关
 		if(name.constructor==String) name=[name];
 		
+		////App调用初始化，作为第一个加入
+		if(!pkgs&&!loadQueue.length) 
+			runtimeInit.push(function (){
+				onAllLoad(scope(name),$);
+			});
+			
+	
 		//在加载队列中push一组待加载的包
 		loadQueue.push({
 			name:name,
 			length:name.length,
 			loadedLength:0,
 		});
+		
 		//如果队列为空，就马上启动加载
 		if(name==loadQueue[0].name) loadNextPackage();
 		
-		////App调用初始化，作为第一个加入
-		if(!pkgs&&!loadQueue.length) 
-			runtimeInit.push(function (){
-				onAllLoad(scope(name),$);
-			});
+		
 	};
 	
 
