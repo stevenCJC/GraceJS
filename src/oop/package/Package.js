@@ -60,8 +60,23 @@ define(['./var/packages','./var/currentPackage','oop/package/var/statusInfo','./
 		
 		//包构建后期执行包的构建
 		buildtimeInit.push(function(){
+			
 			//执行scope，分部类构建和继承类构建
 			scope(packageContext.deps,packageContext);
+			
+			//包加载，不支持单个类的加载
+			//限制不能在loading期的时候使用Load方法
+			//onAllLoad：包加载完后执行
+			
+			packageContext.Class.Load=function(name,onAllLoad){
+				setTimeout(function(){
+					statusInfo.pkgState='loading';
+					addLoadQueue(name,onAllLoad,packageContext);
+					runtimeInit.push(function(){
+						scope(name,packageContext);
+					});
+				},1);
+			}
 			
 		});
 		
@@ -74,18 +89,7 @@ define(['./var/packages','./var/currentPackage','oop/package/var/statusInfo','./
 			packageContext.inited=true;
 		});
 		
-		//包加载，不支持单个类的加载
-		//onAllLoad：包加载完后执行
-		packageContext.Class.Load=function(name,onAllLoad){
-			
-			setTimeout(function(){
-				statusInfo.pkgState='loading';
-				addLoadQueue(name,onAllLoad,packageContext);
-				runtimeInit.push(function(){
-					scope(name,packageContext);
-				});
-			},1);
-		}
+		
 		
 	}
 	

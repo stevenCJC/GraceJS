@@ -3,7 +3,9 @@ G.Package(['common'],function (Class, $) {
 	Class('Partial:index',function index(id) {
 		//$('a').chzn(' people ');
 		this.id=id;
+		console.log(Class.Load);
 	});
+	console.log(Class.Load);
 	Class('Partial:index',{
 		Event:{
 			'click body@{id}':'alert',

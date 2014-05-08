@@ -30,12 +30,11 @@ define(['oop/package/var/packages','oop/package/var/buildtimeInit','oop/package/
 						continue;
 					}
 					tmp=arg.split(':');
-					options={};
+					if(!options)options={};
 					if(tmp[1].indexOf('.')==-1) {
 						if(tmp[0]!='Partial') options[tmp[0]]=this.scope[tmp[1]];
 						else {
 							options[tmp[0]]=tmp[1];
-							name=tmp[1];
 						}
 					}else {
 						var t=tmp[1].split('.');
@@ -44,16 +43,14 @@ define(['oop/package/var/packages','oop/package/var/buildtimeInit','oop/package/
 				}else if(c==Function){//判定
 					cons=arg;
 				}else if(c==Object){
-					
-					extend='Extend';
-					if(!arg[extend]) extend='Rebuild';
-					if(!arg[extend])extend=null;
-					
-					if(extend||arg['Partial']||arg['Name']){
-						options=arg;
-						if(arg['Name'])name=arg['Name'];
+					if(!options){
+						extend='Extend';
+						if(!arg[extend]) extend='Rebuild';
+						else  options=arg;
+						if(!arg[extend]) extend=null;
+						else options=arg;
 						if(extend){
-							if(arg[extend].constructor==String){
+							if(arg[extend].constructor==String&&statusInfo.pkgState=='building'){
 								if(arg[extend].indexOf('.')==-1) options[extend]=this.scope[arg[extend]];
 								else {
 									tmp=arg[extend].split('.');
@@ -61,40 +58,43 @@ define(['oop/package/var/packages','oop/package/var/buildtimeInit','oop/package/
 								}
 							}
 						}
-						if(arg['Partial'])name=arg['Partial'];
-						
-					}else{
+						else if(arg['Partial']||arg['Name']){
+							options=arg;
+						}
+					}
+					if(!proto){
 						keys=Object.keys(arg);
 						keysLoop:{
+							//检测是否为行为对象
 							for(var j=0,l=keys.length;j<l;j++){
 								if(keys[j] in _behavior) {
 									behavior=arg;
 									break keysLoop;
 								}
 							}
-							proto=arg;
+							if(options!=arg)proto=arg;
 						}
 					}
 				}
 			}
 		}
 		
-		if(cons||behavior){//构成原型类条件
-			//获取类名 
-			if(cons){
-				if(!name) 
-					name=cons.prototype.constructor.name;
-				
-			}else {
-				cons=function (){};//应该使用文件名命名
-				cons.EMPTY=true;
-			}
+		if(!name&&cons) name=cons.prototype.constructor.name;
+		
+		if(!cons&&behavior||options&&options[extend]&&options[extend].constructor==Function&&!cons) {
+			cons=function(){};
+			cons.EMPTY=true;
 		}
 		
+		if(!name&&options) name=options['Name']=options['Partial']||options['Name'];
+		if(name) {
+			options=options||{};
+			options.Name=name;
+		}
 		//Partial处理
 		if(options&&options['Partial']){
-			name=options['Partial'];
-			options['Name']=name;
+			//如果已经挂载分部函数，删除Partial标识以避免重复挂载
+			if(this.partial[name]) delete options['Partial'];
 			var part=this.partial[name]=this.partial[name]||{};
 			part.options=$.extend(part.options||{},options);
 			if(cons&&(part.cons&&part.cons.EMPTY===true||!part.cons)) part.cons=cons;
@@ -113,11 +113,16 @@ define(['oop/package/var/packages','oop/package/var/buildtimeInit','oop/package/
 			//如果当前不是构建期，则推到构建期再构建
 			if(statusInfo.pkgState!='building'){
 				var that=this;
-				buildtimeInit.push(function(){
+				if(part.options['Partial']){
 					delete part.options['Partial'];
-					Class.call(that,part.options,part.cons,part.behavior,part.proto);
-				});
+					buildtimeInit.push(function(){
+						Class.call(that,part.options,part.cons,part.behavior,part.proto);
+					});
+				}
 				return;
+			}else{
+				delete part.options['Partial'];
+				//return Class.call(that,part.options,part.cons,part.behavior,part.proto);
 			}
 		}
 		
@@ -125,25 +130,34 @@ define(['oop/package/var/packages','oop/package/var/buildtimeInit','oop/package/
 		if(extend&&statusInfo.pkgState=='building'){
 			var _cons,_behav,beh;
 			_cons=options[extend].prototype.constructor;
-			if(_cons){//如果是原型类
+			//如果被继承的是原型类
+			if(options[extend].constructor==Function){
+				if(!cons)cons=function(){};
 				_behav=options[extend].prototype.BEHAVIOR;
 				if(_behav){
 					if(options.Behavior) {
 						beh=options.Behavior;
 						if(beh.constructor==String) beh=beh.replace(/\s/g,'').split(/[\,]/g);
 					}else beh=Object.keys(_behavior);
+					
 					//根据继承行为种类进行拷贝构件
 					tmp={};//二层克隆
-					for(var i=0,len=beh.length;i<len;i++)
-						tmp[beh[i]]=_.extend({},_behav[beh[i]]||{},behavior[beh[i]]||{});
-					behavior=_.extend({},behavior||{},tmp);
+					if(behavior){
+						for(var i=0,len=beh.length;i<len;i++){
+							if(_behav[beh[i]]||behavior[beh[i]]) tmp[beh[i]]=_behav[beh[i]]||behavior[beh[i]];
+							else if(_behav[beh[i]]&&behavior[beh[i]]) tmp[beh[i]]=this.$.extend({},_behav[beh[i]]||{},behavior[beh[i]]||{});
+							if(tmp[beh[i]]&&!Object.keys(tmp[beh[i]]).length) delete tmp[beh[i]];
+						}
+					}else behavior=_behav||{};
+					behavior=this.$.extend({},behavior||{},tmp);
 					if(!Object.keys(behavior).length) behavior=null;
+					
 				}
-				proto=_.extend({},options[extend].prototype||{},proto||{});
+				proto=this.$.extend({},options[extend].prototype||{},proto||{});
 				if(!Object.keys(proto).length) proto=null;
 				
 			}else{//如果是静态类
-				proto=_.extend({},options[extend]||{},proto||{});
+				proto=this.$.extend({},options[extend]||{},proto||{});
 				if(!Object.keys(proto).length) proto=null;
 			}
 		}else if(extend){
@@ -159,7 +173,7 @@ define(['oop/package/var/packages','oop/package/var/buildtimeInit','oop/package/
 		if(cons){
 			if(proto) for(var x in proto) Constructor.prototype[x]=proto[x];
 			
-			if(_cons) Constructor.prototype.BASECLASS=_cons.prototype.PACKAGE+'.'+_cons.prototype.NAME;
+			if(_cons) Constructor.prototype.BASECLASS=(_cons.prototype.PACKAGE||'unknown')+'.'+(_cons.prototype.NAME||'unknown');
 			
 			if(extend)Constructor.prototype.Base=options[extend].prototype;
 			
@@ -180,13 +194,14 @@ define(['oop/package/var/packages','oop/package/var/buildtimeInit','oop/package/
 			if(name){
 				this.scope[name]=this.Class[name]=this.classes[name]= Constructor;
 			}
-			
-			return Constructor;
+			//限制不能在loading的时候调用Class
+			//return Constructor;
 		}else{
 			if(name){
 				this.scope[name]=this.Class[name]=this.classes[name]= proto;
 			}
-			return proto;
+			//限制不能在loading的时候调用Class
+			//return proto;
 		}
 		
 		
@@ -224,6 +239,7 @@ define(['oop/package/var/packages','oop/package/var/buildtimeInit','oop/package/
 			}
 			
 			if(behavior) for(var x in behavior) _behavior[x].Init(behavior[x],this);
+			
 			
 			return this;
 			
