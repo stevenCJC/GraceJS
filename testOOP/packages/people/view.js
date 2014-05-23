@@ -37,7 +37,7 @@ G.Package(['common'],function (Class, $) {
 			'click body@{id}':'alert',
 		},
 	});
-	var c=Class(function view_func() {
+	Class(function view_func() {
 		
 	});
 	Class({Partial:'behavvvvv',Extend:'cons_behav'},{
@@ -51,11 +51,11 @@ G.Package(['common'],function (Class, $) {
 		},
 	});
 	//new Class.behavvvvv();
-	Class({Partial:'proto',Extend:c},{
+	Class({Partial:'proto',Extend:'view_func'},{
 		sjdkf:function(){},
 	});
 	Class('Partial:proto',{
-		ssss:function(){},
+		ssss:function(){alert('sssss')},
 	});
 	
 });

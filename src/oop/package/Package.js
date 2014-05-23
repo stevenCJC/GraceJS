@@ -48,18 +48,22 @@ define(['./var/packages','./var/currentPackage','oop/package/var/statusInfo','./
 		packageContext.$=function(a,b){
 			return $(a,b);
 		};
-		for(var x in $)packageContext.$[x]=$[x];
+		for(var x in $) packageContext.$[x]=$[x];
 		
 		packageContext.dataset=new Dataset();
 		packageContext.mediator=new Mediator();
-		packageContext.$.publish=function(){
-			
-		};
 		
 		
 		
-		//包构建后期执行包的构建
+		
+		//包构建后期对类运行环境的构建
 		buildtimeInit.push(function(){
+			
+			//开始构建类运行环境
+			
+			packageContext.$.publish=function(){
+				
+			};
 			
 			//执行scope，分部类构建和继承类构建
 			scope(packageContext.deps,packageContext);
@@ -67,7 +71,6 @@ define(['./var/packages','./var/currentPackage','oop/package/var/statusInfo','./
 			//包加载，不支持单个类的加载
 			//限制不能在loading期的时候使用Load方法
 			//onAllLoad：包加载完后执行
-			
 			packageContext.Class.Load=function(name,onAllLoad){
 				setTimeout(function(){
 					statusInfo.pkgState='loading';

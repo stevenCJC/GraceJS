@@ -14,6 +14,8 @@ G.Package.Main('people',function(Class,$){//Class不作构建
 	//$('a').chzn(' people ');
 	var index=new Class.index('#aaa');
 	var left=new Class.left('a');
+	var pr=new Class.proto();
+	pr.ssss();
 	//var index=new Class.left();
 	
 });

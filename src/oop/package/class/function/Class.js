@@ -1,4 +1,4 @@
-define(['oop/package/var/packages','oop/package/var/buildtimeInit','oop/package/var/statusInfo','oop/package/class/var/_behavior','oop/package/class/behavior/event','oop/package/class/behavior/util','oop/package/class/behavior/dataset','oop/package/class/behavior/subscribe'], function(packages,buildtimeInit,statusInfo,_behavior) {
+define(['oop/package/var/packages','oop/package/var/buildtimeInit','oop/package/var/statusInfo','oop/package/class/var/_behavior','BL/Blink/main','oop/package/class/behavior/event','oop/package/class/behavior/util','oop/package/class/behavior/dataset','oop/package/class/behavior/subscribe'], function(packages,buildtimeInit,statusInfo,_behavior,$) {
 	
 	/*
 		@options 	string	Extend:pkgName.className
@@ -32,9 +32,9 @@ define(['oop/package/var/packages','oop/package/var/buildtimeInit','oop/package/
 					tmp=arg.split(':');
 					if(!options)options={};
 					if(tmp[1].indexOf('.')==-1) {
-						if(tmp[0]!='Partial') options[tmp[0]]=this.scope[tmp[1]];
+						if(tmp[0]!='Partial') options[tmp[0]]=this.classes[tmp[1]]||this.scope[tmp[1]];
 						else {
-							options[tmp[0]]=tmp[1];
+							options[tmp[0]]=tmp[1]; 
 						}
 					}else {
 						var t=tmp[1].split('.');
@@ -43,6 +43,7 @@ define(['oop/package/var/packages','oop/package/var/buildtimeInit','oop/package/
 				}else if(c==Function){//判定
 					cons=arg;
 				}else if(c==Object){
+					//可能性一
 					if(!options){
 						extend='Extend';
 						if(!arg[extend]) extend='Rebuild';
@@ -51,7 +52,7 @@ define(['oop/package/var/packages','oop/package/var/buildtimeInit','oop/package/
 						else options=arg;
 						if(extend){
 							if(arg[extend].constructor==String&&statusInfo.pkgState=='building'){
-								if(arg[extend].indexOf('.')==-1) options[extend]=this.scope[arg[extend]];
+								if(arg[extend].indexOf('.')==-1) options[extend]=this.classes[arg[extend]]||this.scope[arg[extend]];
 								else {
 									tmp=arg[extend].split('.');
 									options[extend]=this.Class.PKG[tmp[0]][tmp[1]];
@@ -62,6 +63,7 @@ define(['oop/package/var/packages','oop/package/var/buildtimeInit','oop/package/
 							options=arg;
 						}
 					}
+					//可能性二
 					if(!proto){
 						keys=Object.keys(arg);
 						keysLoop:{
@@ -106,10 +108,6 @@ define(['oop/package/var/packages','oop/package/var/buildtimeInit','oop/package/
 			}
 			if(proto) part.proto=$.extend(part.proto||{},proto);
 			
-			//如果是对象类
-			if(!this.classes[name]&&!cons&&!part.cons&&proto){
-				this.scope[name]=this.Class[name]=this.classes[name]=part.proto;
-			}
 			//如果当前不是构建期，则推到构建期再构建
 			if(statusInfo.pkgState!='building'){
 				var that=this;
@@ -129,9 +127,9 @@ define(['oop/package/var/packages','oop/package/var/buildtimeInit','oop/package/
 		//继承处理
 		if(extend&&statusInfo.pkgState=='building'){
 			var _cons,_behav,beh;
-			_cons=options[extend].prototype.constructor;
 			//如果被继承的是原型类
 			if(options[extend].constructor==Function){
+				_cons=options[extend].prototype.constructor;
 				if(!cons)cons=function(){};
 				_behav=options[extend].prototype.BEHAVIOR;
 				if(_behav){
@@ -144,20 +142,20 @@ define(['oop/package/var/packages','oop/package/var/buildtimeInit','oop/package/
 					tmp={};//二层克隆
 					if(behavior){
 						for(var i=0,len=beh.length;i<len;i++){
-							if(_behav[beh[i]]||behavior[beh[i]]) tmp[beh[i]]=_behav[beh[i]]||behavior[beh[i]];
-							else if(_behav[beh[i]]&&behavior[beh[i]]) tmp[beh[i]]=this.$.extend({},_behav[beh[i]]||{},behavior[beh[i]]||{});
+							if((_behav[beh[i]]||behavior[beh[i]])&&(!_behav[beh[i]]||!behavior[beh[i]])) tmp[beh[i]]=_behav[beh[i]]||behavior[beh[i]];
+							else if(_behav[beh[i]]&&behavior[beh[i]]) tmp[beh[i]]=$.extend({},_behav[beh[i]]||{},behavior[beh[i]]||{});
 							if(tmp[beh[i]]&&!Object.keys(tmp[beh[i]]).length) delete tmp[beh[i]];
 						}
 					}else behavior=_behav||{};
-					behavior=this.$.extend({},behavior||{},tmp);
+					behavior=$.extend({},behavior||{},tmp);
 					if(!Object.keys(behavior).length) behavior=null;
 					
 				}
-				proto=this.$.extend({},options[extend].prototype||{},proto||{});
+				proto=$.extend({},options[extend].prototype||{},proto||{});
 				if(!Object.keys(proto).length) proto=null;
 				
 			}else{//如果是静态类
-				proto=this.$.extend({},options[extend]||{},proto||{});
+				proto=$.extend({},options[extend]||{},proto||{});
 				if(!Object.keys(proto).length) proto=null;
 			}
 		}else if(extend){
@@ -192,13 +190,13 @@ define(['oop/package/var/packages','oop/package/var/buildtimeInit','oop/package/
 			Constructor.prototype.constructor=Constructor;
 			
 			if(name){
-				this.scope[name]=this.Class[name]=this.classes[name]= Constructor;
+				this.classes[name]= Constructor;
 			}
 			//限制不能在loading的时候调用Class
 			//return Constructor;
 		}else{
 			if(name){
-				this.scope[name]=this.Class[name]=this.classes[name]= proto;
+				this.classes[name]= proto;
 			}
 			//限制不能在loading的时候调用Class
 			//return proto;

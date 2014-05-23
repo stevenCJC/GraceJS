@@ -1,5 +1,5 @@
 /*auto*/
-require(['./pck','./view','utils/chzn','utils/modal'], function () {
+require(['pcks/common/header','pcks/common/left','utils/chzn'], function () {
 	//G.Package('people').Init();
 	//加载过程构建本包，构建本包后，开始构建依赖包，叶子节点构建完毕后开始执行
 	//可在Require调用callback的时候调用本包初始化，开始加载依赖包
@@ -7,21 +7,13 @@ require(['./pck','./view','utils/chzn','utils/modal'], function () {
 });
 
 //先加载此基本配置，包名、依赖包、初始化函数
-G.Package.Config({
-	name:'people',
-	deps:['common','modal'],
-	init:function(Class,$){
-		
-		//Class不作构建
-		
-		
-		
-		
-		
-		
-		
-		
-	},
+G.Package.Main('common',function(Class,$){//Class不作构建
+	//console.log(Class);
+	$('a').append(' common ');
+	
+	
+	
+	
 });
 	
 	/*

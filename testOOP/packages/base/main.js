@@ -5,7 +5,7 @@ require([
 ], function () {});
 
 G.Package.Main('base',function(Class,$){
-	console.log(Class);
+	//console.log(Class);
 	$('a').append(' base ');
 	
 });
