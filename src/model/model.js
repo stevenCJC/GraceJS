@@ -1,91 +1,16 @@
-define(["jquery"],function($) {
+define(["BL/Blink/main"],function($) {
 	
-	function Models(){
-		this.model={};
-		this.baseUrl={
-			'~':window.info.base_url,
-			'^':window.info.assets,
-		};
+	
+	function Model(options){
+		this.options=options;
+		this.dataset=null;
+		this.xhr=null;
 		/*
 			0 : 非debug状态
 			1 ： url请求出错会自动跳转到debug请求debug数据
 			2 ： 直接跳转到debug请求debug数据
 		*/
 		this.debug=0;
-		
-	}
-	
-	/*
-		解决问题： 
-				1、解耦前后端字段对应问题
-				2、方便转换字段名
-				3、提供默认数据
-				4、数据事件绑定
-				5、便捷调用
-	*/
-	// 支持 ~/ 相对根目录，-/ 相对资源目录
-	/*options={
-		url:'~/',
-		debug:'',
-		data:{
-			id:null,
-			type:null,
-			tpl:'emali',
-		},
-		datatype:'json',
-		type:'post',
-		onSend:function(xhr){
-			var data=xhr.data;
-			var url=xhr.url;
-			data.ID=data.id;
-			data.Type=data.type;
-			return url+'/'+window.pagetype;
-		},
-		
-		//浅转换，子节点由NODE方法转换
-		conver:{
-			workexp:'WorkExp',
-			counter:{
-				name:'Counters',
-				node:function(node,data){
-					return node;
-				},
-			},
-			value:{
-				name:'Items',
-				conver:{
-					PID:'id',
-					DisplayName:'Name',
-				}
-			}
-		},
-		
-		default:{
-			WorkExp:{},
-			Counters:{
-				CounterTask:0,
-			},
-		},
-		
-	}*/
-	Models.prototype={
-		constructor:Models,
-		add:function(name,options){
-			options.url=options.url.replace(/\~/,this.baseUrl['~']);
-			if(this.debug) options.debug=options.url.replace(/\^/,this.baseUrl['^']);
-			else delete options.debug;
-			
-			this[name]=new Model(options);
-		},
-		remove:function(name){
-			
-		},
-	};
-	
-	function Model(options){
-		this.options=options;
-		this.dataset=null;
-		this.xhr=null;
 	}
 	Model.prototype={
 		constructor:Model,
@@ -93,7 +18,7 @@ define(["jquery"],function($) {
 			
 		},
 		fetch:function(beforeSend,onSuccess,onError){
-			
+			var options=this.options;
 			options.beforeSend=function(xhr){
 				if(beforeSend) beforeSend(xhr);
 				if(options.onSend) options.onSend(xhr);
@@ -123,12 +48,6 @@ define(["jquery"],function($) {
 		
 	};
 	
-	window.model=window.model||new Models();
-	
-	
-	
-	
-	
 	
 	
 	function setDefault(def,data){
@@ -148,9 +67,10 @@ define(["jquery"],function($) {
 	
 	
 	function converName(data,rules){
+		if(!data||!rules) return data;
 		var tmp={},name,func,conver,tmp2;
 		
-		if(data.constructor!=Array){
+		if(data.constructor==Array){
 			for(var i=0,len=data.length;i<len;i++){
 				converName(data[i],rules);
 			}
@@ -158,9 +78,9 @@ define(["jquery"],function($) {
 			for(var x in rules){
 				
 				if(rules[x].constructor==String){
-					name=rules[x];
+					name=rules[x]||x;
 				}else if(rules[x].constructor==Object){
-					name=rules[x].name;
+					name=rules[x].name||x;
 					func=rules[x].node;
 					conver=rules[x].conver;
 				}
@@ -195,7 +115,7 @@ define(["jquery"],function($) {
 			e=e||{};
 			if(e.statusText=="abort") return;
 			
-			if(options.debug>0){
+			if(options.debug){
 				$.ajax({
 					url:options.debug,
 					async:options.async,
@@ -216,7 +136,7 @@ define(["jquery"],function($) {
 				});
 			}
 		};
-		if(options.debug<2||options.datatype!='json'){
+		if(options.url||options.datatype!='json'){
 			return $.ajax({
 				url:options.url,
 				data:options.data,
@@ -226,7 +146,7 @@ define(["jquery"],function($) {
 				success: options.success,
 				error:error_,
 			});
-		}else {
+		}else if(!options.url&&options.debug){
 			return $.ajax({
 				url:options.debug,
 				async:options.async,
@@ -247,4 +167,10 @@ define(["jquery"],function($) {
 			});
 		}
 	}
+	
+	
+	
+	return Model;
+	
+	
 });
