@@ -74,7 +74,7 @@ define(['function/JSONClone'], function (JSONClone) {
 			} else if (!namespace) {
 				namespace = 'none';
 			}
-
+			//是否作用于所有子节点
 			var isExtend = path.lastIndexOf('/') == path.length - 1;
 			if (isExtend){
 				e.currentPath = path;
@@ -84,6 +84,7 @@ define(['function/JSONClone'], function (JSONClone) {
 			var p = path.split('/');
 			if (isExtend)
 				p.pop();
+			//事件冒泡
 			while (p.length) {
 				e.currentPath=p.join('/');
 				e.handle=this.handle[e.currentPath];
@@ -95,7 +96,6 @@ define(['function/JSONClone'], function (JSONClone) {
 					if(e.handle)_trigger(e);
 				}
 			}
-
 		},
 
 	};
