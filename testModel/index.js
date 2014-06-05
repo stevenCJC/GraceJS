@@ -28,7 +28,7 @@ require(['model/var/models'],function(m){
 	m['tt'].fetch(function(xhr){
 		console.log(xhr);
 	},function(data){
-		console.log(data);
+		console.log(m['tt']);
 	},function(e){
 		console.log(e);
 	});

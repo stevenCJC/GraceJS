@@ -17,6 +17,10 @@ define(['model/Model'],function(Model) {
 			type:null,
 			tpl:'emali',
 		},
+		dataConver:{
+			id:'PID',
+			type:'Type',
+		},
 		datatype:'json',
 		type:'post',
 		onSend:function(xhr){
@@ -24,7 +28,6 @@ define(['model/Model'],function(Model) {
 			var url=xhr.url;
 			data.ID=data.id;
 			data.Type=data.type;
-			return url+'/'+window.pagetype;
 		},
 		
 		//浅转换，子节点由NODE方法转换

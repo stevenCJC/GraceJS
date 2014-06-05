@@ -5,7 +5,9 @@ define([], function() {
 	//create	是否进行创建路径，如果否，返回null
 	//需考虑末尾/的情况
 	function getObjByPath(path,obj){
+		path=path||'';
 		path=path.replace(/(^\s*)|(\s*$)/g,'');
+		if(!path) return obj;
 		var tmp;
 		if(path.indexOf('/')>-1){
 			path=path.split('/');

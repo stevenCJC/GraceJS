@@ -1,14 +1,35 @@
-define(['dataset/dsevent','function/getObjByPath','function/setObjByPath','function/delObjByPath','function/JSONClone'], function(dsevent,getObjByPath,setObjByPath,delObjByPath,JSONClone) {
+define(['dataset/DSEvent','function/getObjByPath','function/setObjByPath','function/delObjByPath','function/JSONClone'], function(DSEvent,getObjByPath,setObjByPath,delObjByPath,JSONClone) {
 	
 	//数据树节点定义
 	function DS(path,ds){
+	
+		if(!path||path.constructor!=Object&&path.constructor!=Array) return new DS({});
+		
+		if(arguments.length==1){
+			ds=path;
+			path='';
+		}
+		
+		var base = ds.constructor==DS?ds:null;
+		if(base) ds = base.dataset;
 		//当前路径
 		if(path.lastIndexOf('/')==path.length-1) path=path.substr(0,path.length-1);
-		this.PATH=path;
+		
 		//返回数据树相应的数据节点
+		
 		this.dataset=getObjByPath(path,ds);
+		
+		this.baseDataset=base||this;
+		
+		this.PATH=this.baseDataset.PATH?(this.baseDataset.PATH+'/'+path):path;
+		this.event=this.baseDataset.event||new DSEvent();
 	}
+	
 	DS.prototype={
+		
+		getDS:function(path){
+			return new DS(this.PATH+'/'+path,this.baseDataset);
+		},
 		
 		//应该具备解析字符串值作为数据来源的功能，如 dom:#id.val,DS:path/path/Count
 		get:function(path){
@@ -26,23 +47,35 @@ define(['dataset/dsevent','function/getObjByPath','function/setObjByPath','funct
 			event = ev.shift();
 			if (ev.length)
 				namespace = ev.join('.')
-					dsevent.trigger({
+					this.event.trigger({
 						path : this.PATH+'/'+path,
 						event : event,
 						namespace : namespace || 'none'
 					});
 		},
-		on : function (path, event, namespace, callback) {
-			dsevent.add(this.PATH+'/'+path, event, namespace, callback);
+		bind : function (path, event, callback) {
+			var namespace;
+			if(event.indexOf('.')>-1) {
+				var tmp=event.split('.');
+				namespace=tmp[0];
+				event=tmp[1];
+			}
+			this.event.add(this.PATH+'/'+path, event, namespace, callback);
 		},
-		off : function (path, event, namespace) {
-			dsevent.del(this.PATH+'/'+path, event, namespace);
+		unbind : function (path, event) {
+			var namespace;
+			if(event.indexOf('.')>-1) {
+				var tmp=event.split('.');
+				namespace=tmp[0];
+				event=tmp[1];
+			}
+			this.event.del(this.PATH+'/'+path, event, namespace);
 		},
 		delete : function (path) {
 			var src = delObjByPath(path, this.dataset),
 			oldValue = JSONClone(src);
 
-			dsevent.trigger({
+			this.event.trigger({
 				path : this.PATH+'/'+path,
 				event : 'delete',
 				namespace : 'none',
@@ -50,20 +83,31 @@ define(['dataset/dsevent','function/getObjByPath','function/setObjByPath','funct
 			});
 		},
 		set : function (path, newValue) {
-			var src = getObjByPath(path, this.dataset),
-			oldValue = JSONClone(src);
+			if(arguments.length==2){
+				var src = getObjByPath(path, this.dataset),
+				oldValue = src;
 
-			var event = typeof src!='undefined' ? 'update' : 'create';
+				var event = typeof src!='undefined' ? 'update' : 'create';
 
-			newValue = setObjByPath(path, this.dataset, newValue, 1);
+				newValue = setObjByPath(path, this.dataset, newValue, 1);
 
-			dsevent.trigger({
-				path : this.PATH+'/'+path,
-				event : event,
-				namespace : 'none',
-				newValue : newValue,
-				oldValue : oldValue
-			});
+				this.event.trigger({
+					path : this.PATH+'/'+path,
+					event : event,
+					namespace : 'none',
+					newValue : newValue,
+					oldValue : oldValue
+				});
+			}else if(arguments.length==1){
+				this.dataset=path;
+				this.event.trigger({
+					path : this.PATH||'',
+					event : 'create',
+					namespace : 'none',
+					newValue : newValue,
+					oldValue : this.dataset
+				});
+			}
 		},
 	}
 	
