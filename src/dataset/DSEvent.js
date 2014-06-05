@@ -19,31 +19,24 @@ define(['function/JSONClone'], function (JSONClone) {
 
 	DSEvent.prototype = {
 		constructor : DSEvent,
+		//固定参数调用
 		add : function (path, event, namespace, callback) {
+			if(arguments.length!=4) throw new Error('lack of some parametters');
 			path = path.replace(/\s/ig, '');
-			if (typeof(namespace) == 'function') {
-				callback = namespace;
-				namespace = 'none';
-			} else if (typeof(event) == 'function') {
-				callback = event;
-				event = 'all';
-				namespace = 'none';
-			}
+			namespace = namespace||'none';
+			event = event||'all';
 			var hs = this.handle[path] = this.handle[path] || {};
 
 			var ev = hs[event]=hs[event] || {};
 			var ns = ev[namespace]=ev[namespace] || [];
 			ns.push(callback);
 		},
-		//删除委托事件
+		//删除委托事件//固定参数调用
 		del : function (path, event, namespace) {
+			if(arguments.length!=3) throw new Error('lack of some parametters');
 			path = path.replace(/\s/ig, '');
-			if (!event && !namespace) {
-				namespace = 'none';
-				event = 'all';
-			} else if (!namespace) {
-				namespace = 'none';
-			}
+			namespace = namespace||'none';
+			event = event||'all';
 
 			var hs = this.handle[path];
 			if (hs) {
@@ -74,7 +67,7 @@ define(['function/JSONClone'], function (JSONClone) {
 			} else if (!namespace) {
 				namespace = 'none';
 			}
-
+			//是否作用于所有子节点
 			var isExtend = path.lastIndexOf('/') == path.length - 1;
 			if (isExtend){
 				e.currentPath = path;
@@ -84,6 +77,7 @@ define(['function/JSONClone'], function (JSONClone) {
 			var p = path.split('/');
 			if (isExtend)
 				p.pop();
+			//事件冒泡
 			while (p.length) {
 				e.currentPath=p.join('/');
 				e.handle=this.handle[e.currentPath];
@@ -93,9 +87,10 @@ define(['function/JSONClone'], function (JSONClone) {
 					e.currentPath=p.join('/')+ '/';
 					e.handle=this.handle[e.currentPath];
 					if(e.handle)_trigger(e);
+				}else {
+					
 				}
 			}
-
 		},
 
 	};
@@ -149,17 +144,7 @@ define(['function/JSONClone'], function (JSONClone) {
 			}
 		}
 	}
-
-	/*ExcludeStart*/
-	if (window.dsevent)
-		return window.dsevent;
-	else {
-	/*ExcludeEnd*/
-		var dsevent = new DSEvent();
-	/*ExcludeStart*/
-		window.dsevent = dsevent
-			return dsevent;
-	}
-	/*ExcludeEnd*/
+	
+	return DSEvent;
 
 });

@@ -44,7 +44,7 @@ define(['$'], function ($) {
 	 */
 	
 	$.ajax = function(opts){
-		ajax(opts);
+		return ajax(opts);
 	};
 
 
