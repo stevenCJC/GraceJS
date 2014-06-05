@@ -1,5 +1,6 @@
 require(['model/var/models'],function(m){
 	
+	
 	m.add('tt',{
 		url:'1.txt',
 		debug:'1.txt',

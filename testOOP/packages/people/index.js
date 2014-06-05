@@ -1,3 +1,36 @@
+
+/*
+	G.Package([],function(Class,$){
+		Class.View('',function(){
+			
+		},{
+			tpl:{},
+			event:{},
+			destroy:function(){},
+			action:{},
+		},{
+			
+		});
+		
+		Class.Model('',{
+			
+			
+			
+		});
+		
+		Class('',function(){
+			
+		},{
+			
+		},{
+			
+		})
+		
+	});
+*/
+
+
+
 G.Package(['common'],function (Class, $) {
 	//load的callback需要等待所有js加载后才能执行
 	Class('Partial:index',function index(id) {
