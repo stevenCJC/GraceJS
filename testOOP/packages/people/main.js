@@ -1,6 +1,6 @@
 /*auto*/
 //这里引入什么文件只要包含包定义就会成为本包的一部分
-require(['pcks/people/index','pcks/people/view','pcks/people/edit','utils/chzn'], function () {
+require(['pcks/people/index'/*,'pcks/people/view','pcks/people/edit','utils/chzn'*/], function () {
 	//alert('2');
 	//G.Package('people').Init();
 	//加载过程构建本包，构建本包后，开始构建依赖包，叶子节点构建完毕后开始执行
@@ -12,10 +12,13 @@ require(['pcks/people/index','pcks/people/view','pcks/people/edit','utils/chzn']
 G.Package.Main('people',function(Class,$){//Class不作构建
 	//console.log(Class);
 	//$('a').chzn(' people ');
-	var index=new Class.index('#aaa');
-	var left=new Class.left('a');
-	var pr=new Class.proto();
-	pr.ssss();
+	var index=new Class.View['index']('#aaa');
+	index.bind('open',function(){alert('open');});
+	index.trigger('open');
+	index.trigger('loadIndex');
+	//var left=new Class.left('a');
+	//var pr=new Class.proto();
+	//pr.ssss();
 	//var index=new Class.left();
 	
 });

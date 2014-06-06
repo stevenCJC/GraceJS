@@ -1,4 +1,4 @@
-define(['model/Model'],function(Model) {
+define(['model/Model','Config'],function(Model,Config) {
 
 	/*
 		解决问题： 
@@ -58,16 +58,6 @@ define(['model/Model'],function(Model) {
 	}*/
 	
 	function Models(){
-		this.baseUrl={
-			'~':'http://127.0.0.1:8081/',
-			'^':'http://127.0.0.1:8081/',
-		};
-		/*
-			0 : 非debug状态
-			1 ： url请求出错会自动跳转到debug请求debug数据
-			2 ： 直接跳转到debug请求debug数据
-		*/
-		this.debug=1;
 		
 	}
 	
@@ -76,17 +66,27 @@ define(['model/Model'],function(Model) {
 		get:function(name){
 			return this.models[name];
 		},
-		add:function(name,options){
-			
-			if(['get','add','remove'].indexOf(name)>-1) throw new Error('illegal Model Name .');
-			options.url=options.url.replace(/\~/,this.baseUrl['~']);
-			
-			if(this.debug&&options.debug) options.debug=options.debug.replace(/\^/,this.baseUrl['^']);
-			else delete options.debug;
-			
-			if(this.debug==2) delete options.url;
-			
-			this[name]=new Model(options,this.debug);
+		extend:function(name,options){
+			if(arguments.length==2){
+				
+				if(['get','add','remove'].indexOf(name)>-1) throw new Error('illegal Model Name .');
+				
+				if(Config.path[options.url[0]])
+					options.url=options.url.replace(options.url[0],Config.path[options.url[0]]);
+				
+				if(Config.debug&&options.debug&&Config.path[options.debug[0]]) options.debug=options.debug.replace(options.debug[0],Config.path[options.debug[0]]);
+				else delete options.debug;
+				
+				if(Config.debug==2) delete options.url;
+				
+				if(!name) return new Model(options);
+				
+				this[name]=new Model(options);
+				return this[name];
+			}else if(arguments.length==1){
+				if(arguments[0].constructor==Object) return new Model(options);
+				else if(arguments[0].constructor==String) return this[name];
+			}
 		},
 		remove:function(name){
 			

@@ -1,7 +1,7 @@
 define(['function/fixPath','function/JSONClone','oop/package/class/var/_behavior','function/fixPath','oop/package/var/packages','oop/package/var/mediator'], function(fixPath,JSONClone,_behavior,fixPath,packages,mediator) {
 	
 	
-	_behavior.Subscribe={
+	_behavior['class'].Subscribe={
 		Build:function(subs,cons){
 			
 		},

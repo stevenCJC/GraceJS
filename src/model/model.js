@@ -4,12 +4,7 @@ define(["BL/Blink/main", 'dataset/DS'], function ($, DS) {
 		this.options = options;
 		this.dataset = new DS();
 		this.xhr = null;
-		/*
-		0 : 非debug状态
-		1 ： url请求出错会自动跳转到debug请求debug数据
-		2 ： 直接跳转到debug请求debug数据
-		 */
-		this.debug = 1;
+		
 	}
 	Model.prototype = {
 		constructor : Model,

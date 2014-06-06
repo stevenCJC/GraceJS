@@ -4,12 +4,19 @@
 		Class.View('',function(){
 			
 		},{
-			tpl:{},
-			event:{},
-			destroy:function(){},
-			action:{},
+			Tpl:{
+				index:'~/index.html',
+			},
+			Event:{
+				loadIndex:'load',
+			},
+			Destroy:function(){},
 		},{
-			
+			load:function(data){
+				this.Tpl.index(function(tpl){
+					tpl(data);
+				});
+			},
 		});
 		
 		Class.Model('',{
@@ -33,28 +40,29 @@
 
 G.Package(['common'],function (Class, $) {
 	//load的callback需要等待所有js加载后才能执行
-	Class('Partial:index',function index(id) {
+	Class.View('Partial:index',function index(id) {
 		//$('a').chzn(' people ');
 		this.id=id;
 		//console.log(Class.Load);
 	});
 	//console.log(Class.Load);
-	Class('Partial:index',{
+	Class.View('Partial:index',{
+		Tpl:{
+			
+		},
+		
 		Event:{
 			'click body@{id}':'alert',
+			loadIndex:'loadIndex',
 		},
 		//初始化后有效，未初始化不起作用
 		Util:{
 			chzn:'chzn',
 		},
-		//Dataset:{},
-		//Subscribe:{
-		//	'!alert':'alert',//监听全局，本包内也起作用
-		//	'tips':'alert',//监听本包，全局不起作用
-		//},
-		//Init:{},
-		//Load:{},
-		//Destroy:{},
+		
+		State:{
+			open:1,
+		},
 		
 	}, {
 		//方法
@@ -62,7 +70,7 @@ G.Package(['common'],function (Class, $) {
 			$el.append(args[0]);
 		},
 	});
-	Class('Partial:index',{
+	Class.View('Partial:index',{
 		Event:{
 			'dblclick body@{id}':'alert',
 		},
@@ -82,8 +90,13 @@ G.Package(['common'],function (Class, $) {
 	}, {
 		//方法
 		alert:function(){
+			
 			alert(3);
 		},
+		loadIndex:function(){
+			alert('loadIndex');
+		},
+		
 	});
 });
 	

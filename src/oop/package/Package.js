@@ -1,4 +1,4 @@
-define(['./var/packages','./var/currentPackage','oop/package/var/statusInfo','./var/runtimeInit','./var/buildtimeInit','./function/Package','./var/loadQueue','./function/loadNextPackage','./function/addLoadQueue','./class/function/Class','./class/function/scope','dataset/dataset','mediator/mediator','BL/Blink/main','./function/require'],function(packages,currentPackage,statusInfo,runtimeInit,buildtimeInit,Package,loadQueue,loadNextPackage,addLoadQueue,Class,scope,Dataset,Mediator,$){
+define(['./var/packages','./var/currentPackage','model/Models','oop/package/var/statusInfo','./var/runtimeInit','./var/buildtimeInit','./function/Package','./var/loadQueue','./function/loadNextPackage','./function/addLoadQueue','./class/function/Class','./class/function/scope','dataset/dataset','mediator/mediator','BL/Blink/main','./function/require'],function(packages,currentPackage,Models,statusInfo,runtimeInit,buildtimeInit,Package,loadQueue,loadNextPackage,addLoadQueue,Class,scope,Dataset,Mediator,$){
 	
 	
 	
@@ -22,13 +22,22 @@ define(['./var/packages','./var/currentPackage','oop/package/var/statusInfo','./
 		var packageContext=packages[packageName]={};
 		packageContext.deps=deps;
 		packageContext.name=packageName;
+		
 		packageContext.classes={};
 		packageContext.scope={};
 		packageContext.partial={};
 		
 		packageContext.inited=false;
 		packageContext.handlers=[];
+		
+		packageContext.dataset=new Dataset();
+		packageContext.mediator=new Mediator();
+		packageContext.models=new Models();
+		packageContext.views={};
+		packageContext.TYPE='class';
+		
 		//类构造器
+		
 		packageContext.Class=function(){
 			var tmp;
 			//如果只有一个参数，则返回对应的类
@@ -39,19 +48,50 @@ define(['./var/packages','./var/currentPackage','oop/package/var/statusInfo','./
 					tmp=arguments[0].split('.');
 					return packageContext.scope.PKG[tmp[0]][tmp[1]];
 				}
-			
 			tmp=Class.apply(packageContext,arguments);
 			
 			return tmp;
 		};
 		
+		packageContext.Class.PKG={};
+		
+		
+		packageContext.Class.View=function(){
+			var tmp,vc=packageContext.viewContext;
+			//如果只有一个参数，则返回对应的类
+			if(arguments.length==1&&arguments[0].constructor==String) 
+				if(arguments[0].indexOf('.')==-1)
+					return vc.scope[arguments[0]];
+				else {
+					tmp=arguments[0].split('.');
+					return vc.scope.PKG[tmp[0]][tmp[1]];
+				}
+			tmp=Class.apply(vc,arguments);
+			
+			return tmp;
+		};
+		
+		packageContext.viewContext={
+			name:packageContext.name,
+			classes:packageContext.views,
+			Class:packageContext.Class.View,
+			scope:{},
+			partial:{},
+			VIEW:true,
+			TYPE:'view',
+		};
+		packageContext.scope.View=packageContext.viewContext.scope;
+		packageContext.Class.View.PKG={};
+		
+		packageContext.Class.Model=function(name,options){
+			return packageContext.models.extend(name,options);
+		};
+		
+		//业务逻辑工具库
 		packageContext.$=function(a,b){
 			return $(a,b);
 		};
 		for(var x in $) packageContext.$[x]=$[x];
-		
-		packageContext.dataset=new Dataset();
-		packageContext.mediator=new Mediator();
 		
 		
 		
@@ -67,7 +107,7 @@ define(['./var/packages','./var/currentPackage','oop/package/var/statusInfo','./
 			
 			//执行scope，分部类构建和继承类构建
 			scope(packageContext.deps,packageContext);
-			
+			//scope(packageContext.deps,packageContext.viewContext);
 			//包加载，不支持单个类的加载
 			//限制不能在loading期的时候使用Load方法
 			//onAllLoad：包加载完后执行
@@ -77,6 +117,7 @@ define(['./var/packages','./var/currentPackage','oop/package/var/statusInfo','./
 					addLoadQueue(name,onAllLoad,packageContext);
 					runtimeInit.push(function(){
 						scope(name,packageContext);
+						//scope(name,packageContext.viewContext);
 					});
 				},1);
 			}

@@ -1,7 +1,7 @@
 define(['function/fixPath','function/JSONClone','oop/package/class/var/_behavior','function/fixPath','oop/package/var/packages'], function(fixPath,JSONClone,_behavior,fixPath,packages) {
 	
 	
-	_behavior.Dataset={
+	_behavior['class'].Dataset={
 		Build:function(ds,cons){
 			
 		},

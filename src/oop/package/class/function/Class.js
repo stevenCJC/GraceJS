@@ -1,4 +1,4 @@
-define(['oop/package/var/packages','oop/package/var/buildtimeInit','oop/package/var/statusInfo','oop/package/class/var/_behavior','BL/Blink/main','oop/package/class/behavior/event','oop/package/class/behavior/util','oop/package/class/behavior/dataset','oop/package/class/behavior/subscribe'], function(packages,buildtimeInit,statusInfo,_behavior,$) {
+define(['oop/package/var/buildtimeInit','oop/package/var/statusInfo','oop/package/class/function/View','oop/package/class/var/_behavior','BL/Blink/main','oop/package/class/behavior/event','oop/package/class/behavior/util','oop/package/class/behavior/dataset','oop/package/class/behavior/subscribe','oop/package/class/behavior/state','oop/package/class/behavior/tpl'], function(buildtimeInit,statusInfo,View,_behavior,$) {
 	
 	/*
 		@options 	string	Extend:pkgName.className
@@ -15,6 +15,7 @@ define(['oop/package/var/packages','oop/package/var/buildtimeInit','oop/package/
 		
 		var args=arguments,tmp,keys,extend,arg,c;
 		
+		var __behavior=_behavior[this.TYPE];
 		//判别传入构件
 		argsLoop:{
 			for(var i=0,len=args.length;i<len;i++){
@@ -32,8 +33,10 @@ define(['oop/package/var/packages','oop/package/var/buildtimeInit','oop/package/
 					tmp=arg.split(':');
 					if(!options)options={};
 					if(tmp[1].indexOf('.')==-1) {
+						//继承
 						if(tmp[0]!='Partial') options[tmp[0]]=this.classes[tmp[1]]||this.scope[tmp[1]];
 						else {
+							//分部类
 							options[tmp[0]]=tmp[1]; 
 						}
 					}else {
@@ -69,7 +72,7 @@ define(['oop/package/var/packages','oop/package/var/buildtimeInit','oop/package/
 						keysLoop:{
 							//检测是否为行为对象
 							for(var j=0,l=keys.length;j<l;j++){
-								if(keys[j] in _behavior) {
+								if(keys[j] in __behavior) {
 									behavior=arg;
 									break keysLoop;
 								}
@@ -136,7 +139,7 @@ define(['oop/package/var/packages','oop/package/var/buildtimeInit','oop/package/
 					if(options.Behavior) {
 						beh=options.Behavior;
 						if(beh.constructor==String) beh=beh.replace(/\s/g,'').split(/[\,]/g);
-					}else beh=Object.keys(_behavior);
+					}else beh=Object.keys(__behavior);
 					
 					//根据继承行为种类进行拷贝构件
 					tmp={};//二层克隆
@@ -179,7 +182,7 @@ define(['oop/package/var/packages','oop/package/var/buildtimeInit','oop/package/
 				//维护代码干净，添加行为属性存储行为信息
 				Constructor.prototype.BEHAVIOR=behavior;
 				//行为在类构建期执行的行
-				for(var x in behavior) _behavior[x].Build(behavior[x],Constructor);
+				for(var x in behavior) __behavior[x].Build(behavior[x],Constructor);
 			}else delete Constructor.prototype.BEHAVIOR;
 			
 			if(name) Constructor.prototype.NAME=name;
@@ -236,8 +239,10 @@ define(['oop/package/var/packages','oop/package/var/buildtimeInit','oop/package/
 				break;
 			}
 			
-			if(behavior) for(var x in behavior) _behavior[x].Init(behavior[x],this);
+			if(behavior) for(var x in behavior) __behavior[x].Init(behavior[x],this);
 			
+			if(that.VIEW) return new View(this);
+				
 			
 			return this;
 			

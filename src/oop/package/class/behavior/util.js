@@ -3,7 +3,7 @@ define(['oop/package/class/var/_behavior','$'], function(_behavior,$) {
 	
 
 
-	_behavior.Util={
+	_behavior['view'].Util={
 		Build:function(utils,cons){
 			
 		},
