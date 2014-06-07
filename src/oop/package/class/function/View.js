@@ -6,6 +6,10 @@ define([], function() {
 	View.prototype={
 		constructor:View,
 		
+		init:function(data){
+			
+		},
+		
 		trigger:function(action,data){
 			var e;
 			if(e=this._obj.event[action]){

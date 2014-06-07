@@ -47,6 +47,9 @@ G.Package(['common'],function (Class, $) {
 	});
 	//console.log(Class.Load);
 	Class.View('Partial:index',{
+		Init:{
+			
+		},
 		Tpl:{
 			
 		},
@@ -63,6 +66,9 @@ G.Package(['common'],function (Class, $) {
 		State:{
 			open:1,
 		},
+		Destroy:{
+			
+		}
 		
 	}, {
 		//方法
