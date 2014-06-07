@@ -60,17 +60,11 @@ define(['./var/packages','./var/currentPackage','model/Models','oop/package/var/
 			var tmp,vc=packageContext.viewContext;
 			//如果只有一个参数，则返回对应的类
 			if(arguments.length==1&&arguments[0].constructor==String) 
-				if(arguments[0].indexOf('.')==-1)
-					return vc.scope[arguments[0]];
-				else {
-					tmp=arguments[0].split('.');
-					return vc.scope.PKG[tmp[0]][tmp[1]];
-				}
+				return vc.classes[arguments[0]];
 			tmp=Class.apply(vc,arguments);
-			
 			return tmp;
 		};
-		
+		//为了构造view类型的class而配备的上下文
 		packageContext.viewContext={
 			name:packageContext.name,
 			classes:packageContext.views,
@@ -80,8 +74,8 @@ define(['./var/packages','./var/currentPackage','model/Models','oop/package/var/
 			VIEW:true,
 			TYPE:'view',
 		};
-		packageContext.scope.View=packageContext.viewContext.scope;
-		packageContext.Class.View.PKG={};
+		
+		packageContext.scope.View=packageContext.viewContext.classes;
 		
 		packageContext.Class.Model=function(name,options){
 			return packageContext.models.extend(name,options);

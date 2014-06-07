@@ -15,7 +15,7 @@ define(['oop/package/var/packages'], function(packages) {
 			//把本包名置后，以优先覆盖
 			if(names.indexOf(name)==-1)names.push(name);
 		}
-		var pkg,samename=[],pkgn={},PKG=Class?Class.PKG||{}:{},vPKG=View?View.PKG||{}:{};
+		var pkg,samename=[],pkgn={},PKG=Class?Class.PKG||{}:{};
 		//获取每个包的classes属性
 		for(var i=0,len=names.length;i<len;i++){
 			pkg=packages[names[i]];
@@ -34,30 +34,24 @@ define(['oop/package/var/packages'], function(packages) {
 				scp[x]=pkg.classes[x];
 				
 			}
-			for(var x in pkg.views) {
-				if(View){
-					if(!View[x]){
-						View[x]=pkg.views[x];
-					}else{
-						//View[pkg.name]=pkg.views[x];
-					}
-				}
-				
-				//构造scope，存储所有相关包域的所有类
-				if(scp.View[x])console.log('some view Class named '+x+' was overrided.');
-				scp.View[x]=pkg.views[x];
-				
-			}
+			
 			//存储各个包命名空间
 			PKG[names[i]]=pkg.classes;
-			vPKG[names[i]]=pkg.views;
 		}
+		if(!package) package=packages[names[names.length-1]];
+		for(var x in package.views) {
+			if(View){
+				if(!View[x]){
+					View[x]=package.views[x];
+				}
+			}
+			scp.View[x]=package.views[x];
+		}
+		
 		//包含命名空间的scope
 		scp.PKG=PKG;
-		scp.View.PKG=vPKG;
 		if(Class) {
 			Class.PKG=PKG;
-			View.PKG=vPKG;
 		}
 		
 		return scp;
