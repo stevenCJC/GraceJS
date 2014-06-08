@@ -23,14 +23,13 @@ define(['./var/packages','./var/currentPackage','model/Models','oop/package/var/
 		packageContext.deps=deps;
 		packageContext.name=packageName;
 		
+		//class构造环境
 		packageContext.classes={};
 		packageContext.scope={};
 		packageContext.partial={};
 		
 		packageContext.inited=false;
-		packageContext.handlers=[];
 		
-		packageContext.dataset=new Dataset();
 		packageContext.mediator=new Mediator();
 		packageContext.models=new Models();
 		packageContext.views={};
@@ -75,11 +74,11 @@ define(['./var/packages','./var/currentPackage','model/Models','oop/package/var/
 			TYPE:'view',
 		};
 		
+		//scope.View 为了方便调用所有资源
 		packageContext.scope.View=packageContext.viewContext.classes;
+		packageContext.scope.Model=packageContext.models;
 		
-		packageContext.Class.Model=function(name,options){
-			return packageContext.models.extend(name,options);
-		};
+		packageContext.Class.Model=packageContext.models;
 		
 		//业务逻辑工具库
 		packageContext.$=function(a,b){
@@ -94,11 +93,14 @@ define(['./var/packages','./var/currentPackage','model/Models','oop/package/var/
 		buildtimeInit.push(function(){
 			
 			//开始构建类运行环境
-			
-			packageContext.$.publish=function(){
+			packageContext.$.publish=function(channel,message){
+				//包内
+				packageContext.mediator.publish(channel,message)
+				//包外
+			};
+			packageContext.$.subscribe=function(){
 				
 			};
-			
 			//执行scope，分部类构建和继承类构建
 			scope(packageContext.deps,packageContext);
 			//scope(packageContext.deps,packageContext.viewContext);
@@ -123,6 +125,7 @@ define(['./var/packages','./var/currentPackage','model/Models','oop/package/var/
 		//添加包初始化到队列
 		runtimeInit.push(function(){
 			//init(scope(packageContext.deps,packageContext),packageContext.$);
+			//创建类限制
 			init(packageContext.scope,packageContext.$);
 			packageContext.inited=true;
 		});

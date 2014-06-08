@@ -36,7 +36,19 @@
 	});
 */
 
-
+/*
+	
+	
+	G.Package(['common'],function (Controller, View, Model, $) {
+		Controller('name',function(){},{});
+	});
+	
+	G.Package.View(['common'],function (Class, $) {
+		Class('name',function(){},{});
+	});
+	
+	
+*/
 
 G.Package(['common'],function (Class, $) {
 	//load的callback需要等待所有js加载后才能执行
@@ -49,7 +61,7 @@ G.Package(['common'],function (Class, $) {
 	Class.View('Partial:index',{
 		Init:{
 			
-		},
+		},  
 		Tpl:{
 			
 		},
@@ -84,14 +96,6 @@ G.Package(['common'],function (Class, $) {
 		Util:{
 			'util:chzn':'chzn',
 		},
-		//Dataset:{},
-		//Subscribe:{
-		//	'!alert':'alert',//监听全局，本包内也起作用
-		//	'tips':'alert',//监听本包，全局不起作用
-		//},
-		//Init:{},
-		//Load:{},
-		//Destroy:{},
 		
 	}, {
 		//方法

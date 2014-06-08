@@ -22,7 +22,7 @@ define(['oop/package/var/packages','oop/package/var/statusInfo','oop/package/var
 						statusInfo.pkgState='building';
 						while(init=buildtimeInit.pop())init();
 						statusInfo.pkgState='running';
-						while(init=runtimeInit.pop())init();
+						if(runtimeInit.length)while(init=runtimeInit.pop())init();
 						statusInfo.pkgState='ready';
 					}
 				}

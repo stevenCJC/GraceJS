@@ -1,4 +1,4 @@
-define(['oop/package/var/buildtimeInit','oop/package/var/statusInfo','oop/package/class/function/View','oop/package/class/var/_behavior','BL/Blink/main','oop/package/class/behavior/event','oop/package/class/behavior/util','oop/package/class/behavior/dataset','oop/package/class/behavior/subscribe','oop/package/class/behavior/state','oop/package/class/behavior/tpl'], function(buildtimeInit,statusInfo,View,_behavior,$) {
+define(['oop/package/var/buildtimeInit','oop/package/var/statusInfo','oop/package/class/function/View','oop/package/class/var/_behavior','BL/Blink/main','oop/package/class/behavior/event','oop/package/class/behavior/util','oop/package/class/behavior/dataset','oop/package/class/behavior/subscribe','oop/package/class/behavior/state','oop/package/class/behavior/init','oop/package/class/behavior/destroy','oop/package/class/behavior/tpl'], function(buildtimeInit,statusInfo,View,_behavior,$) {
 	
 	/*
 		@options 	string	Extend:pkgName.className
@@ -13,7 +13,7 @@ define(['oop/package/var/buildtimeInit','oop/package/var/statusInfo','oop/packag
 		
 		var options,name,cons,behavior,proto,that=this;
 		
-		var args=arguments,tmp,keys,extend,arg,c;
+		var args=arguments,tmp,keys,extend,arg,c,extraBehavior;
 		
 		var __behavior=_behavior[this.TYPE];
 		//判别传入构件
@@ -74,9 +74,12 @@ define(['oop/package/var/buildtimeInit','oop/package/var/statusInfo','oop/packag
 							for(var j=0,l=keys.length;j<l;j++){
 								if(keys[j] in __behavior) {
 									behavior=arg;
+									if(extraBehavior)
+										throw new Error('there are some useless behavior in '+name);
 									break keysLoop;
-								}
+								}else extraBehavior=true;
 							}
+							extraBehavior=false;
 							if(options!=arg)proto=arg;
 						}
 					}
@@ -182,7 +185,7 @@ define(['oop/package/var/buildtimeInit','oop/package/var/statusInfo','oop/packag
 				//维护代码干净，添加行为属性存储行为信息
 				Constructor.prototype.BEHAVIOR=behavior;
 				//行为在类构建期执行的行
-				for(var x in behavior) __behavior[x].Build(behavior[x],Constructor);
+				for(var x in behavior) if(__behavior[x])__behavior[x].Build(behavior[x],Constructor);
 			}else delete Constructor.prototype.BEHAVIOR;
 			
 			if(name) Constructor.prototype.NAME=name;
@@ -239,7 +242,7 @@ define(['oop/package/var/buildtimeInit','oop/package/var/statusInfo','oop/packag
 				break;
 			}
 			
-			if(behavior) for(var x in behavior) __behavior[x].Init(behavior[x],this);
+			if(behavior) for(var x in behavior) if(__behavior[x]) __behavior[x].Init(behavior[x],this);
 			
 			if(that.VIEW) return new View(this);
 				

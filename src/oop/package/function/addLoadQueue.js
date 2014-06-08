@@ -6,11 +6,13 @@ define(['oop/package/var/runtimeInit','oop/package/var/loadQueue','./loadNextPac
 		if(name.constructor==String) name=[name];
 		
 		////App调用初始化，作为第一个加入
-		if(!pkgs&&!loadQueue.length) 
+		if(!pkgs&&!loadQueue.length) {
+			//加载完一个包的时候执行
 			runtimeInit.push(function (){
+				//此处不允许main初始化时构造类
 				onAllLoad(scope(name),$);
 			});
-			
+		}
 	
 		//在加载队列中push一组待加载的包
 		loadQueue.push({

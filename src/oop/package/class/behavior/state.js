@@ -6,7 +6,7 @@ define(['dataset/DS'], function(DS) {
 			
 		},
 		Init:function(state,that){
-			that._state=new DS(state);
+			that.State=new DS(state);
 		},
 	}
 	

@@ -3,8 +3,7 @@ define(['./dataset/DS', './dataset/dsevent', './function/JSONClone', './function
 	function DataSet() {
 		//数据岛的数据树
 		this.dataset = {};
-		//数据事件把柄
-		this.handlers = {};
+
 	}
 
 	DataSet.prototype = {

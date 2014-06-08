@@ -23,7 +23,7 @@ define([], function() {
 					st=action;
 					ev='all';
 				}
-				this._obj._state.trigger(st, ev);
+				this._obj.State.trigger(st, ev);
 			}
 		},
 		
@@ -37,7 +37,7 @@ define([], function() {
 				st=state;
 				ev='all';
 			}
-			this._obj._state.bind(st, ev, callback);
+			this._obj.State.bind(st, ev, callback);
 		},
 		unbind:function(state){
 			var st,ev,index;
@@ -49,7 +49,7 @@ define([], function() {
 				st=state;
 				ev='all';
 			}
-			this._obj._state.unbind(st, ev);
+			this._obj.State.unbind(st, ev);
 		},
 		
 		// get state , can't set state ;
@@ -59,7 +59,7 @@ define([], function() {
 				throw new Error("can't set state.");
 			}
 			
-			return this._obj._state.get(name);
+			return this._obj.State.get(name);
 			
 		},
 		
