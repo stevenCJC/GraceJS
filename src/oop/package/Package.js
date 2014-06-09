@@ -4,10 +4,37 @@ define(['./var/packages','./var/currentPackage','model/Models','oop/package/var/
 	
 	
 	
-	Package.clean=function(name,callback){
+	Package.View=function(deps,callback){
+		if(arguments.length==1) {
+			callback=arguments[0];
+			deps=[];
+		}
+		//从已初始化的包中获得
+		var package=packages[Package.CURRENT];
+		//添加依赖
+		for(var i=0,len=deps.length;i<len;i++) 
+			if(package.deps.indexOf(deps[i])==-1) package.deps.push(deps[i]);
+		callback(package.Class.View,package.$);
 		
 	}
 	
+	Package.Controller=function(deps,callback){
+		if(arguments.length==1) {
+			callback=arguments[0];
+			deps=[];
+		}
+		//从已初始化的包中获得
+		var package=packages[Package.CURRENT];
+		//添加依赖
+		for(var i=0,len=deps.length;i<len;i++) 
+			if(package.deps.indexOf(deps[i])==-1) package.deps.push(deps[i]);
+		callback(package.Class,package._);
+	}
+	
+	Package.Model=function(name,callback){
+		var package=packages[Package.CURRENT];
+		callback(package.Class.Model);
+	}
 	//初始化一个包
 	Package.Main=function(packageName,deps,init){
 		if(packageName.constructor!=String) {
@@ -37,30 +64,14 @@ define(['./var/packages','./var/currentPackage','model/Models','oop/package/var/
 		//类构造器
 		
 		packageContext.Class=function(){
-			var tmp;
-			//如果只有一个参数，则返回对应的类
-			if(arguments.length==1&&arguments[0].constructor==String) 
-				if(arguments[0].indexOf('.')==-1)
-					return packageContext.classes[arguments[0]];
-				else {
-					tmp=arguments[0].split('.');
-					return packageContext.Class.PKG[tmp[0]][tmp[1]];
-				}
-			tmp=Class.apply(packageContext,arguments);
-			
-			return tmp;
+			Class.apply(packageContext,arguments);
 		};
 		
 		packageContext.Class.PKG={};
 		
 		
 		packageContext.Class.View=function(){
-			var tmp,vc=packageContext.viewContext;
-			//如果只有一个参数，则返回对应的类
-			if(arguments.length==1&&arguments[0].constructor==String) 
-				return vc.classes[arguments[0]];
-			tmp=Class.apply(vc,arguments);
-			return tmp;
+			Class.apply(packageContext.viewContext,arguments);
 		};
 		//为了构造view类型的class而配备的上下文
 		packageContext.viewContext={
@@ -71,15 +82,21 @@ define(['./var/packages','./var/currentPackage','model/Models','oop/package/var/
 			VIEW:true,
 			TYPE:'view',
 		};
+		packageContext.Class.View.PKG={};
 
-		packageContext.Class.Model=packageContext.models;
-		
+		packageContext.Class.Model=function(name,options){
+			if(!options) throw new Error('lack of parametter');
+			packageContext.models(name,options);
+		}
 		//业务逻辑工具库
 		packageContext.$=function(a,b){
 			return $(a,b);
 		};
-		for(var x in $) packageContext.$[x]=$[x];
-		
+		packageContext._={};
+		for(var x in $) {
+			packageContext.$[x]=$[x];
+			packageContext._[x]=$[x];
+		}
 		
 		
 		
@@ -87,14 +104,16 @@ define(['./var/packages','./var/currentPackage','model/Models','oop/package/var/
 		buildtimeInit.push(function(){
 			
 			//开始构建类运行环境
-			packageContext.$.publish=function(channel,message){
+			packageContext._.publish=function(channel,message){
 				//包内
 				packageContext.mediator.publish(channel,message)
 				//包外
 			};
-			packageContext.$.subscribe=function(){
+			
+			packageContext._.subscribe=function(){
 				
 			};
+			
 			//执行scope，分部类构建和继承类构建
 			scope(packageContext.deps,packageContext);
 			//scope(packageContext.deps,packageContext.viewContext);

@@ -50,18 +50,18 @@
 	
 */
 
-G.Package(['common'],function (Class, $) {
+G.Package.View(['common'],function (View, $) {
 	//load的callback需要等待所有js加载后才能执行
-	Class.View('Partial:index',function index(id) {
+	View('Partial:index',function index(id) {
 		//$('a').chzn(' people ');
 		this.id=id;
 		//console.log(Class.Load);
 	});
 	//console.log(Class.Load);
-	Class.View('Partial:index',{
+	View('Partial:index',{
 		Init:{
 			
-		},  
+		},
 		Tpl:{
 			
 		},
@@ -88,7 +88,7 @@ G.Package(['common'],function (Class, $) {
 			$el.append(args[0]);
 		},
 	});
-	Class.View('Partial:index',{
+	View('Partial:index',{
 		Event:{
 			'dblclick body@{id}':'alert',
 		},

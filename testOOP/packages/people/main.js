@@ -16,7 +16,7 @@ G.Package.Main('people',function(Class,$){//Class不作构建
 	index.bind('open',function(){alert('open');});
 	index.trigger('open');
 	index.trigger('loadIndex');
-	var left=new Class.left('a');
+	var left=new Class.PKG['common'].left('a');
 	var pr=new Class.proto();
 	pr.ssss();
 	//var index=new Class.left();
