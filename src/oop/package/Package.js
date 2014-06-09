@@ -25,7 +25,6 @@ define(['./var/packages','./var/currentPackage','model/Models','oop/package/var/
 		
 		//class构造环境
 		packageContext.classes={};
-		packageContext.scope={};
 		packageContext.partial={};
 		
 		packageContext.inited=false;
@@ -42,10 +41,10 @@ define(['./var/packages','./var/currentPackage','model/Models','oop/package/var/
 			//如果只有一个参数，则返回对应的类
 			if(arguments.length==1&&arguments[0].constructor==String) 
 				if(arguments[0].indexOf('.')==-1)
-					return packageContext.scope[arguments[0]];
+					return packageContext.classes[arguments[0]];
 				else {
 					tmp=arguments[0].split('.');
-					return packageContext.scope.PKG[tmp[0]][tmp[1]];
+					return packageContext.Class.PKG[tmp[0]][tmp[1]];
 				}
 			tmp=Class.apply(packageContext,arguments);
 			
@@ -68,16 +67,11 @@ define(['./var/packages','./var/currentPackage','model/Models','oop/package/var/
 			name:packageContext.name,
 			classes:packageContext.views,
 			Class:packageContext.Class.View,
-			scope:{},
 			partial:{},
 			VIEW:true,
 			TYPE:'view',
 		};
-		
-		//scope.View 为了方便调用所有资源
-		packageContext.scope.View=packageContext.viewContext.classes;
-		packageContext.scope.Model=packageContext.models;
-		
+
 		packageContext.Class.Model=packageContext.models;
 		
 		//业务逻辑工具库
@@ -126,7 +120,7 @@ define(['./var/packages','./var/currentPackage','model/Models','oop/package/var/
 		runtimeInit.push(function(){
 			//init(scope(packageContext.deps,packageContext),packageContext.$);
 			//创建类限制
-			init(packageContext.scope,packageContext.$);
+			init(packageContext.Class,packageContext.$);
 			packageContext.inited=true;
 		});
 		

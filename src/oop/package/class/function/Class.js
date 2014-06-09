@@ -34,7 +34,7 @@ define(['oop/package/var/buildtimeInit','oop/package/var/statusInfo','oop/packag
 					if(!options)options={};
 					if(tmp[1].indexOf('.')==-1) {
 						//继承
-						if(tmp[0]!='Partial') options[tmp[0]]=this.classes[tmp[1]]||this.scope[tmp[1]];
+						if(tmp[0]!='Partial') options[tmp[0]]=this.classes[tmp[1]];
 						else {
 							//分部类
 							options[tmp[0]]=tmp[1]; 
@@ -55,7 +55,7 @@ define(['oop/package/var/buildtimeInit','oop/package/var/statusInfo','oop/packag
 						else options=arg;
 						if(extend){
 							if(arg[extend].constructor==String&&statusInfo.pkgState=='building'){
-								if(arg[extend].indexOf('.')==-1) options[extend]=this.classes[arg[extend]]||this.scope[arg[extend]];
+								if(arg[extend].indexOf('.')==-1) options[extend]=this.classes[arg[extend]];
 								else {
 									tmp=arg[extend].split('.');
 									options[extend]=this.Class.PKG[tmp[0]][tmp[1]];

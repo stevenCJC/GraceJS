@@ -2,15 +2,21 @@ define(['oop/package/var/runtimeInit','oop/package/var/loadQueue','./loadNextPac
 	
 	
 	//添加加载队列，加载所依赖的一系列包；
-	function addLoadQueue(name,onAllLoad,pkgs){//与当前包无关
+	function addLoadQueue(name,onAllLoad,package){//与当前包无关
 		if(name.constructor==String) name=[name];
 		
 		////App调用初始化，作为第一个加入
-		if(!pkgs&&!loadQueue.length) {
+		if(!package&&!loadQueue.length) {
 			//加载完一个包的时候执行
 			runtimeInit.push(function (){
 				//此处不允许main初始化时构造类
 				onAllLoad(scope(name),$);
+			});
+		}else if(package){
+			runtimeInit.push(function (){
+				//此处不允许main初始化时构造类
+				scope(name,package);
+				onAllLoad(package.Class,$);
 			});
 		}
 	
