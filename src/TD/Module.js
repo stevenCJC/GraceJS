@@ -4,7 +4,7 @@ function() {
 	
 	
 	function Module(){
-		
+		this.modules={};
 	}
 	
 	
@@ -12,8 +12,16 @@ function() {
 		
 		constructor:Module,
 		
+		text:function(moduleName,callback){
+			callback(assert, _);
+		},
 		
-		
+		sub:function(moduleName,callback){
+			
+		},
+		pub:function(moduleName,data){
+			
+		},
 		
 	};
 	
