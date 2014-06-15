@@ -1,5 +1,4 @@
-define([],
-function() {
+define(['TD/var/assert'], function(assert) {
 	
 	
 	
@@ -11,9 +10,16 @@ function() {
 	Module.prototype={
 		
 		constructor:Module,
+
+		text:function(moduleName,callback){
+			callback(assert, _);
+		},
 		
-		text:function text_FN(callback){
-			var cn=text_FN.caller.name;
+		sub:function(moduleName,callback){
+			
+		},
+		
+		pub:function(moduleName,data){
 			
 			callback(assert, _);
 		},

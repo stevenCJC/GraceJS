@@ -30,7 +30,7 @@ function() {
 		},
 		
 		//调用外部测试模块
-		call:function(name,until){
+		pub:function(name,data,until){
 			
 			switch(until.constructor){
 				case Number:
