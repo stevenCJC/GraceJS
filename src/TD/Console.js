@@ -29,10 +29,9 @@ function() {
 		trace:function(obj){console.trace(obj);},
 		//输出消息的同时打开一个嵌套块，用以缩进输出的内容。调用 console.groupEnd() 用以结束这个块的输出。 
 		group:function(obj){console.group(obj);},
-		groupEnd:function(obj){console.groupEnd(obj);},
-		//同 console.group(); 区别在于嵌套块默认是收起的。
 		groupCollapsed:function(obj){console.groupCollapsed(obj);},
-		groupCollapsedEnd:function(obj){console.groupCollapsedEnd(obj);},
+		groupEnd:function(obj){console.groupEnd(obj);},
+		
 		//计时器，当调用 console.timeEnd(name);并传递相同的 name 为参数时，计时停止，并输出执行两条语句之间代码所消耗的时间（毫秒）。
 		time:function(obj){console.time(obj);},
 		timeEnd:function(obj){console.timeEnd(obj);},

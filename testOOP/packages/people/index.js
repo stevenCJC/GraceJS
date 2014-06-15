@@ -103,10 +103,10 @@ G.Package.View(['common'],function (View, $) {
 			
 			alert(3);
 		},
-		loadIndex:function(){
-			alert('loadIndex');
-		},
+		loadIndex:loadIndex,
 		
 	});
 });
 	
+function loadIndex(){
+}

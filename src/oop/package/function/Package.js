@@ -12,7 +12,7 @@ define(['oop/package/var/packages','BL/Blink/main'],function(packages,currentPac
 		for(var i=0,len=deps.length;i<len;i++) 
 			if(package.deps.indexOf(deps[i])==-1) package.deps.push(deps[i]);
 		//构造期执行当前文件构造当前包
-		callback(package.Class,package.$);
+		callback(package.Class,package.$,package.Text);
 	}
 	
 	

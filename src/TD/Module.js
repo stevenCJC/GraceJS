@@ -12,17 +12,12 @@ function() {
 		
 		constructor:Module,
 		
-		text:function(moduleName,callback){
+		text:function text_FN(callback){
+			var cn=text_FN.caller.name;
+			
 			callback(assert, _);
 		},
-		
-		sub:function(moduleName,callback){
-			
-		},
-		pub:function(moduleName,data){
-			
-		},
-		
+
 	};
 	
 	

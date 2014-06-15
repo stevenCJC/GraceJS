@@ -61,6 +61,8 @@ define(['./var/packages','./var/currentPackage','model/Models','oop/package/var/
 		packageContext.views={};
 		packageContext.TYPE='class';
 		
+		packageCOntext.text=function(){};
+		
 		//类构造器
 		
 		packageContext.Class=function(){
@@ -89,7 +91,7 @@ define(['./var/packages','./var/currentPackage','model/Models','oop/package/var/
 			packageContext.models(name,options);
 		}
 		//业务逻辑工具库
-		packageContext.$=function(a,b){
+		packageContext.$=function packageContext$(a,b){
 			return $(a,b);
 		};
 		packageContext._={};

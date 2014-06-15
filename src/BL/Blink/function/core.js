@@ -1,5 +1,6 @@
 define(['BL/Blink/dom/function/_selector'], function(_selector) {
 	function $(s,w){
+		console.log(arguments.callee.caller.name);
 		return new Core(s,w);
 	}
 	$.fn = Core.prototype = {
