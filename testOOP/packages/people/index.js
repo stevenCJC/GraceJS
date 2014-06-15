@@ -49,12 +49,13 @@
 	
 	
 */
-
+///
 G.Package.View(['common'],function (View, $) {
 	//load的callback需要等待所有js加载后才能执行
 	View('Partial:index',function index(id) {
 		//$('a').chzn(' people ');
-		this.id=id;
+	    this.id = id;
+        
 		//console.log(Class.Load);
 	});
 	//console.log(Class.Load);
