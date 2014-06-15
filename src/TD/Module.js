@@ -1,5 +1,4 @@
-define([],
-function() {
+define(['TD/var/assert'], function(assert) {
 	
 	
 	
@@ -19,6 +18,7 @@ function() {
 		sub:function(moduleName,callback){
 			
 		},
+		
 		pub:function(moduleName,data){
 			
 		},
