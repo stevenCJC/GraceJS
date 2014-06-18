@@ -14,7 +14,7 @@ function(consl) {
 		ok: function (ac, msg, data) {
 			consl.push({
 			    assert: !!ac,
-			    msg: 'ok test : '+msg,
+			    msg: ' [ok]   '+msg,
 			    //ex: 1,
 			    //ac: ,
 			    data: data,
@@ -23,7 +23,7 @@ function(consl) {
 		sa: function (ac, ex, msg, data) {
 		    consl.push({
 		        assert: ac == ex,
-		        msg: 'sa test : '+msg,
+		        msg: ' [sa]   '+msg,
 		        ex: ex,
 		        ac: ac,
 		        data: data,
@@ -33,7 +33,7 @@ function(consl) {
 		eq: function (ac, ex, msg, data) {
 		    consl.push({
 		        assert: ac === ex,
-		        msg: 'eq test : '+msg,
+		        msg: ' [eq]    '+msg,
 		        ex: ex,
 		        ac: ac,
 		        data: data,
@@ -59,7 +59,7 @@ function(consl) {
 		    } else eq = ac === ex;
 		    consl.push({
 		        assert: eq,
-		        msg: 'deq test : '+msg,
+		        msg: ' [deq]   '+msg,
 		        ex: ex,
 		        ac: ac,
 		        data: data,
@@ -72,7 +72,7 @@ function(consl) {
 		        eq = typeof val == 'undefined';
 		        consl.push({
 		            assert: eq,
-		            msg: 'type test : '+msg,
+		            msg: ' [type]   '+msg,
 		            ex: 'undefined',
 		            ac: val,
 		            data: data,
