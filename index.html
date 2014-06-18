@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -18,61 +18,17 @@
 
 <script type="text/javascript">
 
-var a=[1,2];
-var b=[3,4];
-a.concat(b);
-alert(a);
+
+    function uu() {
+        console.log(uu.caller.arguments);
+    }
+
+    var uuu=function (aa,bb) {
+        uu(aa);
+        console.log(arguments);
+    }
+
+    uuu(1,2,3,4,5);
 
 
-/*
-function inherit(cons,proto,base){//单继承
-		for(var x in base.prototype)Constructor.prototype[x]=base.prototype[x];
-		for(var x in cons.prototype)Constructor.prototype[x]=cons.prototype[x];
-		for(var x in proto)Constructor.prototype[x]=proto[x];
-		Constructor.constructor=cons;
-		function Constructor(){
-			base.apply(this,arguments);
-			this.base={};
-			
-			for(var x in base.prototype) this.base[x]=function(){base.prototype.apply(this,arguments);}
-			cons.apply(this,arguments);
-			return this;
-		}
-		
-		return Constructor;
-	
-}
-
-function m(cons,base){
-	
-	function Constructor(){
-		var args=arguments;
-		function Base(){
-			base.apply(this,args);
-			
-		}
-		var b=new Base();//实现重载
-		for(var x in b)if(b.hasOwnProperty(x))this[x]=b[x];
-		for(var x in base.prototype)Constructor.prototype[x]=base.prototype[x];
-		for(var x in cons.prototype)Constructor.prototype[x]=cons.prototype[x];
-		this.base=b;
-		cons.apply(this,args);
-		return this;
-	}
-	
-	return Constructor;
-	
-}
-
-
-function U(){this.vv=8;}
-U.prototype.uu=9;
-function A(){this.a=11111;}
-A.prototype=new U();
-A.prototype.aaaa=9;
-function B(){}
-B.prototype.bbb=888;
-var N = inherit(B,{alert:function(){alert(this.a);}},A);
-var n=new N();
-alert(0)*/
 </script>
