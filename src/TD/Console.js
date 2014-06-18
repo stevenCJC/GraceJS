@@ -92,7 +92,7 @@ function (JSONClone) {
 		//console.log(this._blocks[node])
 		
         if (node !== '_ROOT_') {
-            if (this._blocks[node].hasErr) console.group('%c [' + this._blocks[node].name + ']                                    ', 'color:#fff;font-size:16px; font-family:"微软雅黑"; font-weight:normal; background-color:red;');
+            if (this._blocks[node].hasErr) console.group('%c' + this._blocks[node].name + '                                     ', 'color:#fff;font-size:16px; font-family:"微软雅黑"; font-weight:normal; background-color:red;');
             else console.groupCollapsed('%c' + this._blocks[node].name, ' color:#fff; font-family:"微软雅黑"; font-weight:normal; background-color:green;font-size:16px;');
         }
 
@@ -114,7 +114,7 @@ function (JSONClone) {
     function paint(line, hasErr) {
         if (!line.assert) {
             console.group('%c' + line.msg + '                                                 ',
-                'color:#fff;  background-color:red; font-family:"微软雅黑"; font-weight:normal;');
+                'color:red;   font-family:"微软雅黑"; font-weight:normal;');
             if (typeof line.ex !== 'undefined') console.info(line.ex);
             if (typeof line.ac !== 'undefined') console.warn(line.ac);
             if (typeof line.data !== 'undefined') console.warn(line.data);
@@ -122,7 +122,7 @@ function (JSONClone) {
         } else {
             /*if(hasErr) console.group('%c'+line.msg,'color:#666; font-family:"微软雅黑";');
 			else */console.groupCollapsed('%c' + line.msg + '                                                 ',
-                'color:#fff;  background-color:green;font-family:"微软雅黑"; font-weight:normal;');
+                'color:green;   font-family:"微软雅黑"; font-weight:normal;');
             if (typeof line.ex !== 'undefined') console.info(line.ex);
             if (typeof line.ac !== 'undefined') console.info(line.ac);
             if (typeof line.data !== 'undefined') console.info(line.data);
