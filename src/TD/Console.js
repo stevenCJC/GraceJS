@@ -92,8 +92,8 @@ function (JSONClone) {
 		//console.log(this._blocks[node])
 		
         if (node !== '_ROOT_') {
-            if (this._blocks[node].hasErr) console.group('%c' + this._blocks[node].name + '                                     ', 'color:#fff;font-size:16px; font-family:"微软雅黑"; font-weight:normal; background-color:red;');
-            else console.groupCollapsed('%c' + this._blocks[node].name, ' color:#fff; font-family:"微软雅黑"; font-weight:normal; background-color:green;font-size:16px;');
+            if (this._blocks[node].hasErr) console.group('%c' + this._blocks[node].name + '                                     ', 'color:#fff;font-family:"微软雅黑"; font-weight:normal; background-color:red;');
+            else console.groupCollapsed('%c' + this._blocks[node].name, ' color:#fff; font-family:"微软雅黑"; font-weight:normal; background-color:green; ');
         }
 
         for (i = 0; i < block.length; i++) {
