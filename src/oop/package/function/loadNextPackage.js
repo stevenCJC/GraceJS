@@ -11,16 +11,16 @@ define(['oop/package/var/packages','oop/package/var/statusInfo','oop/package/var
 			//判断准备加载的包是否已经加载
 			//此处主要是对依赖包过滤已加载的包，已加载的包不用重新执行加载动作
 			if(packages[n]){
-				//已加载标识+1；
+				//已加载标识+1
 				pkgGroup.loadedLength++;
 				//判断被过滤的包是否为加载组的最后一个包
-				if(pkgGroup.loadedLength==pkgGroup.length){
+				if(pkgGroup.loadedLength==pkgGroup.name.length){
 					//从加载组队列中删除当前加载组
 					var loaded=loadQueue.shift(),init;
-					//如果加载队列为空
+					//如果包加载队列为空，执行构建期和运行期
 					if(!loadQueue.length){
 						statusInfo.pkgState='building';
-						while(init=buildtimeInit.pop())init();
+						while(init=buildtimeInit.pop()) init();
 						statusInfo.pkgState='running';
 						if(runtimeInit.length)while(init=runtimeInit.pop())init();
 						statusInfo.pkgState='ready';

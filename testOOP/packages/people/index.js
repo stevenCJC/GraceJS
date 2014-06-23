@@ -51,6 +51,7 @@
 */
 ///
 G.Package.View(['common'],function (View, $) {
+
 	//load的callback需要等待所有js加载后才能执行
 	View('Partial:index',function index(id) {
 		//$('a').chzn(' people ');
@@ -58,6 +59,9 @@ G.Package.View(['common'],function (View, $) {
         
 		//console.log(Class.Load);
 	});
+	
+	
+	
 	//console.log(Class.Load);
 	View('Partial:index',{
 		Init:{
@@ -89,6 +93,8 @@ G.Package.View(['common'],function (View, $) {
 			$el.append(args[0]);
 		},
 	});
+	
+	
 	View('Partial:index',{
 		Event:{
 			'dblclick body@{id}':'alert',

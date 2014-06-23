@@ -2,9 +2,10 @@ define(['oop/package/var/packages','oop/package/var/runtimeInit','oop/package/va
 
 	
 	
-	//改变requirejs的行为
+	//改变requirejs的行为，
 	require=function(deps,cb){
 		__require(deps,function(){//一个包加载完执行callback
+		
 			cb.apply(window,arguments);//执行require callback
 			
 			if(!loadQueue||!loadQueue[0]) return;
@@ -19,17 +20,6 @@ define(['oop/package/var/packages','oop/package/var/runtimeInit','oop/package/va
 				addLoadQueue(package.deps,function(){},package);//把依赖包加入到加载序列
 			}
 			
-			/*pkgGroup.loadedLength++;
-			//如果当前包为包组的最后一个包，则进行各个包的初始化
-			if(pkgGroup.loadedLength==pkgGroup.length){
-				//从加载组队列中删除当前加载组
-				var loaded=loadQueue.shift(),init;
-				//如果加载队列为空
-				if(!loadQueue.length){
-					while(init=buildtimeInit.pop())init();
-					while(init=runtimeInit.pop())init();
-				}
-			}*/
 			
 			loadNextPackage();
 			

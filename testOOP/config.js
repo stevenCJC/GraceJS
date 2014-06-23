@@ -12,6 +12,7 @@ var require = {
 		jqm:'../testOOP/libs/jq.mobi',
 		index:'../testOOP/index', 
 		pcks:'../testOOP/packages',
+		
 		grace:'grace',
 		//grace:'../dist/grace', 
 		pages:'../testOOP/page',

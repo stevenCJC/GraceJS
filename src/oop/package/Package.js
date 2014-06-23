@@ -48,6 +48,7 @@ define(['./var/packages','./var/currentPackage','model/Models','oop/package/var/
 		
 		var packageContext=packages[packageName]={};
 		packageContext.deps=deps;
+		
 		packageContext.name=packageName;
 		
 		//class构造环境
@@ -61,7 +62,7 @@ define(['./var/packages','./var/currentPackage','model/Models','oop/package/var/
 		packageContext.views={};
 		packageContext.TYPE='class';
 		
-		packageCOntext.text=function(){};
+		packageContext.text=function(){};
 		
 		//类构造器
 		
