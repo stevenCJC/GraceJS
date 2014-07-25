@@ -2,9 +2,9 @@ define(['oop/package/var/packages','oop/package/var/runtimeInit','oop/package/va
 
 	
 	
-	//改变requirejs的行为，
+	//改变requirejs的行为，变为包加载器
 	require=function(deps,cb){
-		__require(deps,function(){//一个包加载完执行callback
+		__require(deps,function(){//一个包加载完执行callback，把其依赖包组加入待加载序列
 		
 			cb.apply(window,arguments);//执行require callback
 			
