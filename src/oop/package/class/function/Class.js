@@ -99,7 +99,7 @@ define(['oop/package/var/buildtimeInit','oop/package/var/statusInfo','oop/packag
 			options=options||{};
 			options.Name=name;
 		}
-		//Partial处理
+		/*//Partial处理
 		if(options&&options['Partial']){
 			//如果已经挂载分部函数，删除Partial标识以避免重复挂载
 			if(this.partial[name]) delete options['Partial'];
@@ -128,7 +128,7 @@ define(['oop/package/var/buildtimeInit','oop/package/var/statusInfo','oop/packag
 				delete part.options['Partial'];
 				//return Class.call(that,part.options,part.cons,part.behavior,part.proto);
 			}
-		}
+		}*/
 		
 		//继承处理
 		if(extend&&statusInfo.pkgState=='building'){
@@ -139,23 +139,28 @@ define(['oop/package/var/buildtimeInit','oop/package/var/statusInfo','oop/packag
 				if(!cons)cons=function(){};
 				_behav=options[extend].prototype.BEHAVIOR;
 				if(_behav){
+					//继承行为的类型
 					if(options.Behavior) {
 						beh=options.Behavior;
 						if(beh.constructor==String) beh=beh.replace(/\s/g,'').split(/[\,]/g);
 					}else beh=Object.keys(__behavior);
 					
 					//根据继承行为种类进行拷贝构件
+					
 					tmp={};//二层克隆
+					
 					if(behavior){
 						for(var i=0,len=beh.length;i<len;i++){
-							if((_behav[beh[i]]||behavior[beh[i]])&&(!_behav[beh[i]]||!behavior[beh[i]])) tmp[beh[i]]=_behav[beh[i]]||behavior[beh[i]];
-							else if(_behav[beh[i]]&&behavior[beh[i]]) tmp[beh[i]]=$.extend({},_behav[beh[i]]||{},behavior[beh[i]]||{});
-							if(tmp[beh[i]]&&!Object.keys(tmp[beh[i]]).length) delete tmp[beh[i]];
+							if((_behav[beh[i]]||behavior[beh[i]])&&(!_behav[beh[i]]||!behavior[beh[i]])) 
+								tmp[beh[i]]=_behav[beh[i]]||behavior[beh[i]];
+							else if(_behav[beh[i]]&&behavior[beh[i]]) 
+								tmp[beh[i]]=$.extend({},_behav[beh[i]]||{},behavior[beh[i]]||{});
+							if(tmp[beh[i]]&&!Object.keys(tmp[beh[i]]).length) 
+								delete tmp[beh[i]];
 						}
 					}else behavior=_behav||{};
 					behavior=$.extend({},behavior||{},tmp);
 					if(!Object.keys(behavior).length) behavior=null;
-					
 				}
 				proto=$.extend({},options[extend].prototype||{},proto||{});
 				if(!Object.keys(proto).length) proto=null;
@@ -178,7 +183,7 @@ define(['oop/package/var/buildtimeInit','oop/package/var/statusInfo','oop/packag
 			if(proto) for(var x in proto) Constructor.prototype[x]=proto[x];
 			
 			if(_cons) Constructor.prototype.BASECLASS=(_cons.prototype.PACKAGE||'unknown')+'.'+(_cons.prototype.NAME||'unknown');
-			
+			//循环类？ 按一定顺序加载不会形成循环类。。。。
 			if(extend)Constructor.prototype.Base=options[extend].prototype;
 			
 			if(behavior) {
@@ -211,8 +216,8 @@ define(['oop/package/var/buildtimeInit','oop/package/var/statusInfo','oop/packag
 		
 		
 		function Constructor(){
-			// Extend ： 方法重载，执行子类初始化！！！！！
-			// Rebuilt： 仅执行子类初始化 
+			// Extend ： 方法重载，执行子类初始化！！！！！  扩展式重载
+			// Rebuilt： 仅执行子类初始化////////  Override  重载 / 切面
 			if(extend=='Extend'&&_cons){
 				var me;
 				switch(arguments.length){
@@ -227,7 +232,6 @@ define(['oop/package/var/buildtimeInit','oop/package/var/statusInfo','oop/packag
 					break;
 				}
 				for(var x in me) if(me.hasOwnProperty(x)) this[x]=me[x];
-				
 			}
 			
 			switch(arguments.length){

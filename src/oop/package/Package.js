@@ -27,8 +27,8 @@ define(['./var/packages','./var/currentPackage','model/Models','oop/package/var/
 		var package=packages[Package.CURRENT];
 		//添加依赖
 		for(var i=0,len=deps.length;i<len;i++) 
-			if(package.deps.indexOf(deps[i])==-1) package.deps.push(deps[i]);
-		callback(package.Class,package._);
+			if(package.deps.indexOf(deps[i])==-1) package.deps.push(deps[i]); 
+		callback(package.Class,package._); 
 	}
 	
 	Package.Model=function(name,callback){
@@ -53,9 +53,9 @@ define(['./var/packages','./var/currentPackage','model/Models','oop/package/var/
 		
 		//class构造环境
 		packageContext.classes={};
-		packageContext.partial={};
+		///packageContext.partial={};
 		
-		packageContext.inited=false;
+		///packageContext.inited=false;
 		
 		packageContext.mediator=new Mediator();
 		packageContext.models=new Models();
@@ -70,12 +70,12 @@ define(['./var/packages','./var/currentPackage','model/Models','oop/package/var/
 			Class.apply(packageContext,arguments);
 		};
 		
-		packageContext.Class.PKG={};
+		///packageContext.Class.PKG={};
 		
 		
-		packageContext.Class.View=function(){
+		/*packageContext.Class.View=function(){
 			Class.apply(packageContext.viewContext,arguments);
-		};
+		};*/
 		//为了构造view类型的class而配备的上下文
 		packageContext.viewContext={
 			name:packageContext.name,
@@ -85,12 +85,12 @@ define(['./var/packages','./var/currentPackage','model/Models','oop/package/var/
 			VIEW:true,
 			TYPE:'view',
 		};
-		packageContext.Class.View.PKG={};
-
-		packageContext.Class.Model=function(name,options){
+		///packageContext.Class.View.PKG={};
+		/// Controller
+		/*packageContext.Class.Model=function(name,options){
 			if(!options) throw new Error('lack of parametter');
 			packageContext.models(name,options);
-		}
+		}*/
 		//业务逻辑工具库
 		packageContext.$=function packageContext$(a,b){
 			return $(a,b);

@@ -35,24 +35,22 @@
 		scalar:function(table, field,condition,options,success,error){
 			scalar(this.db,table, field,condition,options,success,error);
 		},
-		//exist:function(){},
-		
 		dropTable:function(table,success,error){
 			dropTable(this.db,table,success,error);
 		},
+		
 		createTable:function(table,cols,success,error){
 			createTable(this.db,table,cols,success,error);
 		},
+		
 		renameTable:function(table,newName,success,error){
 			renameTable(this,table,newName,success,error);
 		},
+		
 		addFields:function(table,fields,success,error){
 			addFields(this.db,table,fields,success,error);
 		},
 
-		
-		
-		
 		exec:function(query, success,error){
 			execute(this.db,query, null, success,error);
 		},
