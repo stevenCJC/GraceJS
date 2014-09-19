@@ -1,4 +1,4 @@
-define(['BL/Blink/var/__id'], function(__id) {
+define(['BL/var/__id'], function(__id) {
 		
 	function _id(element) {
 		if(!element)return;

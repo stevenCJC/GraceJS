@@ -1,4 +1,4 @@
-define(['oop/package/var/packages','BL/Blink/main'],function(packages,currentPackage,$){
+define(['oop/package/var/packages','BL/main'],function(packages,currentPackage,$){
 	
 	//包构造器
 	function Package(deps,callback){

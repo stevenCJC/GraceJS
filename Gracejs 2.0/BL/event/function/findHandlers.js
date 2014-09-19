@@ -1,4 +1,4 @@
-define(['BL/Blink/event/var/handlers','blk/function/has_id','./parse'], function (handlers,has_id,parse) {
+define(['BL/event/var/handlers','blk/function/has_id','./parse'], function (handlers,has_id,parse) {
 	
 	function findHandlers(element, event, fn, selector) {
 		event = parse(event);

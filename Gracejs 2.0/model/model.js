@@ -1,4 +1,4 @@
-define(["BL/Blink/main", 'dataset/DS'], function ($, DS) {
+define(["BL/main", 'dataset/DS'], function ($, DS) {
 
 	function Model(options) {
 		this.options = options;

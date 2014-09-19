@@ -1,4 +1,4 @@
-define(["BL/Blink/main"], function ($) {
+define(["BL/main"], function ($) {
 	
 	function View(options){
 		

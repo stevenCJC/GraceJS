@@ -1,4 +1,4 @@
-define(['$','./function/unique','./function/siblings','./function/_shimNodes','BL/Blink/_/main'], function ($,unique,siblings,_shimNodes) {
+define(['$','./function/unique','./function/siblings','./function/_shimNodes','BL/_/main'], function ($,unique,siblings,_shimNodes) {
 
 	$.extend({
 

@@ -1,4 +1,4 @@
-define(['BL/Blink/event/var/handlers','blk/function/has_id','blk/function/shim_id','./eachEvent','./findHandlers'], function (handlers,has_id,shim_id,eachEvent,findHandlers) {
+define(['BL/event/var/handlers','blk/function/has_id','blk/function/shim_id','./eachEvent','./findHandlers'], function (handlers,has_id,shim_id,eachEvent,findHandlers) {
 
 	function remove(element, events, fn, selector) {
 

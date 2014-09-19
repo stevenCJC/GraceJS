@@ -1,5 +1,5 @@
 define([
-	'BL/Blink/main',
+	'BL/main',
 ], function($) {
 
 	return $;

@@ -1,4 +1,4 @@
-define(['$','BL/Blink/_/main'], function ($) {
+define(['$','BL/_/main'], function ($) {
 
 	$.extend({
 

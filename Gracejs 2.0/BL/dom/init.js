@@ -1,4 +1,4 @@
-define(['$','./var/_initedCache','blk/dom/var/_utilCache','blk/function/_id','blk/function/has_id','blk/function/shim_id','BL/Blink/_/main'], function ($,_initedCache,_utilCache,_id,has_id,shim_id) {
+define(['$','./var/_initedCache','blk/dom/var/_utilCache','blk/function/_id','blk/function/has_id','blk/function/shim_id','BL/_/main'], function ($,_initedCache,_utilCache,_id,has_id,shim_id) {
 
 	//	
 	//	[data-util="chzn"]	使用$().chzn()自动初始化；使用$().chzn_()或$().chznDestroy()反初始化

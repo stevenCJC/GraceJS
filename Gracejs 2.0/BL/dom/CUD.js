@@ -1,4 +1,4 @@
-define(['$','./var/_attrCache','./var/_propCache','./var/_initedCache','BL/Blink/event/var/handlers','blk/function/r_id','blk/function/_id','./var/fragementRE','./function/_insertFragments','BL/Blink/_/main'], function ($,_attrCache,_propCache,_initedCache,handlers,r_id,_id,fragementRE,_insertFragments) {
+define(['$','./var/_attrCache','./var/_propCache','./var/_initedCache','BL/event/var/handlers','blk/function/r_id','blk/function/_id','./var/fragementRE','./function/_insertFragments','BL/_/main'], function ($,_attrCache,_propCache,_initedCache,handlers,r_id,_id,fragementRE,_insertFragments) {
 
 	$.extend({
 

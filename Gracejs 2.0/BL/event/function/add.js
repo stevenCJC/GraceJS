@@ -1,4 +1,4 @@
-define(['./eachEvent','./parse','BL/Blink/event/var/handlers','blk/function/_id'], function (eachEvent,parse,handlers,_id) {
+define(['./eachEvent','./parse','BL/event/var/handlers','blk/function/_id'], function (eachEvent,parse,handlers,_id) {
 
 	function add(element, events, fn, selector, getDelegate) {
 		var id = _id(element), 

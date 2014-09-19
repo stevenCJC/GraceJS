@@ -1,4 +1,4 @@
-define(['BL/Blink/_/var/slice','./unique'], function(slice,unique) {
+define(['BL/_/var/slice','./unique'], function(slice,unique) {
 	
 	function _shimNodes(nodes,obj){
 		if(!nodes)

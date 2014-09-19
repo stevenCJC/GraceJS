@@ -1,4 +1,4 @@
-define(['BL/Blink/dom/var/_attrCache','BL/Blink/dom/var/_propCache','BL/Blink/dom/var/_initedCache','BL/Blink/event/var/handlers'], function(_attrCache,_propCache,_initedCache,handlers) {
+define(['BL/dom/var/_attrCache','BL/dom/var/_propCache','BL/dom/var/_initedCache','BL/event/var/handlers'], function(_attrCache,_propCache,_initedCache,handlers) {
 	function shim_id(element) {
 		if(!element)return;
 		var id=parseInt(element.getAttribute('_id'));

@@ -1,4 +1,4 @@
-define(['$','./var/_attrCache','./var/_propCache','blk/function/_id','blk/function/has_id','blk/function/shim_id','BL/Blink/_/main'], function ($,_attrCache,_propCache,_id,has_id,shim_id) {
+define(['$','./var/_attrCache','./var/_propCache','blk/function/_id','blk/function/has_id','blk/function/shim_id','BL/_/main'], function ($,_attrCache,_propCache,_id,has_id,shim_id) {
 
 	$.extend({
 		attr: function(attr, value) {

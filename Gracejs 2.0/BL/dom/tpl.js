@@ -1,4 +1,4 @@
-define(['$','BL/Blink/_/var/_tpls'], function ($,_tpls) {
+define(['$','BL/_/var/_tpls'], function ($,_tpls) {
 	$.extend({
 
 		tpl: function(tplName, data) {

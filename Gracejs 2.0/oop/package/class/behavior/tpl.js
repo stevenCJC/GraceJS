@@ -1,4 +1,4 @@
-define(['$','BL/Blink/_/template/underscore','Config'], function($,template,Config) {
+define(['$','BL/_/template/underscore','Config'], function($,template,Config) {
 	
 	
 	_behavior['view'].Tpl={

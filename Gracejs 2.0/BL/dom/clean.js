@@ -1,4 +1,4 @@
-define(['$','./var/_attrCache','./var/_propCache','./var/_initedCache','blk/function/r_id','blk/function/has_id','BL/Blink/event/function/makeEvent','BL/Blink/_/main'], function ($,_attrCache,_propCache,_initedCache,r_id,has_id,makeEvent) {
+define(['$','./var/_attrCache','./var/_propCache','./var/_initedCache','blk/function/r_id','blk/function/has_id','BL/event/function/makeEvent','BL/_/main'], function ($,_attrCache,_propCache,_initedCache,r_id,has_id,makeEvent) {
 
 	function cleanUpNode(node, kill){
 		//kill it before it lays eggs!
