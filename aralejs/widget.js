@@ -1,4 +1,5 @@
-var Widget=(function(Base,$,DAParser,AutoRender){
+//删除了data-api
+var Widget=(function(Base,$){
 	
 	var DELEGATE_EVENT_NS = '.delegate-events-'
 	var ON_RENDER = '_onRender'
@@ -46,9 +47,8 @@ var Widget=(function(Base,$,DAParser,AutoRender){
 		this.cid = uniqueCid()
 	
 		// 初始化 attrs
-		var dataAttrsConfig = this._parseDataAttrsConfig(config)
-		Widget.superclass.initialize.call(this, config ? $.extend(dataAttrsConfig, config) : dataAttrsConfig)
-	
+		Widget.superclass.initialize.call(this, config||{})
+		
 		// 初始化 props
 		this.parseElement()
 		this.initProps()
@@ -66,7 +66,7 @@ var Widget=(function(Base,$,DAParser,AutoRender){
 		this._isTemplate = !(config && config.element)
 	  },
 	
-	  // 解析通过 data-attr 设置的 api
+	  /*// 解析通过 data-attr 设置的 api
 	  _parseDataAttrsConfig: function(config) {
 		var element, dataAttrsConfig
 		if (config) {
@@ -79,7 +79,7 @@ var Widget=(function(Base,$,DAParser,AutoRender){
 		}
 	
 		return dataAttrsConfig
-	  },
+	  },*/
 	
 	  // 构建 this.element
 	  parseElement: function() {
@@ -344,10 +344,10 @@ var Widget=(function(Base,$,DAParser,AutoRender){
 	}
 	
 	
-	Widget.autoRender = AutoRender.autoRender
+	/*Widget.autoRender = AutoRender.autoRender
 	Widget.autoRenderAll = AutoRender.autoRenderAll
 	Widget.StaticsWhiteList = ['autoRender']
-	
+	*/
 	
 	
 	// Helpers
@@ -456,4 +456,4 @@ var Widget=(function(Base,$,DAParser,AutoRender){
 	
 	return Widget;
 	
-})(Base,$,DAParser,AutoRender);
+})(Base,$);
