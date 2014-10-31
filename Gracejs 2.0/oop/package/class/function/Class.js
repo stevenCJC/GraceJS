@@ -1,4 +1,4 @@
-define(['oop/package/var/buildtimeInit','oop/package/var/statusInfo','oop/package/class/function/View','oop/package/class/var/_behavior','BL/Blink/main','oop/package/class/behavior/event','oop/package/class/behavior/util','oop/package/class/behavior/dataset','oop/package/class/behavior/subscribe','oop/package/class/behavior/state','oop/package/class/behavior/init','oop/package/class/behavior/destroy','oop/package/class/behavior/tpl'], function(buildtimeInit,statusInfo,View,_behavior,$) {
+define(['oop/package/var/buildtimeInit','oop/package/var/statusInfo','oop/package/class/function/View','oop/package/class/var/_behavior','BL/main','oop/package/class/behavior/event','oop/package/class/behavior/util','oop/package/class/behavior/dataset','oop/package/class/behavior/subscribe','oop/package/class/behavior/state','oop/package/class/behavior/init','oop/package/class/behavior/destroy','oop/package/class/behavior/tpl'], function(buildtimeInit,statusInfo,View,_behavior,$) {
 	
 	/*
 		@options 	string	Extend:pkgName.className
