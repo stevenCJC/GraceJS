@@ -5,50 +5,11 @@
 <title>无标题文档</title>
 <script src="compose.js"></script>
 <script type="text/javascript">
-function DD(){}
-DD.prototype=new Date();
 
-function SS(){this.ss="!!";}
-SS.prototype=new String('asdasdasd');
-SS.prototype.alertSS=function(){alert(this.ss);}
+function a(){return '';}
+var b=new a();
+console.log(b);
 
-function SSS(){this.sss="!!!!!!"}
-SSS.prototype=new SS();
-SSS.prototype.alertSSS=function(){alert(this.sss);}
-
-
-function extend(cons,proto){
-	//'some/class/path:method'
-	for(var x in proto) cons.prototype[x]=proto[x];
-	return cons;
-	
-}
-function rebuilt(base,cons,proto){
-	
-	var pr=base.prototype;
-	for(var x in pr) cons.prototype[x]=pr[x];
-	for(var x in proto) cons.prototype[x]=proto[x];
-	cons.prototype.baseProto=pr;
-	return ;
-	
-}
-function inherit(base,cons,proto){
-	function Constructor(){
-		var args=arguments;
-		if(args.length==0)this.base=new base();
-		else if(args.length==1)this.base=new base(args[0]);
-		else if(args.length==2)this.base=new base(args[0],args[1]);
-		else if(args.length==3)this.base=new base(args[0],args[1],args[2]);
-		
-		cons.apply(this,args);
-		return this;
-	}
-	//原型准备就绪
-	var pr=base.prototype;
-	for(var x in pr) Constructor.prototype[x]=pr[x];
-	for(var x in proto) Constructor.prototype[x]=proto[x];
-	
-}
 
 </script>
 </head>

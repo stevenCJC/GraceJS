@@ -1,0 +1,19 @@
+	
+	
+	1、 基础设置轻量化
+	2、 功能插件化，可配置式定制框架功能
+	
+	3、 基本框架功能
+		
+		1、 oo
+		2、 dom ， utils
+		3、 ui ， class ， widget ， model ， controller ， view	//脚本内容结构类型
+		4、 fr plugin
+		5、 mvc - package
+		6、 dom操作与widget绑定，新增-自动初始化、删除-自动反初始化
+	
+	
+	
+	
+	
+	

@@ -3,6 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>arale</title>
+
 </head>
 
 <body>
@@ -14,36 +15,24 @@
 <script type="text/javascript" src="events.js"></script>
 <script type="text/javascript" src="attribute.js"></script>
 <script type="text/javascript" src="base.js"></script>
-<script type="text/javascript" src="auto-render.js"></script>
-<script type="text/javascript" src="daparser.js"></script>
 <script type="text/javascript" src="widget.js"></script>
 <script>
-	
-	var Pig = Base.extend({
-        attrs: {
-            name: ''
-        },
-        talk: function() {
-            alert('我是' + this.get('name'));
-        }
-    });
-	(new Pig).talk();
-	
-	var WidgetA = Widget.extend({
+	var a={};
+	a.WidgetB = Widget.extend({
 	  attrs: {
 		a: 1
 	  },
 	
-	  method: function() {
-		console.log(this.get('a'));
+	  _onRenderA: function(val) {
+		console.log(val)
 	  }
 	});
 	
-	var widget = new WidgetA({
-	  a: 2
-	});
-	widget.method();  
+	a.widget = new a.WidgetB();
+	a.widget.render(); // => 1
+	a.widget.set('a', 2); // => 2
 	
+	console.log(a);
 	
 	
 </script>
