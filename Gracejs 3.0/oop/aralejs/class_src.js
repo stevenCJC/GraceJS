@@ -23,36 +23,41 @@ var Class = (function () {
 	//应该改一下第一个参数的作用 --> 构造函数
 
 	Class.create = function (_constructor, properties) {
-		
 
-		
 		if (!isFunction(_constructor)) {
 			properties = _constructor;
-			_constructor=properties.initialize||function Empty(){};
 		} else { //将第一个参数改为构造函数
 			properties.initialize = _constructor;
 		}
 
-		properties = properties||{};
-		
+		properties || (properties = {});
+
 		var parent = properties.Extends || Class;
 
 		properties.Extends = parent;
-		
-		
-		if(!properties.__type__) 
-			properties.__type__=(parent.prototype.__type__?parent.prototype.__type__.toLowerCase():false)||'class';
+
+		// The created class constructor////??????
+		function Constructor() {
+			// Call the parent constructor.
+			parent.apply(this, arguments); //貌似删掉也没差别
+
+			// Only call initialize in self constructor.
+			//执行自己的初始化函数，父类的初始化函数都不执行,
+			if (this.constructor === Constructor && this.initialize) {
+				this.initialize.apply(this, arguments);
+			}
+		}
 
 		// Inherit class (static) properties from parent.
 		if (parent !== Class) {
-			mix(_constructor, parent, parent.StaticsWhiteList);
+			mix(Constructor, parent, parent.StaticsWhiteList);
 		}
 
 		// Add instance properties to the subclass.
-		implement.call(_constructor, properties);
+		implement.call(Constructor, properties);
 
 		// Make subclass extendable.
-		return classify(_constructor);
+		return classify(Constructor);
 	}
 
 	function implement(properties) {
@@ -60,22 +65,20 @@ var Class = (function () {
 		value
 
 		for (key in properties) {
-			value = properties[key];
-			// 遍历传入参数，特殊参数特殊处理，其他归入原型
-			if (Class.Mutators.hasOwnProperty(key)) {
-				Class.Mutators[key].call(this, value);
-			} else {
-				this.prototype[key] = value;
-			}
+			value = properties[key]
+				// 遍历传入参数，特殊参数特殊处理，其他归入原型
+				if (Class.Mutators.hasOwnProperty(key)) {
+					Class.Mutators[key].call(this, value);
+				} else {
+					this.prototype[key] = value;
+				}
 		}
 	}
 
-	// Create a sub Class based on `Class`. 
+	// Create a sub Class based on `Class`.
 	Class.extend = function (properties) {
 		properties || (properties = {});
 		properties.Extends = this;
-		if(!properties.initialize)
-			properties.initialize = function Empty(){};
 		return Class.create(properties);
 	}
 
@@ -115,7 +118,7 @@ var Class = (function () {
 		},
 
 		'Statics' : function (staticProperties) {
-			mix(this, staticProperties);
+			mix(this, staticProperties)
 		}
 	}
 

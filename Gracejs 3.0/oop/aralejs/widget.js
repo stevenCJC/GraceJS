@@ -10,8 +10,8 @@ var Widget = (function (Base, $) {
 	// 所有初始化过的 Widget 实例
 	var cachedInstances = {};
 
-	var Widget = Base.extend({
-
+	var Widget_ = Base.extend({
+			__type__:'WIDGET',
 			// config 中的这些键值会直接添加到实例上，转换成 properties
 			propsInAttrs : ['initElement', 'element', 'events'],
 
@@ -32,7 +32,6 @@ var Widget = (function (Base, $) {
 				id : null,
 				className : null,
 				style : null,
-
 				// 默认模板
 				template : null,
 
@@ -40,11 +39,12 @@ var Widget = (function (Base, $) {
 
 			// 初始化方法，确定组件创建时的基本流程：
 			// 初始化 attrs --》 初始化 props --》 初始化 events --》 子类的初始化
-			initialize : function (config) {
+			initialize : function Widget(config) {
+				
 					this.cid = uniqueCid();
 
 					// 初始化 attrs
-					Widget.superclass.initialize.call(this, config || {});
+					Widget_.superclass.initialize.call(this, config || {});
 
 					// 初始化 props
 					this.parseElement();
@@ -266,7 +266,7 @@ var Widget = (function (Base, $) {
 				this.element.css(val);
 			},
 
-			// 让 element 与 Widget 实例建立关联
+			// 让 element 与 Widget_ 实例建立关联
 			_stamp : function () {
 				var cid = this.cid;
 
@@ -295,7 +295,7 @@ var Widget = (function (Base, $) {
 				}
 				this.element = null;
 
-				Widget.superclass.destroy.call(this);
+				Widget_.superclass.destroy.call(this);
 			}
 		})
 
@@ -306,8 +306,8 @@ var Widget = (function (Base, $) {
 			}
 		})
 
-		// 查询与 selector 匹配的第一个 DOM 节点，得到与该 DOM 节点相关联的 Widget 实例
-		Widget.query = function (selector) {
+		// 查询与 selector 匹配的第一个 DOM 节点，得到与该 DOM 节点相关联的 Widget_ 实例
+	Widget_.query = function (selector) {
 		var element = $(selector).eq(0);
 		var cid;
 
@@ -315,9 +315,9 @@ var Widget = (function (Base, $) {
 		return cachedInstances[cid];
 	}
 
-	/*Widget.autoRender = AutoRender.autoRender
-	Widget.autoRenderAll = AutoRender.autoRenderAll
-	Widget.StaticsWhiteList = ['autoRender']
+	/*Widget_.autoRender = AutoRender.autoRender
+	Widget_.autoRenderAll = AutoRender.autoRenderAll
+	Widget_.StaticsWhiteList = ['autoRender']
 	 */
 
 	// Helpers
@@ -421,6 +421,6 @@ var Widget = (function (Base, $) {
 		return argus;
 	}
 
-	return Widget;
+	return Widget_;
 
 })(Base, $);

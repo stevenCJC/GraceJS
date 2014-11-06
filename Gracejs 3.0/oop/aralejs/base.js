@@ -1,10 +1,10 @@
 var Base=(function(Class,Events,Aspect,Attribute){
 
 	return Class.create({
-		
+		__type__:'BASE',
 	  Implements: [Events, Aspect, Attribute],
 	
-	  initialize: function(config) {
+	  initialize: function Base(config) {
 		this.initAttrs(config);
 	
 		// Automatically register `this._onChangeAttr` method as
@@ -13,7 +13,7 @@ var Base=(function(Class,Events,Aspect,Attribute){
 	  },
 	
 	  destroy: function() {
-		  
+		
 		this.off();
 	
 		for (var p in this) {
