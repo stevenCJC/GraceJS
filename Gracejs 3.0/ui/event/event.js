@@ -1,14 +1,14 @@
-define(['$','./function/_bind','./function/_delegate','./function/_unbind','./function/_undelegate','./function/remove','./function/add','./function/makeEvent'], function ($,_bind,_delegate,_unbind,_undelegate,remove,add,makeEvent) {
+define(['ui/ui','./function/_bind','./function/_delegate','./function/_unbind','./function/_undelegate','./function/remove','./function/add','./function/makeEvent'], function (g,_bind,_delegate,_unbind,_undelegate,remove,add,makeEvent) {
 	
-	$.fn.on = function(event, selector, callback) {
+	g.ui.fn.on = function(event, selector, callback) {
 		return selector === undefined || $.isFunction(selector) ? _bind(this,event, selector) : _delegate(this,selector, event, callback);
 	};
    
-	$.fn.off = function(event, selector, callback) {
-		return selector === undefined || $.isFunction(selector) ? _unbind(this,event, selector) : _undelegate(this,selector, event, callback);
+	g.ui.fn.off = function(event, selector, callback) {
+		return selector === undefined || g.is.Function(selector) ? _unbind(this,event, selector) : _undelegate(this,selector, event, callback);
 	};
 
-	$.fn.one = function(event, callback) {
+	g.ui.fn.one = function(event, callback) {
 		return this.each(function(i, element) {
 			var el=this;
 			add(this, event, callback, null, function(fn, type) {
@@ -21,7 +21,7 @@ define(['$','./function/_bind','./function/_delegate','./function/_unbind','./fu
 		});
 	};
 	
-	$.fn.trigger = function(event, data, props) {
+	g.ui.fn.trigger = function(event, data, props) {
 		if (typeof event == 'string')
 			event = makeEvent(event, props);
 		event.data = data;
@@ -34,11 +34,10 @@ define(['$','./function/_bind','./function/_delegate','./function/_unbind','./fu
 	var eventtrigger=["click","keydown","keyup","keypress","submit","load","resize","change","select","error"];
 	for(var i=0,len=eventtrigger.length;i<len;i++)
 		(function(i){
-			$.fn[eventtrigger[i]]=function(cb){
+			g.q.fn[eventtrigger[i]]=function(cb){
 				return cb?_bind(this,eventtrigger[i],cb):this.trigger(eventtrigger[i]);
 			}
 		})(i);
 		
 		
-	return $;
 });

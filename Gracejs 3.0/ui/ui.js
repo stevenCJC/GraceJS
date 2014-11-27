@@ -1,9 +1,11 @@
-define(['BL/dom/function/_selector'], function(_selector) {
-	function $(s,w){
-		console.log(arguments.callee.caller.name);
+define(['g','BL/dom/function/_selector'], function(g,_selector) {
+	
+	g.q = function (s,w){
 		return new Core(s,w);
 	}
-	$.fn = Core.prototype = {
+	
+	g.ui={};
+	g.ui.fn = Core.prototype = {
 		constructor: Core,
 		selector: _selector,
 		oldElement: undefined,
@@ -14,10 +16,15 @@ define(['BL/dom/function/_selector'], function(_selector) {
 		concat: [].concat,
 		slice: [].slice,
 	};
-	$.DEBUG={
-		open:false,
-		ajaxRedirect:function(url,data,method){},
+	
+	g.ui.extend=function(obj){
+		for(var x in obj) g.ui.fn[x]=obj[x];
 	};
+	g.ui.fn.each=function(cb){
+		for(var i=0,l=this.length;i<l;i++)
+			cb.call(this[i],this[i],i);
+	};
+	
 	
 	function Core(toSelect, what) {
 		this.length = 0;
@@ -58,6 +65,5 @@ define(['BL/dom/function/_selector'], function(_selector) {
 		return this.selector(toSelect, what);
 		
 	};
-	
-	return $;
+	return g;
 });

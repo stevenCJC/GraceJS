@@ -1,6 +1,6 @@
-define(['$','BL/_/main'], function ($) {
+define(['ui/ui'], function (g) {
 
-	$.extend({
+	g.ui.extend({
 
 		ready: function(callback) {
 			if (document.readyState === "complete" || document.readyState === "loaded"||document.readyState==="interactive") 

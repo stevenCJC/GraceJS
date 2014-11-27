@@ -1,6 +1,24 @@
-define(['$','./var/_attrCache','./var/_propCache','blk/function/_id','blk/function/has_id','blk/function/shim_id','BL/_/main'], function ($,_attrCache,_propCache,_id,has_id,shim_id) {
+define(['ui/ui','./var/_attrCache','./var/_propCache','blk/function/_id','blk/function/has_id','blk/function/shim_id','BL/_/main'], function ($,_attrCache,_propCache,_id,has_id,shim_id) {
 
-	$.extend({
+	
+	
+	
+	
+	/*
+	
+	
+		所有数据都随 widget 和 namespace 存储，不允许绑定到元素
+		
+		与元素相关的数据，需要存储相关联的元素，通过检测该元素的父节点来确定是否已被删除
+		
+		
+	*/
+	
+	
+	
+
+
+	g.ui.extend({
 		attr: function(attr, value) {
 			var id,el;
 			if (this.length === 0)

@@ -1,6 +1,6 @@
-define(['$','./var/_attrCache','./var/_propCache','./var/_initedCache','BL/event/var/handlers','blk/function/r_id','blk/function/_id','./var/fragementRE','./function/_insertFragments','BL/_/main'], function ($,_attrCache,_propCache,_initedCache,handlers,r_id,_id,fragementRE,_insertFragments) {
+define(['ui/ui','./var/_attrCache','./var/_propCache','./var/_initedCache','BL/event/var/handlers','blk/function/r_id','blk/function/_id','./var/fragementRE','./function/_insertFragments','BL/_/main'], function (g,_attrCache,_propCache,_initedCache,handlers,r_id,_id,fragementRE,_insertFragments) {
 
-	$.extend({
+	g.ui.extend({
 
 		
 		html: function(html,init) {
@@ -164,7 +164,7 @@ define(['$','./var/_attrCache','./var/_propCache','./var/_initedCache','BL/event
 				elems.push(el[0]);
 			}
 			
-			return $(elems);
+			return g.q(elems);
 			function clone(elems){
 				oid=r_id(elems);
 				id=_id(elems);

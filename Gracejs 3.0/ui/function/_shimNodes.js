@@ -1,4 +1,4 @@
-define(['BL/_/var/slice','./unique'], function(slice,unique) {
+define(['./unique'], function(unique) {
 	
 	function _shimNodes(nodes,obj){
 		if(!nodes)

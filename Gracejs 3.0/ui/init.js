@@ -5,7 +5,8 @@ define(['$','./var/_initedCache','blk/dom/var/_utilCache','blk/function/_id','bl
 	//	
 	//	初始化后更改属性 [data-destroy="chzn"]
 	//	
-
+	
+	
 	
 	$.fn.init = function (s) {
 		var util,ics;

@@ -1,5 +1,20 @@
-define(['$','./var/_attrCache','./var/_propCache','./var/_initedCache','blk/function/r_id','blk/function/has_id','BL/event/function/makeEvent','BL/_/main'], function ($,_attrCache,_propCache,_initedCache,r_id,has_id,makeEvent) {
+define(['g','./var/_attrCache','./var/_propCache','./var/_initedCache','blk/function/r_id','blk/function/has_id','BL/event/function/makeEvent','BL/_/main','./function/ui'], function (g,_attrCache,_propCache,_initedCache,r_id,has_id,makeEvent) {
 
+	g.ui.clean = function(node, itself, kill){
+		if(!node) return;
+		//cleanup children
+		var elems = $('[_id]',node);
+		if(elems.length > 0) 
+			for(var i=0,len=elems.length;i<len;i++){
+				cleanUpNode(elems[i], kill);
+			}
+		//cleanUp this node
+		if(itself) cleanUpNode(node, kill);
+	}
+	
+	
+	
+	
 	function cleanUpNode(node, kill){
 		//kill it before it lays eggs!
 		if(kill && node.dispatchEvent){
@@ -27,16 +42,6 @@ define(['$','./var/_attrCache','./var/_propCache','./var/_initedCache','blk/func
 	}
 	
 	
-	$.clean = function(node, itself, kill){
-		if(!node) return;
-		//cleanup children
-		var elems = $('[_id]',node);
-		if(elems.length > 0) 
-			for(var i=0,len=elems.length;i<len;i++){
-				cleanUpNode(elems[i], kill);
-			}
-		//cleanUp this node
-		if(itself) cleanUpNode(node, kill);
-	}
-	return $;
+	
+	
 });
