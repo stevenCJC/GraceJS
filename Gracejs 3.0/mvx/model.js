@@ -24,7 +24,6 @@ define(["g" , './var/_models' ,'ajax/request', './common/dataset/DS','_/string']
 					delete data.AID;
 					return data;
 				},
-				force:false,//强制更换缓存
 				cache:'local:peopleList',
 			},
 			delete:{
@@ -64,26 +63,28 @@ define(["g" , './var/_models' ,'ajax/request', './common/dataset/DS','_/string']
 			if(d.url){
 				models[x]=function(data,success,error){
 					var sto,stg,async;
+					
 					if(arguments.length==1){
 						if(data&&data.constructor==Function) {
 							success=data;
-							data=null;
+							data={};
 						}
 					}else if(arguments.length==2){
 						if(data&&data.constructor==Function) {
 							error=success;
 							success=data;
-							data=null;
+							data={};
 						}
 					}
 					
 					async=d.async!=undefined?d.async:(success?false:true);
 					
 					if(d.cache){
+						//if(d.cache==true) stg=;
 						stg=d.cache.split(':');
 					}
 					
-					if(!d.force) {
+					if(!data['-f']) {
 						sto=storage(stg[0].trim(), stg[1].trim());
 						if(sto){
 							var t;
@@ -92,7 +93,8 @@ define(["g" , './var/_models' ,'ajax/request', './common/dataset/DS','_/string']
 						}
 					}
 					
-					if(!d.cache||d.force||!sto){
+					if(data['-f']||!d.cache||!sto){
+						if(data['-f']) delete data['-f'];
 						var r,setting={
 							url : 		d.url,
 							type : 		d.type,
