@@ -62,64 +62,6 @@ define(['$','BL/_/main'], function ($) {
 		},
 		
 		
-		addClass: function(name) {
-			var el;
-			for (var i = 0,len=this.length; i <len ; i++) {
-				el = this[i];
-				el.classList.add(name);
-			}
-			return this;
-		},
-		
-		removeClass: function(name) {
-			var el;
-			for (var i = 0,len=this.length; i <len ; i++) {
-				el = this[i];
-				if (name == undefined) {
-					el.className = '';
-					continue;
-				}
-				
-				el.classList.remove(name);
-			}
-			return this;
-		},
-		
-		replaceClass: function(name, newName) {
-			var el;
-			for (var i = 0,len=this.length; i <len ; i++) {
-				el = this[i];
-				if (!newName) {
-					el.className = name;
-					continue;
-				}
-					el.classList.add(newName);
-					el.classList.remove(name);
-			}
-			return this;
-		},
-		
-		toggleClass: function(name) {
-			var el;
-			for (var i = 0,len=this.length; i <len ; i++) {
-				if (name == undefined) {
-					return this;
-				}
-				el = this[i];
-				el.classList.toggle(name);
-			}
-			return this;
-		},
-		
-		hasClass: function(name, element) {
-			if (this.length === 0)
-				return false;
-			if (!element)
-				element = this[0];
-			return element.classList.contains(name);
-		},
-
-		
 		offset: function() {
 			if (this.length === 0)
 				return this;

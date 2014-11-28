@@ -56,9 +56,7 @@ var Class = (function () {
 	}
 
 	function implement(properties) {
-		var key,
-		value
-
+		var key, value ;
 		for (key in properties) {
 			value = properties[key];
 			// 遍历传入参数，特殊参数特殊处理，其他归入原型
@@ -69,7 +67,8 @@ var Class = (function () {
 			}
 		}
 	}
-
+	
+	//扩展也需要定义构造函数，默认执行父类的构造函数
 	// Create a sub Class based on `Class`. 
 	Class.extend = function (properties) {
 		properties || (properties = {});

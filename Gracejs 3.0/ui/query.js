@@ -9,18 +9,6 @@ define(['$','./function/unique','./function/siblings','./function/_shimNodes','B
 			return params;
 		},
 		
-		//如果callback返回数据，则返回[数据]，否则默认返回this
-		each: function(callback) {
-			var el=this,tmp,returns=[];
-			for(var i=0,len=el.length;i<len;i++){
-				tmp=callback.call(el[i], i, el);
-				if(tmp)returns.push(tmp);
-			}
-			if(returns.length)return returns;
-			return this;
-		},
-		
-		
 		
 		find: function(sel) {
 			if (this.length === 0)

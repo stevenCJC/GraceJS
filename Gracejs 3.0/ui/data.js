@@ -1,4 +1,4 @@
-define(['ui/ui','./var/_attrCache','./var/_propCache','blk/function/_id','blk/function/has_id','blk/function/shim_id','BL/_/main'], function ($,_attrCache,_propCache,_id,has_id,shim_id) {
+define(['ui/ui','_/is','./clean'], function (g) {
 
 	
 	
@@ -19,59 +19,38 @@ define(['ui/ui','./var/_attrCache','./var/_propCache','blk/function/_id','blk/fu
 
 
 	g.ui.extend({
+		
 		attr: function(attr, value) {
-			var id,el;
+			var el;
 			if (this.length === 0)
-				return (value === undefined) ? undefined : this;            
-			if (value === undefined && !$.isObject(attr)) {
-				id=has_id(this[0]);
-				return (id&&_attrCache[id]&&_attrCache[id][attr])?_attrCache[id][attr]:this[0].getAttribute(attr);
-			}
-			for (var i = 0,len=this.length; i <len ; i++) {
-				id=has_id(this[i]);
-				el=this[i];
-				if ($.isObject(attr)) {
-					for (var key in attr) {
-						$(el).attr(key,attr[key]);
+				return (value === undefined) ? undefined : this;     
+				       
+			if (g.is.object(attr)) {
+				for(var x in attr) this.attr(x,attr[x]);
+			}else if (arguments.length==1) {
+				return this[0].getAttribute(attr);
+			}else if(arguments.length==2){
+				
+				value=g.is.object(value)?JSON.stringify(value):value;
+				
+				for (var i = 0,len=this.length; i <len ; i++) {
+					el=this[i];
+					if(value!= undefined) {
+						el.setAttribute(attr, value);
+					} else {
+						el.removeAttribute(attr);
 					}
-				}
-				else if($.isArray(value)||$.isObject(value)||$.isFunction(value))
-				{
-					
-					if(!id)
-						id=_id(el);
-					
-					if(!_attrCache[id])
-						_attrCache[id]={}
-					_attrCache[id][attr]=value;
-				}
-				else if (value == null && value !== undefined)
-				{
-					el.removeAttribute(attr);
-					if(id) _attrCache[id][attr];
-						delete _attrCache[id][attr];
-					shim_id(el);
-				}
-				else{
-					el.setAttribute(attr, value);
 				}
 			}
 			return this;
 		},
 		
 		removeAttr: function(attr) {
-			var attrs=attr.split(/\s+|\,/g),el,at,id;
+			var attrs=attr.split(/\s+|\,/g),el;
 			for (var i = 0,len=this.length; i <len ; i++) {
-				el=this[i];
-				id=has_id(el);
-				if(!id) continue;
 				for(var j=0,lem=attrs.length;j<lem;j++){
-					at=attrs[j];
-					el.removeAttribute(at);
-					if(id&&_attrCache[id]&&_attrCache[id][at])
-						delete _attrCache[id][at];
+					this[i].removeAttribute(attrs[j]);
 				}
-				shim_id(el);
 			}
 			return this;
 		},
@@ -80,68 +59,99 @@ define(['ui/ui','./var/_attrCache','./var/_propCache','blk/function/_id','blk/fu
 		prop: function(prop, value) {
 			var id,el;
 			if (this.length === 0)
-				return (value === undefined) ? undefined : this;          
-			if (value === undefined && !$.isObject(prop)) {
+				return (value === undefined) ? undefined : this;    
+				      
+			if (g.is.object(prop)) {
+				for(var x in prop) this.prop(x,prop[x]);
+			}else if (arguments.length==1) {
+				if(this.length)
+					return this[0][prop];
+				else return undefined;
+			}else if(arguments.length==2){
+				value=g.is.object(value)?JSON.stringify(value):value;
 				
-				var res;id=has_id(this[0]);
-				var val = (id&&_propCache[id][prop])?(id&&_propCache[id][prop]):!(res=this[0][prop])&&prop in this[0]?this[0][prop]:res;
-				return val;
-			}
-			for (var i = 0,len=this.length; i <len ; i++) {
-				
-				el=this[i];
-				id=has_id(el);
-				
-				if ($.isObject(prop)) {
-					for (var key in prop) {
-						$(el).prop(key,prop[key]);
+				for (var i = 0,len=this.length; i <len ; i++) {
+					el=this[i];
+					if(value!= undefined) {
+						el[prop]= value;
+					} else {
+						delete el[prop];
 					}
-				}
-				else if($.isArray(value)||$.isObject(value)||$.isFunction(value))
-				{
-					
-					if(!id)
-						id=_id(el);
-					
-					if(!_propCache[id])
-						_propCache[id]={}
-					_propCache[id][prop]=value;
-				}
-				else if (value == null && value !== undefined)
-				{
-					$(el).removeProp(prop);
-					if(id) _propCache[id][prop];
-						delete _propCache[id][prop];
-					shim_id(el);
-				}
-				else{
-					el[prop]= value;
 				}
 			}
 			return this;
 		},
 		
 		removeProp: function(prop) {
-			var p=prop.split(/\s+|\,/g),el,pr,id;
+			var props=prop.split(/\s+|\,/g),el;
 			for (var i = 0,len=this.length; i <len ; i++) {
-				el=this[i];
-				id=has_id(el);
-				if(!id) continue;
-				for (var j = 0,lem=p.length; j <lem ; j++) {
-					pr=p[j];
-					if(el[pr])
-						delete el[pr];
-					if(id&&_propCache[id]&&_propCache[id][pr]){
-							delete _propCache[id][pr];
-					}
+				for(var j=0,lem=props.length;j<lem;j++){
+					delete this[i][props[j]];
 				}
-				shim_id(el);
 			}
 			return this;
 		},
 
 
-	
+		
+		
+		addClass: function(name) {
+			var el;
+			for (var i = 0,len=this.length; i <len ; i++) {
+				el = this[i];
+				el.classList.add(name);
+			}
+			return this;
+		},
+		
+		removeClass: function(name) {
+			var el;
+			for (var i = 0,len=this.length; i <len ; i++) {
+				el = this[i];
+				if (name == undefined) {
+					el.className = '';
+					continue;
+				}
+				
+				el.classList.remove(name);
+			}
+			return this;
+		},
+		
+		replaceClass: function(name, newName) {
+			var el;
+			for (var i = 0,len=this.length; i <len ; i++) {
+				el = this[i];
+				if (!newName) {
+					el.className = name;
+					continue;
+				}
+					el.classList.add(newName);
+					el.classList.remove(name);
+			}
+			return this;
+		},
+		
+		toggleClass: function(name) {
+			var el;
+			for (var i = 0,len=this.length; i <len ; i++) {
+				if (name == undefined) {
+					return this;
+				}
+				el = this[i];
+				el.classList.toggle(name);
+			}
+			return this;
+		},
+		
+		hasClass: function(name, element) {
+			if (this.length === 0)
+				return false;
+			if (!element)
+				element = this[0];
+			return element.classList.contains(name);
+		},
+
 		
 		parseForm: function() {
 			if (this.length == 0)
@@ -190,16 +200,6 @@ define(['ui/ui','./var/_attrCache','./var/_propCache','blk/function/_id','blk/fu
 			return this.attr('data-' + key, value);
 		},
 		
-
-		_id:function(make){
-			if(make)return _id(this[0]);
-			return has_id(this[0]);
-		},
-		
-		clean:function(){
-			$.clean(this);
-		},
-
 
 	});
 	return $;

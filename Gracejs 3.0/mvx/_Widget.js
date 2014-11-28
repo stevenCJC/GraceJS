@@ -208,15 +208,13 @@ var Widget = (function (Base, $) {
 
 			// 提供给子类覆盖的初始化方法
 			setup : function () {},
-
-			// 将 widget 渲染到页面上
 			
 			//@@@@@@@@你怎么知道我是想append还是prepend还是放在父节点内的某个特定位置？
 			
-			// 渲染不仅仅包括插入到 DOM 树中，还包括样式渲染等
-			// 约定：子类覆盖时，需保持 `return this`
 			render : function () {
-
+				// render 需要对主元素加上实例id，
+				//render 返回 元素, 执行从fragment插入到document的方法后，根据实例id执行各个实例的插入初始化
+				
 				// 让渲染相关属性的初始值生效，并绑定到 change 事件
 				if (!this.rendered) {
 					this._renderAndBindAttrs();
@@ -224,6 +222,10 @@ var Widget = (function (Base, $) {
 				}
 				
 				return this;
+			},
+			//插入文档后执行
+			init:function(){
+				
 			},
 
 			// 让属性的初始值生效，并绑定到 change:attr 事件上

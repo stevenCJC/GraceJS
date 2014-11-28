@@ -49,7 +49,10 @@ define(['$'], function($) {
 		string : function (obj) {
 			return typeof obj === 'string';
 		},
-		
+		jsonString:function(s){
+			if(!s||s.constructor!=String) return false
+			return (s.charAt(0) == "{"||s.charAt(0) == "[") && (s.charAt(s.length - 1) == "}"||s.charAt(s.length - 1) == "]");
+		},
 		// Define a fallback version of the method in browsers (ahem, IE), where
 		// there isn't any inspectable "Arguments" type.
 		arguments : function (obj) {

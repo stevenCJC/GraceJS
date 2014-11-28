@@ -2,7 +2,7 @@ define(['g','./request'], function (g,request) {
 	
 	
 	var ajax = g.ajax ={
-		ajax : function(opts){
+		request : function(opts){
 			return request(opts);
 		},
 		get : function (url) {

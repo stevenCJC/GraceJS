@@ -20,9 +20,19 @@ define(['g','BL/dom/function/_selector'], function(g,_selector) {
 	g.ui.extend=function(obj){
 		for(var x in obj) g.ui.fn[x]=obj[x];
 	};
+	
 	g.ui.fn.each=function(cb){
 		for(var i=0,l=this.length;i<l;i++)
-			cb.call(this[i],this[i],i);
+			if(cb.call(this[i],this[i],i)===false) break;
+	};
+	
+	g.ui.fn.map=function(cb){
+		var r=[],t;
+		for(var i=0,l=this.length;i<l;i++){
+			t=cb.call(this[i],this[i],i);
+			if(t!==undefined) r.push(t);
+		}
+		return r;
 	};
 	
 	

@@ -1,19 +1,16 @@
-define(['ui/ui','./var/_attrCache','./var/_propCache','./var/_initedCache','BL/event/var/handlers','blk/function/r_id','blk/function/_id','./var/fragementRE','./function/_insertFragments','BL/_/main'], function (g,_attrCache,_propCache,_initedCache,handlers,r_id,_id,fragementRE,_insertFragments) {
+define(['ui/ui','BL/event/var/handlers','./var/fragementRE','./function/_insertFragments','_/is'], function (g,handlers,fragementRE,_insertFragments) {
 
 	g.ui.extend({
 
 		
-		html: function(html,init) {
+		html: function(html) {
 			if (this.length === 0)
 				return this;
 			if (html === undefined)
-				return this[0].innerHTML.replace(/_id\=\"[\w\,]*?\"/ig,'');
+				return this[0].innerHTML;
 			for (var i = 0,len=this.length; i <len ; i++) {
 				$.clean(this[i], false, true);
 				this[i].innerHTML = html;
-				if(typeof init !== false){
-					this.init(init);
-				}
 			}
 			return this;
 		},
@@ -36,7 +33,7 @@ define(['ui/ui','./var/_attrCache','./var/_propCache','./var/_initedCache','BL/e
 			if (elems == undefined)
 				return this;
 			for (var i = 0,len=elems.length; i <len ; i++) {
-				$.clean(elems[i], true, true);
+				g.clean(elems[i], true, true);
 				elems[i].parentNode.removeChild(elems[i]);
 			}
 			return this;
@@ -45,23 +42,18 @@ define(['ui/ui','./var/_attrCache','./var/_propCache','./var/_initedCache','BL/e
 
 
 		
-		append: function(element, init, insert, clone) {
+		append: function(element, insert, clone) {
 			if(typeof clone=='undefined') clone=true;
 			if (element && element.length != undefined && element.length === 0)
 				return this;
-			if ($.isArray(element) || $.isObject(element))
-				element = $(element);
+			if (g.is.array(element) || g.is.object(element))
+				element = g.q(element);
 			var i,cloned;
-			
-			
 			for (i = 0; i < this.length; i++) {
 				
 				if (element.length && typeof element != "string") {
-					cloned = clone?$(element).clone(1):$(element);
+					cloned = clone?g.q(element).clone(1):g.(element);
 					_insertFragments(cloned,this[i],insert);
-					if(typeof init !== false){
-						cloned.init(init);
-					}
 				} else {
 					var obj =fragementRE.test(element)?$(element):undefined;
 					if (obj == undefined || obj.length == 0) {
@@ -69,40 +61,31 @@ define(['ui/ui','./var/_attrCache','./var/_propCache','./var/_initedCache','BL/e
 					}
 					if (obj.nodeName != undefined && obj.nodeName.toLowerCase() == "script" && (!obj.type || obj.type.toLowerCase() === 'text/javascript')) {
 						window.eval(obj.innerHTML);
-					} else if(obj instanceof $.fn.constructor) {
+					} else if(obj instanceof g.ui.fn.constructor) {
 						_insertFragments(obj,this[i],insert);
-						if(typeof init !== false){
-							obj.init(init);
-						}
-					} else {
+					} else {//非节点插入
 						insert ? this[i].insertBefore(obj, this[i].firstChild) : this[i].appendChild(obj);
-						/*if(typeof init !== false){
-							$(obj).init(init);
-						}*/
-						
 					}
 				}
 			}
 			return this;
 		},
 		
-		appendTo:function(selector,init){
-			var tmp=$(selector);
-			tmp.append(this,init,false,false);
+		appendTo:function(selector){
+			$(selector).append(this,false,false);
 			return this;
 		},
 		
-		prependTo:function(selector,init){
-			var tmp=$(selector);
-			tmp.append(this, init, true, false);
+		prependTo:function(selector){
+			$(selector).append(this, true, false);
 			return this;
 		},
 		
-		prepend: function(element,init) {
-			return this.append(element, init, true,true);
+		prepend: function(element) {
+			return this.append(element, true,true);
 		},
 		
-		beforeTo: function(target, init, after) {
+		beforeTo: function(target, after) {
 			if (this.length == 0)
 				return this;
 			var targets = $(target);
@@ -115,29 +98,26 @@ define(['ui/ui','./var/_attrCache','./var/_propCache','./var/_initedCache','BL/e
 					after ? target.parentNode.insertBefore(this[i], target.nextSibling) : target.parentNode.insertBefore(this[i], target);
 				}
 			}
-			if(typeof init !== false){
-				this.init(init);
-			}
 			return this;
 		},
 		
-	   afterTo: function(target,init) {
-			this.beforeTo(target,init, true);
+	   afterTo: function(target) {
+			this.beforeTo(target, true);
 		},
 		
-		before: function(content, init) {
+		before: function(content) {
 			var obj=$(content);
 			if((!obj||!obj.length)&&typeof content == 'string')
 				obj =$(document.createTextNode(content))
-			obj.beforeTo(this,init);
+			obj.beforeTo(this);
 			return this;
 		},
 		
-	   after: function(content,init) {
+	   after: function(content) {
 			var obj=$(content);
 			if((!obj||!obj.length)&&typeof content == 'string')
 				obj =$(document.createTextNode(content))
-			obj.beforeTo(this,init,true);
+			obj.beforeTo(this,true);
 		},
 
 		
@@ -166,11 +146,6 @@ define(['ui/ui','./var/_attrCache','./var/_propCache','./var/_initedCache','BL/e
 			
 			return g.q(elems);
 			function clone(elems){
-				oid=r_id(elems);
-				id=_id(elems);
-				if(_attrCache[oid])_attrCache[id]=$.clone(_attrCache[oid]);
-				if(_propCache[oid])_propCache[id]=$.clone(_propCache[oid]);
-				if(_initedCache[oid])_initedCache[id]=$.clone(_initedCache[oid]);
 				if(handlers[oid])handlers[id]=$.clone(handlers[oid])
 			}
 		},
