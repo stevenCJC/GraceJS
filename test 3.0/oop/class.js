@@ -13,7 +13,7 @@ require(['g','oop/Class'],function(g){
 	});
 	
 	var dog=g.Class(function Dog(){
-		console.log('dog');
+		console.log(this.Name||'dog');
 	},{
 		Inherit:animal,
 		wang:function(){},
@@ -29,10 +29,19 @@ require(['g','oop/Class'],function(g){
 		miao:function(){},
 	});
 	
+	var ddog=g.Class(dog,{
+		Name:'DDog',
+		//Extend:[cell,animal],
+		wang:function(){
+			this.ddog();
+		},
+		miao:function(){},
+	});
+	
 	console.log(new animal());
 	console.log(new dog());
 	console.log(new xtq());
-	
+	console.log(new ddog());
 	
 	
 	

@@ -34,6 +34,8 @@ define(['g','_/utils'],function(g){
 
 	function Class(constructor, properties) {
 		
+		
+		
 		if (!isFunction(constructor)) {
 			properties = constructor;
 			constructor=properties.constructor|| Empty;
@@ -45,15 +47,18 @@ define(['g','_/utils'],function(g){
 		
 		delete properties.constructor;
 		
-		var parent = properties.Inherit || Empty;
-
+		var parent = properties.Inherit || (Object.keys(constructor.prototype).length?constructor:false) || Empty;
+		
+		var name=properties.Name || constructor.name;
+		delete properties.Name;
+		
 		properties.Inherit = parent;
 		
 		var constructor_;
 		if(parent!==Empty)
-			constructor_=makeConstructor(constructor.name,function(){
+			constructor_=makeConstructor(name,function(){
 				g.utils.call(this,arguments,parent);
-				g.utils.call(this,arguments,constructor);
+				if(parent!=constructor)g.utils.call(this,arguments,constructor);
 			});
 		else constructor_=constructor;
 		
@@ -72,9 +77,11 @@ define(['g','_/utils'],function(g){
 		
 		// 继承静态方法
 		if (parent !== Class) {
-			mix(constructor, parent, parent.StaticsWhiteList);
+			mix(constructor_, parent, parent.StaticsWhiteList);
 		}
-		
+		if (constructor !== Class) {
+			mix(constructor_, constructor, constructor.StaticsWhiteList);
+		}
 		// Make subclass extendable.
 		return classify(constructor_);
 	}
