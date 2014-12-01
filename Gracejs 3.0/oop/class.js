@@ -64,7 +64,7 @@ define(['g','_/utils'],function(g){
 		
 		properties.Extend=properties.Extend||[];
 		properties.Extend=properties.Extend.constructor==Array?properties.Extend:[properties.Extend];
-		properties.Extend.unshift(parent);
+		//properties.Extend.unshift(parent);
 		
 		implement.call(constructor_, properties);
 		
