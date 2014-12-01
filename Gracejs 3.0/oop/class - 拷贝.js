@@ -1,7 +1,5 @@
-define(['g'],function(g){
-	
 
-
+var Class = (function () {
 	function Class(o) {
 		// Convert existed function to Class.
 		if (!(this instanceof Class) && isFunction(o)) {
@@ -24,59 +22,63 @@ define(['g'],function(g){
 	//
 	//应该改一下第一个参数的作用 --> 构造函数
 
-	Class.create = function (constructor, properties) {
-		
+	Class.create = function (_constructor, properties) {
 
-		
-		if (!isFunction(constructor)) {
-			properties = constructor;
-			constructor=properties.initialize||function Empty(){};
+		if (!isFunction(_constructor)) {
+			properties = _constructor;
 		} else { //将第一个参数改为构造函数
-			properties.initialize = constructor;
+			properties.initialize = _constructor;
 		}
 
-		properties = properties||{};
-		
+		properties || (properties = {});
+
 		var parent = properties.Extends || Class;
 
 		properties.Extends = parent;
-		
-		
-		if(!properties.__type__) 
-			properties.__type__=(parent.prototype.__type__?parent.prototype.__type__.toLowerCase():false)||'class';
+
+		// The created class constructor////??????
+		function SubClass() {
+			// Call the parent constructor.
+			parent.apply(this, arguments); //貌似删掉也没差别
+
+			// Only call initialize in self constructor.
+			//执行自己的初始化函数，父类的初始化函数都不执行,
+			if (this.constructor === SubClass && this.initialize) {
+				this.initialize.apply(this, arguments);
+			}
+		}
 
 		// Inherit class (static) properties from parent.
 		if (parent !== Class) {
-			mix(constructor, parent, parent.StaticsWhiteList);
+			mix(SubClass, parent, parent.StaticsWhiteList);
 		}
 
 		// Add instance properties to the subclass.
-		implement.call(constructor, properties);
+		implement.call(SubClass, properties);
 
 		// Make subclass extendable.
-		return classify(constructor);
+		return classify(SubClass);
 	}
 
 	function implement(properties) {
-		var key, value ;
+		var key,
+		value
+
 		for (key in properties) {
-			value = properties[key];
-			// 遍历传入参数，特殊参数特殊处理，其他归入原型
-			if (Class.Mutators.hasOwnProperty(key)) {
-				Class.Mutators[key].call(this, value);
-			} else {
-				this.prototype[key] = value;
-			}
+			value = properties[key]
+				// 遍历传入参数，特殊参数特殊处理，其他归入原型
+				if (Class.Mutators.hasOwnProperty(key)) {
+					Class.Mutators[key].call(this, value);
+				} else {
+					this.prototype[key] = value;
+				}
 		}
 	}
-	
-	//扩展也需要定义构造函数，默认执行父类的构造函数
-	// Create a sub Class based on `Class`. 
+
+	// Create a sub Class based on `Class`.
 	Class.extend = function (properties) {
 		properties || (properties = {});
 		properties.Extends = this;
-		if(!properties.initialize)
-			properties.initialize = function Empty(){};
 		return Class.create(properties);
 	}
 
@@ -90,6 +92,7 @@ define(['g'],function(g){
 	Class.Mutators = {
 
 		'Extends' : function (parent) {
+			
 			var existed = this.prototype;
 			var proto = createProto(parent.prototype);
 
@@ -116,7 +119,7 @@ define(['g'],function(g){
 		},
 
 		'Statics' : function (staticProperties) {
-			mix(this, staticProperties);
+			mix(this, staticProperties)
 		}
 	}
 
@@ -175,9 +178,7 @@ define(['g'],function(g){
 		}
 		return -1
 	};
-	
-	g.Class=Class;
-	
+
 	return Class;
 
-});
+})();

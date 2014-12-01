@@ -1,6 +1,34 @@
-define(['g'],function(g){
+define(['g','_/utils'],function(g){
 	
-
+	/*
+	扩展父类，创建子类
+	Class(constructor,{
+		Extend: Flyable,//创建时批量输入
+	});
+	继承父类，创建子类，执行父类构造函数
+	Class(constructor,{
+		Inherit: Animal,//继承，将执行父类构造函数
+		Extend: [Flyable,Class2,Class3],//创建时批量输入
+	});
+	
+	扩展父类，不创建子类
+	SubClass.extend({
+		method1:...
+		method2:...
+	},class2,class3);
+	
+	扩展父类，创建子类
+	Class(PClass,{
+		Extend: Flyable,//创建时批量输入
+		method1:...
+		method2:...
+	});
+	
+	
+	Class方法可创建新类
+	extend不创建新类
+	
+	*/
 
 	// Create a new Class
 	//
@@ -18,8 +46,6 @@ define(['g'],function(g){
 	//应该改一下第一个参数的作用 --> 构造函数
 
 	function Class(constructor, properties) {
-		
-
 		
 		if (!isFunction(constructor)) {
 			properties = constructor;
@@ -40,11 +66,11 @@ define(['g'],function(g){
 		if(!properties.__type__) 
 			properties.__type__=parent.prototype.__type__?parent.prototype.__type__.toLowerCase():'class';
 		if(!properties.__name__) 
-			properties.__name__=constructor.name||parent.prototype.__name__||'class';
+			properties.__name__=constructor.name||'Extend';
 		
 		
 		// 继承静态方法
-		if (parent !== Class||constructor.name=='Base') {
+		if (parent !== Class) {
 			mix(constructor, parent, parent.StaticsWhiteList);
 		}
 
@@ -73,14 +99,24 @@ define(['g'],function(g){
 	//扩展也需要定义构造函数，默认执行父类的构造函数
 	// Create a sub Class based on `Class`. 
 	function extend(constructor, properties) {
+		var ext=this;
 		if (!isFunction(constructor)) {
-			properties = constructor;
+			properties=constructor;
 			constructor=properties.constructor||function Empty(){};
 		} else { // 将第一个参数改为构造函数
 			if(!properties) properties={};
 		}
-		properties.Extends = this;
-		return Class(constructor, properties);
+		
+		
+		var dd =function (){
+			if(ext!=Class)g.utils.call(this, arguments, ext);
+			g.utils.call(this, arguments, constructor);
+		}
+		
+		properties.constructor = dd;
+		
+		properties.Extends = ext;
+		return Class(properties);
 	}
 	Class.extend=extend;
 	function classify(cls) {

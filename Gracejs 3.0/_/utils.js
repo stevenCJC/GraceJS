@@ -1,4 +1,4 @@
-define(['g','./extend/md5','./var/_ids'], function(g ,md5 ,_ids) {
+define(['g','./function/md5','./var/_ids'], function(g ,md5 ,_ids) {
 	
 	var utils={
 		sid:function(ns){
