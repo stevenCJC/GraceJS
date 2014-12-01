@@ -19,7 +19,6 @@ define(['g','_/utils'],function(g){
 	
 	扩展父类，创建子类
 	Class(PClass,{
-		constructor:function ClassName(){}
 		Extend: Flyable,//创建时批量输入
 		method1:...
 		method2:...
@@ -31,12 +30,26 @@ define(['g','_/utils'],function(g){
 	
 	*/
 
+	// Create a new Class
+	//
+	//  var SuperPig = Class({
+	//    Extends: Animal,
+	//    Implements: Flyable,
+	//    constructor: function() {
+	//      SuperPig.superclass.constructor.apply(this, arguments)
+	//    },
+	//    Statics: {
+	//      COLOR: 'red'
+	//    }
+	// })
+	//
+	//应该改一下第一个参数的作用 --> 构造函数
 
 	function Class(constructor, properties) {
 		
 		if (!isFunction(constructor)) {
 			properties = constructor;
-			constructor=properties.constructor|| Empty;
+			constructor=properties.constructor||function Empty(){};
 		} else { // 将第一个参数改为构造函数
 			if(!properties) {
 				return classify(constructor);
@@ -45,52 +58,42 @@ define(['g','_/utils'],function(g){
 		
 		delete properties.constructor;
 		
-		var parent = properties.Inherit || Empty;
+		var parent = properties.Extends || Class;
 
-		properties.Inherit = parent;
-		
-		var constructor_;
-		if(parent!==Empty)
-			constructor_=makeConstructor(constructor.name,function(){
-				g.utils.call(this,arguments,parent);
-				g.utils.call(this,arguments,constructor);
-			});
-		else constructor_=constructor;
-		
-		properties.Extend=properties.Extend||[];
-		properties.Extend=properties.Extend.constructor==Array?properties.Extend:[properties.Extend];
-		properties.Extend.unshift(constructor);
-		
-		implement.call(constructor_, properties);
+		properties.Extends = parent;
 		
 		
-		/*if(!properties.__type__) 
+		if(!properties.__type__) 
 			properties.__type__=parent.prototype.__type__?parent.prototype.__type__.toLowerCase():'class';
 		if(!properties.__name__) 
-			properties.__name__=constructor.name||'Extend';*/
+			properties.__name__=constructor.name||'Extend';
 		
 		
 		// 继承静态方法
 		if (parent !== Class) {
 			mix(constructor, parent, parent.StaticsWhiteList);
 		}
-		
+
+		// Add instance properties to the subclass.
+		implement.call(constructor, properties);
+
 		// Make subclass extendable.
-		return classify(constructor_);
+		return classify(constructor);
 	}
-	
-	function Empty(){};
-	
+
 	function implement(properties) {
-		var mutators=['Inherit','Extend','Statics'];
-		Mutators['Inherit'].call(this, properties['Inherit']);
-		delete properties['Inherit'];
-		Mutators['Statics'].call(this, properties['Statics']);
-		delete properties['Statics'];
-		var _extends=properties['Extend'];
-		delete properties['Extend'];
-		_extends.push(properties);
-		Mutators['Extend'].call(this, _extends);
+		var key ;
+		
+		var mutators=Object.keys(Mutators);
+		for(var i=0,l=mutators.length;i<l;i++)
+			if(properties[mutators[i]]) {
+				Mutators[mutators[i]].call(this, properties[mutators[i]]);
+				delete properties[mutators[i]];
+			}
+		
+		for (key in properties) {
+			this.prototype[key] = properties[key];
+		}
 	}
 	
 	//扩展也需要定义构造函数，默认执行父类的构造函数
@@ -125,8 +128,8 @@ define(['g','_/utils'],function(g){
 	// Mutators define special properties.
 	var Mutators = {
 
-		'Inherit' : function (parent) {
-			var that=this;
+		'Extends' : function (parent) {
+			
 			var proto = createProto(parent.prototype);
 
 			// Enforce the constructor to be what we expect.
@@ -139,8 +142,9 @@ define(['g','_/utils'],function(g){
 			// needed later.
 			this.Super = parent.prototype;
 		},
-		
-		'Extend' : function (items) {
+
+		'Implements' : function (items) {
+			isArray(items) || (items = [items])
 			var proto = this.prototype, item;
 			while (item = items.shift()) {
 				mix(proto, item.prototype || item)
@@ -154,6 +158,7 @@ define(['g','_/utils'],function(g){
 
 	// Shared empty constructor function to aid in prototype-chain creation.
 	function Ctor() {}
+
 	// See: http://jsperf.com/object-create-vs-new-ctor
 	//如果__proto__可访问，则会创造__proto__属性，指向父类的prototype，
 	var createProto = Object.__proto__ ?
@@ -165,30 +170,18 @@ define(['g','_/utils'],function(g){
 		Ctor.prototype = proto;
 		return new Ctor();
 	};
-	
-	function makeConstructor(name,obj){
-		console.time('scr');
-		window._tmp_obj_=obj;
-		for(var i=0;i<1000;i++){
-			window.eval('window._tmp_constructor_=(function(obj){'+
-									'return function '+name+'(){\n obj.apply(this,arguments);}'+
-								'})(window._tmp_obj_)');
-			var constructor=window._tmp_constructor_;
-			delete window._tmp_constructor_;
-		}
-		console.timeEnd('scr');
-		delete window._tmp_constructor_;
-		delete window._tmp_obj_;
-		return constructor;
-		
-	}
-	
+
+	// Helpers
+	// ------------
 
 	function mix(r, s, wl) {
+		// Copy "all" properties including inherited ones.
 		for (var p in s) {
 			if (s.hasOwnProperty(p)) {
+				if (wl && indexOf(wl, p) === -1)
+					continue;
 				// 在 iPhone 1 代等设备的 Safari 中，prototype 也会被枚举出来，需排除
-				if (p !== 'prototype'&&p!='constructor') {
+				if (p !== 'prototype') {
 					r[p] = s[p];
 				}
 			}
@@ -197,12 +190,27 @@ define(['g','_/utils'],function(g){
 
 	var toString = Object.prototype.toString;
 
-	
+	var isArray = Array.isArray || function (val) {
+		return toString.call(val) === '[object Array]';
+	};
+
 	var isFunction = function (val) {
 		return toString.call(val) === '[object Function]';
 	};
 
-	
+	var indexOf = Array.prototype.indexOf ?
+	function (arr, item) {
+		return arr.indexOf(item)
+	}
+	 :
+	function (arr, item) {
+		for (var i = 0, len = arr.length; i < len; i++) {
+			if (arr[i] === item) {
+				return i
+			}
+		}
+		return -1
+	};
 	
 	g.Class=Class;
 	
