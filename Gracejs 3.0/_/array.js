@@ -2,6 +2,16 @@ define(['g'], function(g) {
 	//面向复杂数组的情况下使用
 	var array = {
 		
+		del:function(arr,index){
+			var v=arr[index];
+			arr.splice(index,1);
+			return v;
+		},
+		
+		add:function(arr,index,value){
+			arr.splice(index,0,value);
+		},
+		
 		sort:function(arr, field){
 			if(arr.toString()!='[object Object]')
 				return arr.sort(field);
@@ -108,7 +118,7 @@ define(['g'], function(g) {
 		
 		toString:function(arr){
 			if(!arr) return '';
-			if(arr.toString()=='[object Object]') return JSON.stringify(arr);
+			if(arr.constructor!=Array||arr.toString()=='[object Object]') return JSON.stringify(arr.toArray?arr.toArray():arr);
 			else return arr.toString();
 			
 		}

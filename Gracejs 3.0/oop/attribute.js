@@ -1,5 +1,5 @@
+define([],function(){
 
-var Attribute=(function(){
 	var attribute={};
 	attribute.initAttrs = function(config) {
 	  // initAttrs 是在初始化时调用的，默认情况下实例上肯定没有 attrs，不存在覆盖问题
@@ -22,11 +22,13 @@ var Attribute=(function(){
 	
 	  // 将 this.attrs 上的 special properties 放回 this 上
 	  copySpecialProps(specialProps, this, attrs, true);
+	  
 	};
 	
 	
 	// Get the value of an attribute.
 	attribute.get = function(key) {
+		if(!this.__initializingAttrs) this.initAttrs();
 	  var attr = this.attrs[key] || {};
 	  var val = attr.value;
 	  return attr.getter ? attr.getter.call(this, val, key) : val;
@@ -36,6 +38,7 @@ var Attribute=(function(){
 	// Set a hash of model attributes on the object, firing `"change"` unless
 	// you choose to silence it.
 	attribute.set = function(key, val, options) {
+		if(!this.__initializingAttrs) this.initAttrs();
 	  var attrs = {};
 	
 	  // set("key", val, options)
@@ -492,7 +495,9 @@ var Attribute=(function(){
 	  // 其他情况返回 false, 以避免误判导致 change 事件没发生
 	  return false;
 	}
-
+	
+	
+	
 	return attribute;
 	
-})();
+});

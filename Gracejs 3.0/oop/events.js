@@ -1,5 +1,4 @@
-
-var Events=(function(){
+define(['g'],function(g){
 	
 	var eventSplitter = /\s+/
 	
@@ -170,7 +169,8 @@ var Events=(function(){
 	  return Object.prototype.toString.call(func) === '[object Function]'
 	}
 	
+	g.Events=Events;
 	return Events;
 	
-})();
+});
 

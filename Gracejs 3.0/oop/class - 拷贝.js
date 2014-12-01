@@ -2,13 +2,20 @@ define(['g'],function(g){
 	
 
 
-	// Create a new Class
+	function Class(o) {
+		// Convert existed function to Class.
+		if (!(this instanceof Class) && isFunction(o)) {
+			return classify(o);
+		}
+	}
+
+	// Create a new Class.
 	//
-	//  var SuperPig = Class({
+	//  var SuperPig = Class.create({
 	//    Extends: Animal,
 	//    Implements: Flyable,
-	//    constructor: function() {
-	//      SuperPig.superclass.constructor.apply(this, arguments)
+	//    initialize: function() {
+	//      SuperPig.superclass.initialize.apply(this, arguments)
 	//    },
 	//    Statics: {
 	//      COLOR: 'red'
@@ -17,20 +24,18 @@ define(['g'],function(g){
 	//
 	//应该改一下第一个参数的作用 --> 构造函数
 
-	function Class(constructor, properties) {
+	Class.create = function (constructor, properties) {
 		
 
 		
 		if (!isFunction(constructor)) {
 			properties = constructor;
-			constructor=properties.constructor||function Empty(){};
-		} else { // 将第一个参数改为构造函数
-			if(!properties) {
-				return classify(constructor);
-			}
+			constructor=properties.initialize||function Empty(){};
+		} else { //将第一个参数改为构造函数
+			properties.initialize = constructor;
 		}
-		
-		delete properties.constructor;
+
+		properties = properties||{};
 		
 		var parent = properties.Extends || Class;
 
@@ -38,13 +43,10 @@ define(['g'],function(g){
 		
 		
 		if(!properties.__type__) 
-			properties.__type__=parent.prototype.__type__?parent.prototype.__type__.toLowerCase():'class';
-		if(!properties.__name__) 
-			properties.__name__=constructor.name||parent.prototype.__name__||'class';
-		
-		
-		// 继承静态方法
-		if (parent !== Class||constructor.name=='Base') {
+			properties.__type__=(parent.prototype.__type__?parent.prototype.__type__.toLowerCase():false)||'class';
+
+		// Inherit class (static) properties from parent.
+		if (parent !== Class) {
 			mix(constructor, parent, parent.StaticsWhiteList);
 		}
 
@@ -56,45 +58,43 @@ define(['g'],function(g){
 	}
 
 	function implement(properties) {
-		var key ;
-		
-		var mutators=Object.keys(Mutators);
-		for(var i=0,l=mutators.length;i<l;i++)
-			if(properties[mutators[i]]) {
-				Mutators[mutators[i]].call(this, properties[mutators[i]]);
-				delete properties[mutators[i]];
-			}
-		
+		var key, value ;
 		for (key in properties) {
-			this.prototype[key] = properties[key];
+			value = properties[key];
+			// 遍历传入参数，特殊参数特殊处理，其他归入原型
+			if (Class.Mutators.hasOwnProperty(key)) {
+				Class.Mutators[key].call(this, value);
+			} else {
+				this.prototype[key] = value;
+			}
 		}
 	}
 	
 	//扩展也需要定义构造函数，默认执行父类的构造函数
 	// Create a sub Class based on `Class`. 
-	function extend(constructor, properties) {
-		if (!isFunction(constructor)) {
-			properties = constructor;
-			constructor=properties.constructor||function Empty(){};
-		} else { // 将第一个参数改为构造函数
-			if(!properties) properties={};
-		}
+	Class.extend = function (properties) {
+		properties || (properties = {});
 		properties.Extends = this;
-		return Class(constructor, properties);
+		if(!properties.initialize)
+			properties.initialize = function Empty(){};
+		return Class.create(properties);
 	}
-	Class.extend=extend;
+
 	function classify(cls) {
-		cls.extend = extend;
+		cls.extend = Class.extend;
 		cls.implement = implement;
 		return cls;
 	}
 
 	// Mutators define special properties.
-	var Mutators = {
+	Class.Mutators = {
 
 		'Extends' : function (parent) {
-			
+			var existed = this.prototype;
 			var proto = createProto(parent.prototype);
+
+			// Keep existed properties.
+			mix(proto, existed);
 
 			// Enforce the constructor to be what we expect.
 			proto.constructor = this;
@@ -104,7 +104,7 @@ define(['g'],function(g){
 
 			// Set a convenience property in case the parent's prototype is
 			// needed later.
-			this.Super = parent.prototype;
+			this.superclass = parent.prototype;
 		},
 
 		'Implements' : function (items) {

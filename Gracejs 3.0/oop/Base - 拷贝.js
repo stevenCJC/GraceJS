@@ -1,34 +1,31 @@
 define(['g','./Class','./Events','./aspect','./attribute'],function(g,Class,Events,aspect,attribute){
-	
-	
-	//需要重写
-	
+
 	var base=Class(function Base(constructor, properties){
-		
-		this.initAttrs(constructor.constructor==Function ? properties :constructor);
-		
+		  
+		this.constructor(config);
+	
 		// Automatically register `this._onChangeAttr` method as
 		// a `change:attr` event handler.
 		parseEventsFromInstance(this, this.attrs);
 		
 	},{
 		__type__:'BASE',
-		Implements: [Events, aspect, attribute],
+	  Implements: [Events, aspect, attribute],
 	
-		destroy: function() {
+	  destroy: function() {
 		
-			this.off();
-		
-			for (var p in this) {
-			  if (this.hasOwnProperty(p)) {
-				delete this[p];
-			  }
-			}
-		
-			// Destroy should be called only once, generate a fake destroy after called
-			// https://github.com/aralejs/widget/issues/50
-			this.destroy = function() {};
+		this.off();
+	
+		for (var p in this) {
+		  if (this.hasOwnProperty(p)) {
+			delete this[p];
+		  }
 		}
+	
+		// Destroy should be called only once, generate a fake destroy after called
+		// https://github.com/aralejs/widget/issues/50
+		this.destroy = function() {};
+	  }
 	});
 	
 	

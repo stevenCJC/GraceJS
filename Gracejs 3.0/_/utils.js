@@ -1,6 +1,11 @@
-define(['g','./extend/md5'], function(g ,md5) {
+define(['g','./extend/md5','./var/_ids'], function(g ,md5 ,_ids) {
 	
 	var utils={
+		sid:function(ns){
+			if(!_ids[ns])_ids[ns]=1;
+			else _ids[ns]++;
+			return _ids[ns];
+		},
 		md5 :　md5,
 		call : function( context, args, func ){
 			context=context||this;
@@ -38,9 +43,4 @@ define(['g','./extend/md5'], function(g ,md5) {
 	g.utils=g.u=utils;
 	
 	return utils;
-});
-define(['$'], function($) {
-	// Return a random integer between min and max (inclusive).
-	
-	return $;
 });

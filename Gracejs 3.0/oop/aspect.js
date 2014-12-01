@@ -1,4 +1,4 @@
-var Aspect=(function(){
+define([],function(){
 	
 	var aspect={};
 	
@@ -67,5 +67,5 @@ var Aspect=(function(){
 	return aspect;
 	
 	
-})()
+});
 

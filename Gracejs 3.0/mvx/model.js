@@ -38,15 +38,12 @@ define(["g" , './var/_models' ,'ajax/request', './common/dataset/DS','_/string']
 			}
 		});
 		
-			
-			
-			
-			model.getList(function(data){});
-			model.getList({
-				success:function(data){},
-				error:function(e){},
-				before:function(setting){},
-			});
+		model.getList(function(data){});
+		model.getList({
+			success:function(data){},
+			error:function(e){},
+			before:function(setting){},
+		});
 			
 			
 1			
@@ -132,6 +129,13 @@ define(["g" , './var/_models' ,'ajax/request', './common/dataset/DS','_/string']
 		
 		return models;
 	};
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	function storage(type, key, data,extend){
