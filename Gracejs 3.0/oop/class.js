@@ -19,7 +19,7 @@ define(['g','_/utils'],function(g){
 	
 	扩展父类，创建子类
 	Class(PClass,{
-		constructor:function ClassName(){}
+		Name: 'ClassName',
 		Extend: Flyable,//创建时批量输入
 		method1:...
 		method2:...
@@ -69,18 +69,12 @@ define(['g','_/utils'],function(g){
 		implement.call(constructor_, properties);
 		
 		
-		/*if(!properties.__type__) 
-			properties.__type__=parent.prototype.__type__?parent.prototype.__type__.toLowerCase():'class';
-		if(!properties.__name__) 
-			properties.__name__=constructor.name||'Extend';*/
+		
 		
 		
 		// 继承静态方法
 		if (parent !== Class) {
 			mix(constructor_, parent, parent.StaticsWhiteList);
-		}
-		if (constructor !== Class) {
-			mix(constructor_, constructor, constructor.StaticsWhiteList);
 		}
 		// Make subclass extendable.
 		return classify(constructor_);
