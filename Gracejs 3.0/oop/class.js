@@ -64,7 +64,7 @@ define(['g','_/utils'],function(g){
 		
 		properties.Extend=properties.Extend||[];
 		properties.Extend=properties.Extend.constructor==Array?properties.Extend:[properties.Extend];
-		properties.Extend.unshift(constructor);
+		properties.Extend.unshift(parent);
 		
 		implement.call(constructor_, properties);
 		
@@ -176,13 +176,11 @@ define(['g','_/utils'],function(g){
 	function makeConstructor(name,obj){
 		console.time('scr');
 		window._tmp_obj_=obj;
-		for(var i=0;i<1000;i++){
-			window.eval('window._tmp_constructor_=(function(obj){'+
-									'return function '+name+'(){\n obj.apply(this,arguments);}'+
-								'})(window._tmp_obj_)');
-			var constructor=window._tmp_constructor_;
-			delete window._tmp_constructor_;
-		}
+		window.eval('window._tmp_constructor_=(function(obj){'+
+								'return function '+name+'(){\n obj.apply(this,arguments);}'+
+							'})(window._tmp_obj_)');
+		var constructor=window._tmp_constructor_;
+		delete window._tmp_constructor_;
 		console.timeEnd('scr');
 		delete window._tmp_constructor_;
 		delete window._tmp_obj_;

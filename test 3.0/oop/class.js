@@ -29,20 +29,38 @@ require(['g','oop/Class'],function(g){
 		miao:function(){},
 	});
 	
+	function uu(){}
+	uu.prototype={
+		constructor:uu,
+		bleath:function(){},
+	}
+	function AA(){}
+	AA.prototype={
+		constructor:AA,
+		AAAAAAAAA:function(){},
+	}
+	
 	var ddog=g.Class(dog,{
 		Name:'DDog',
-		//Extend:[cell,animal],
+		Extend:[uu,AA],
 		wang:function(){
 			this.ddog();
 		},
-		miao:function(){},
+		ww:function(){},
 	});
-	
+	var aa=g.Class(AA,{
+		Name:'AAA',
+		Extend:[xtq],
+		AAA:function(){
+			this.ddog();
+		},
+		AAAA:function(){},
+	});
 	console.log(new animal());
 	console.log(new dog());
 	console.log(new xtq());
 	console.log(new ddog());
-	
+	console.log(new aa());
 	
 	
 	
