@@ -1,68 +1,89 @@
 require(['g','oop/Class'],function(g){
 	
-	var cell=g.Class(function Cell(){
-		this.name='细胞';
-		console.log('cell');
+	var A=g.Class(function AA(){
+		this.a='细胞';
 	});
 	
-	var animal=g.Class(function Animal(){
+	var B=g.Class(function BB(){
 		console.log('animal');
 	},{
-		Inherit:cell,
-		eat:function(){},
+		Inherit:A,
+		bbbb:function(){},
 	});
 	
-	var dog=g.Class(function Dog(){
+	var C=g.Class(function CC(){
 		console.log(this.Name||'dog');
 	},{
-		Inherit:animal,
-		wang:function(){},
+		Inherit:B,
+		cccc:function(){},
 	});
 	
-	var xtq=g.Class(function XTQ(){
-		this.name_='这是大猫';
+	var D=g.Class(function DD(){
+		this.d='这是大猫';
 	},{
-		Extend:[cell,animal,dog],
-		wang:function(){
-			this.miao();
+		Extend:[A,D,C],
+		dddd:function(){
+			this.ddd();
 		},
-		miao:function(){},
+		ddd:function(){},
 	});
 	
-	function uu(){}
-	uu.prototype={
-		constructor:uu,
-		bleath:function(){},
+	function UU(){}
+	UU.prototype={
+		constructor:UU,
+		uuuuu:function(){},
 	}
-	function AA(){}
-	AA.prototype={
-		constructor:AA,
-		AAAAAAAAA:function(){},
+	function QQ(){}
+	QQ.prototype={
+		constructor:QQ,
+		qqqqq:function(){},
 	}
 	
-	var ddog=g.Class(dog,{
-		Name:'DDog',
-		Extend:[uu,AA],
-		wang:function(){
+	var DD=g.Class(D,{
+		Name:'DDDD',
+		Extend:[UU,C],
+		ddd:function(){
 			this.ddog();
 		},
-		ww:function(){},
+		dd:function(){},
 	});
-	var aa=g.Class(AA,{
+	var aa=g.Class(C,{
 		Name:'AAA',
-		Extend:[xtq],
-		AAA:function(){
-			this.ddog();
+		Extend:[A],
+		aaaaa:function(){
+			this.aaaaa();
 		},
-		AAAA:function(){},
+		aaaaa:function(){},
 	});
-	console.log(new animal());
-	console.log(new dog());
-	console.log(new xtq());
-	console.log(new ddog());
-	console.log(new aa());
 	
 	
+	function WW(){}
+	WW.prototype={
+		constructor:WW,
+		www:function(){},
+	}
+	
+	g.Class(WW).extend(B,QQ,UU,{
+		wwwww:function(){},
+		www:function(r){alert(8);},
+	});
+	
+	var t1=g.Class();
+	var t2=g.Class({});
+	var t3=g.Class({a:12,b:function(){}});
+	
+	/*console.log(new t1());
+	console.log(new t2());
+	console.log(new t3());*/
+	
+	
+	/*console.log(new A());
+	console.log(new C());*/
+	console.log(new D());
+	//console.log(new DD());
+	/*console.log(new aa());
+	console.log(new QQ());
+	console.log(new WW());*/
 	
 	
 	
