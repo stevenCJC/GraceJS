@@ -40,7 +40,7 @@ define(['g','_/utils'],function(g){
 		
 		// 继承静态方法
 		if(constructor_!=parent&&parent!=Empty)
-			mix(constructor_, parent, ['']);
+			mix(constructor_, parent);
 		
 		// Make subclass extendable.
 		return classify(constructor_);
@@ -99,14 +99,17 @@ define(['g','_/utils'],function(g){
 		
 		'Extend' : function (items) {
 			var proto = this.prototype, item;
+			var blacklist;
 			while (items.length) {
 				item = items.shift();
-				mix(proto, item&&item.prototype || item || {});
+				item=item&&item.prototype || item || {};
+				blacklist= item.Blacklist;
+				mix(proto, item, blacklist);
 			}
 		},
 
 		'Statics' : function (staticProperties) {
-			mix(this, staticProperties);
+			mix(this, staticProperties, staticProperties&&staticProperties.Blacklist);
 		}
 	}
 
@@ -124,7 +127,7 @@ define(['g','_/utils'],function(g){
 		return new Ctor();
 	};
 	
-	function makeConstructor_(name,obj){
+	function makeConstructor(name,obj){
 		console.time('scr');
 		window._tmp_obj_=obj;
 		window.eval('window._tmp_constructor_=(function(obj){'+
@@ -138,7 +141,7 @@ define(['g','_/utils'],function(g){
 		return constructor;
 	}
 	
-	function makeConstructor(name,obj){
+	function makeConstructor_(name,obj){
 		Constructor.prototype.__name__=name;
 		function Constructor(){
 			obj.apply(this,arguments);
@@ -146,16 +149,16 @@ define(['g','_/utils'],function(g){
 		return Constructor;
 	}
 	
-	function mix(target, obj, black) {
-		for (var p in obj) {
-			if(black&&black.indexOf(p)>-1) continue;
-			if (obj.hasOwnProperty(p)) {
-				// 在 iPhone 1 代等设备的 Safari 中，prototype 也会被枚举出来，需排除
-				if (p !== 'prototype'&&p!='constructor'&&p!='__name__') {
-					target[p] = obj[p];
+	function mix(target, obj, blacklist) {
+		if(obj) for (var p in obj) {
+				if(blacklist&&blacklist.indexOf(p)>-1) continue;
+				if (obj.hasOwnProperty(p)) {
+					// 在 iPhone 1 代等设备的 Safari 中，prototype 也会被枚举出来，需排除
+					if (p !== 'prototype'&&p!='constructor'&&p!='__name__') {
+						target[p] = obj[p];
+					}
 				}
 			}
-		}
 	}
 
 	var toString = Object.prototype.toString;
