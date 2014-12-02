@@ -44,11 +44,14 @@ require(['g','oop/Base'],function(g){
 	
 	//console.log(new dog());
 	console.log({a: cat});
-	console.log(new cat({a:2,miao:'sdfsdf'}));
-	
-	
-	
-	
+	var c=new cat({a:2,miao:'sdfsdf',ww:{getter:function(){return this.attrs.weight/1000;},setter:function(v){this.attrs.weight=v*1000;}}});
+	console.log(c);
+	c.on('change:ww',function(e){
+		console.log(e);
+	});
+	console.log(c.get('ww'));
+	c.set({ww:3});
+	console.log(c.get('ww'));
 	
 	
 	

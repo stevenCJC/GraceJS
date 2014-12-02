@@ -103,7 +103,7 @@ define(['g'], function (g) {
 				while (event = events.shift()) {
 					// Copy callback lists to prevent modification.
 					if (all = cache.all)
-						all = all.slice()
+						all = all.slice();
 							if (list = cache[event])
 								list = list.slice()
 

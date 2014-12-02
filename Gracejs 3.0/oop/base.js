@@ -85,8 +85,7 @@ define(['g', './Class', './Events', './aspect', './attribute','_/utils','_/is'],
 						props.Attrs[x]=opts_parent[x];
 			},
 			construct:function(constr,parent,configs){
-				this.initAttrs(configs||{});
-				parseEventsFromInstance(this, this.options);
+				this.attrInit(configs||{});
 			},
 		},
 		
@@ -111,23 +110,6 @@ define(['g', './Class', './Events', './aspect', './attribute','_/utils','_/is'],
 	}
 	
 	
-
-	function parseEventsFromInstance(host, attrs) {
-		for (var attr in attrs) {
-			if (attrs.hasOwnProperty(attr)) {
-				var m = '_onChange' + ucfirst(attr);
-				if (host[m]) {
-					host.on('change:' + attr, host[m]);
-				}
-			}
-		}
-	}
-	
-	
-	function ucfirst(str) {
-		return str.charAt(0).toUpperCase() + str.substring(1);
-	}
-
 	g.Base = base;
 
 	return base;
