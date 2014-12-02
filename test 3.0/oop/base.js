@@ -40,6 +40,10 @@ require(['g','oop/Base'],function(g){
 		},
 	});
 	
+	cat.extend({
+		Attrs:{miao:'123123',}
+	})
+	
 	//console.log(new animal());
 	
 	//console.log(new dog());

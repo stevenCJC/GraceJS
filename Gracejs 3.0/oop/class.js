@@ -103,17 +103,20 @@ define(['g', '_/utils'], function (g) {
 		'Extend' : function (items) {
 			var proto = this.prototype,
 			item;
-			var blacklist;
+			var blacklist=proto.__blacklist__||[];
+			var extendlist=proto.__extendlist__||[];
 			while (items.length) {
 				item = items.shift();
 				item = item && item.prototype || item || {};
-				blacklist = item.Blacklist;
-				mix(proto, item, blacklist);
+				if(item.__blacklist__) blacklist.concat(item.__blacklist__);
+				if(item.__extendlist__) extendlist.concat(item.__extendlist__);
+				mix(proto, item, blacklist,extendlist);
+				
 			}
 		},
 
 		'Statics' : function (staticProperties) {
-			mix(this, staticProperties, staticProperties && staticProperties.Blacklist);
+			mix(this, staticProperties, staticProperties && staticProperties.__blacklist__);
 		}
 	}
 
@@ -152,15 +155,20 @@ define(['g', '_/utils'], function (g) {
 		return Constructor;
 	}
 
-	function mix(target, obj, blacklist) {
+	function mix(target, obj, blacklist, extendlist) {
 		if (obj)
 			for (var p in obj) {
 				if (blacklist && blacklist.indexOf(p) > -1)
 					continue;
 				if (obj.hasOwnProperty(p)) {
 					// 在 iPhone 1 代等设备的 Safari 中，prototype 也会被枚举出来，需排除
-					if (p !== 'prototype' && p != 'constructor' && p != '__name__'&& p != '__blacklist__') {
-						target[p] = obj[p];
+					if (p !== 'prototype' && p != 'constructor' && p != '__name__'&& p != '__blacklist__'&& p != '__extendlist__') {
+						if (extendlist && extendlist.indexOf(p) > -1){
+							if(obj[p]&&typeof obj[p] == 'object'){
+								target[p]=target[p]||{};
+								for(var x in obj[p]) target[p][x]=obj[p][x];
+							}
+						}else target[p] = obj[p];
 					}
 				}
 			}

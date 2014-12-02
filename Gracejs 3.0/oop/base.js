@@ -1,11 +1,10 @@
 define(['g', './Class', './Events', './aspect', './attribute','_/utils','_/is'], function (g, Class, Events, aspect, attribute) {
 
-	//需要重写
+	
 	var base=function(constructor_,properties){
 		
 		var bclass;
-		if(arguments.length==1)
-			bclass=Class(constructor_,constructor__);
+		if(arguments.length==1) bclass=Class(constructor_,constructor__);
 		else if(arguments.length==2) bclass=Class(constructor_,properties,constructor__);
 		else bclass=Class(function Empty(){},constructor__);
 		
@@ -19,8 +18,6 @@ define(['g', './Class', './Events', './aspect', './attribute','_/utils','_/is'],
 				var configs;
 				if(g.is.object(arguments[0])) configs=arguments[0];
 				else if(g.is.object(arguments[1])) configs=arguments[1];
-				
-				
 				
 				if(parent){
 					if(parent.prototype&&parent.prototype.__type__=='BASE')
@@ -40,7 +37,6 @@ define(['g', './Class', './Events', './aspect', './attribute','_/utils','_/is'],
 		bclass.extend(Events, aspect, attribute, {
 			
 			__type__ : 'BASE',
-			
 			destroy : function () {
 				
 				this.off();
@@ -54,6 +50,8 @@ define(['g', './Class', './Events', './aspect', './attribute','_/utils','_/is'],
 				this.destroy = function () {};
 			}
 		});
+		bclass.prototype.__blacklist__=['__type__'];
+		bclass.prototype.__extendlist__=['Attrs'];
 		return bclass;
 	};
 	
