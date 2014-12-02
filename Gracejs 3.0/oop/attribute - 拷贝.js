@@ -1,41 +1,30 @@
-define(['g','_/is'], function (g) {
+define([], function () {
 
-	var attribute = {
-		
-		attrInit:function(configs){
-			this.attrs={};
-			for(var x in this.Attrs) this.attrs[x] = this.Attrs[x];
-			for(var x in configs) this.attrs[x] = configs[x];
-			//for(var x in this.attrs) makeEvent.call(this,x);
-		},
-		get:function(key){
-			return this.attrs[key];
-		},
-		set:function(map,value){
-			if(arguments.length==2){
-				setValue(map,value,this.attrs[map],this);
-			}else{
-				if(g.is.object(map)){
-					for (var x in map) setValue(x,map[x],this.attrs[x],this);
-				}
-			}
-		},
-		
+	var attribute = {};
+	attribute.initAttrs = function (config) {
+		// initAttrs 是在初始化时调用的，默认情况下实例上肯定没有 attrs，不存在覆盖问题
+		var attrs = this.attrs = {};
+
+		// Get all inherited attributes.
+		var specialProps = this.propsInAttrs || [];
+		mergeInheritedAttrs(attrs, this, specialProps);
+
+		// Merge user-specific attributes from config.
+		if (config) {
+			mergeUserValue(attrs, config);
+		}
+
+		// 对于有 setter 的属性，要用初始值 set 一下，以保证关联属性也一同初始化
+		setSetterAttrs(this, attrs, config);
+
+		// Convert `on/before/afterXxx` config to event handler.
+		parseEventsFromAttrs(this, attrs);
+
+		// 将 this.attrs 上的 special properties 放回 this 上
+		copySpecialProps(specialProps, this, attrs, true);
+
 	};
-	
-	function setValue(key,newValue,oldValue,instance){
-		instance.attrs[map]=newValue;
-		instance.trigger('AttrChange',{
-			type:'AttrChange',
-			target:key,
-			newValue:newValue,
-			oldValue:oldValue,
-			instance:instance,
-		})
-	}
-	
-	
-	
+
 	// Get the value of an attribute.
 	attribute.get = function (key) {
 		if (!this.__initializingAttrs)

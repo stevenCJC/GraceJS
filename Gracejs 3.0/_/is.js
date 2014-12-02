@@ -1,4 +1,4 @@
-define(['$'], function($) {
+define(['g'], function(g) {
 	
 	var is={
 		

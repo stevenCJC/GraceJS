@@ -72,18 +72,20 @@ require(['g','oop/Class'],function(g){
 	var t2=g.Class({});
 	var t3=g.Class({a:12,b:function(){}});
 	
-	/*console.log(new t1());
+	console.log({1:WW,2:DD,3:D});
+	
+	console.log(new t1());
 	console.log(new t2());
-	console.log(new t3());*/
+	console.log(new t3());
 	
 	
-	/*console.log(new A());
-	console.log(new C());*/
+	console.log(new A());
+	console.log(new C());
 	console.log(new D());
-	//console.log(new DD());
-	/*console.log(new aa());
+	console.log(new DD());
+	console.log(new aa());
 	console.log(new QQ());
-	console.log(new WW());*/
+	console.log(new WW());
 	
 	
 	
