@@ -1,15 +1,35 @@
-define(['g', './Class', './Events', './aspect', './attribute','_/utils','_/is'], function (g, Class, Events, aspect, attribute) {
+define(['g', './Class', './Events', './aspect', './attribute','_/utils','_/is'],
+function (g, Class, Events, aspect, attribute) {
 
 	
-	var base=function(constructor_,properties){
-		
-		var bclass;
-		if(arguments.length==1) bclass=Class(constructor_,constructor__);
-		else if(arguments.length==2) bclass=Class(constructor_,properties,constructor__);
-		else bclass=Class(function Empty(){},constructor__);
-		
-		
-		function constructor__(constr,parent,props){
+	
+	var ClassFactory=g.Class.Factory;
+	
+	var BaseFactory=Class(function BaseFactory(){},{
+		Inherit:ClassFactory,
+		extend:function(){
+			this.extends.push(Events);
+			this.extends.push(aspect);
+			this.extends.push(attribute);
+			this.extends.push({
+				__type__ : 'BASE',
+				destroy : function () {
+					this.off();
+					for (var p in this) {
+						if (this.hasOwnProperty(p)) {
+							delete this[p];
+						}
+					}
+					this.destroy = function () {};
+				}
+			});
+			
+			BaseFactory.Super.extend.call(this);
+			this.Constructor.prototype.__blacklist__=['__type__'];
+			this.Constructor.prototype.__extendlist__=['Attrs'];
+		},
+		constructorCallback:function constructor__(){
+			var constr=this.constr, parent=this.parent, props=this.props;
 			
 			implement(constr,parent,props);
 			
@@ -19,41 +39,17 @@ define(['g', './Class', './Events', './aspect', './attribute','_/utils','_/is'],
 				if(g.is.object(arguments[0])) configs=arguments[0];
 				else if(g.is.object(arguments[1])) configs=arguments[1];
 				
-				if(parent){
-					if(parent.prototype&&parent.prototype.__type__=='BASE')
-						g.utils.call(this, arguments, parent);
-					else {
-						construct.call(this,constr,parent,configs);
-						g.utils.call(this, arguments, parent);
-					}
-				}else {
+				if(!this._attrsInited) 
 					construct.call(this,constr,parent,configs);
-				}
+				if(parent)
+					g.utils.call(this, arguments, parent);
 				if (parent != constr)
 					g.utils.call(this, arguments, constr);
 			};
-		}
-		
-		bclass.extend(Events, aspect, attribute, {
-			
-			__type__ : 'BASE',
-			destroy : function () {
-				
-				this.off();
+		},
+	});
+	
 
-				for (var p in this) {
-					if (this.hasOwnProperty(p)) {
-						delete this[p];
-					}
-				}
-
-				this.destroy = function () {};
-			}
-		});
-		bclass.prototype.__blacklist__=['__type__'];
-		bclass.prototype.__extendlist__=['Attrs'];
-		return bclass;
-	};
 	
 	function construct(constr,parent,configs){
 		
@@ -86,29 +82,13 @@ define(['g', './Class', './Events', './aspect', './attribute','_/utils','_/is'],
 				this.attrInit(configs||{});
 			},
 		},
-		
-		/*Options:{
-			implement:function(constr,parent,props){
-				var opts_parent;
-				console.log(arguments);
-				if(parent)
-					opts_parent=parent.prototype.Options;
-					
-				if(!opts_parent) return;
-				props.Options=props.Options||{};
-				
-				if(opts_parent)
-					for(var x in opts_parent)
-						props.Options[x]=opts_parent[x];
-			},
-			construct:function(constr,parent,configs){
-				
-			},
-		},*/
 	}
 	
+	var bf=new BaseFactory(1);
 	
-	g.Base = base;
-
-	return base;
+	g.Base = function(){ 
+		return bf.create(arguments[0],arguments[1]);
+	};
+	g.Base.Factory=BaseFactory;
+	return g.Base;
 });

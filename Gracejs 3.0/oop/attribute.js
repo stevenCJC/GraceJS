@@ -8,6 +8,7 @@ define(['g','_/is'], function (g) {
 			for(var x in configs) {
 				this.attrs[x] = configs[x];
 			}
+			this._attrsInited=true;
 		},
 		get:function(key){
 			var attr=this.attrs[key];

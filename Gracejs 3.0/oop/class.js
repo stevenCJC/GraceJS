@@ -1,123 +1,159 @@
-define(['g', '_/utils'], function (g) {
-
-	function Class(constructor_, properties, constructorMaker) {
+define(['g', '_/utils','_/is'], function (g) {
+	
+	function ClassFactory(mode){
+		this.mode=mode;// 1 debug模式，2 快速模式
+		this.clean();
+	}
+	
+	ClassFactory.prototype={
+		constructor:ClassFactory,
 		
-		if(isFunction(properties)) {
-			constructorMaker=properties;
-			properties={};
-		}
-		
-		if(!isFunction(constructor_)) {
-			properties=constructor_||{};
-			constructor_=properties.constructor == Object ? Empty : properties.constructor;
-		}else {
-			properties=properties||{};
-		}
-
-		
-		if (properties.constructor != Object)
-			delete properties.constructor;
-
-		var parent = properties.Inherit || (Object.keys(constructor_.prototype).length ? constructor_ : false) || Empty;
-
-		var name = properties.Name || constructor_.name;
-		delete properties.Name;
-
-		properties.Inherit = parent;
-
-		var constructor__;
-		if (parent !== Empty)
-			constructor__ =makeConstructor(name, constructorMaker ? constructorMaker(constructor_,parent,properties): function () {
-					g.utils.call(this, arguments, parent);
-					if (parent != constructor_)
-						g.utils.call(this, arguments, constructor_);
-				});
-		else
-			constructor__ =  constructorMaker ? makeConstructor(name,constructorMaker(constructor_,null,properties)): constructor_;
-
-		properties.Extend = properties.Extend || [];
-		properties.Extend = properties.Extend.constructor == Array ? properties.Extend : [properties.Extend];
-		//properties.Extend.unshift(parent);
-
-		implement.call(constructor__, properties, parent != constructor__ && parent != Empty);
-
-		// 继承静态方法
-		if (constructor__ != parent && parent != Empty)
-			mix(constructor__, parent);
-
-		// Make subclass extendable.
-		return classify(constructor__);
-
-		function Empty() {}
-	}
-
-	function implement(properties, inh) {
-
-		inh && Mutators['Inherit'].call(this, properties['Inherit']);
-
-		Mutators['Statics'].call(this, properties['Statics']);
-
-		var _extends = properties['Extend'];
-
-		delete properties['Inherit'];
-		delete properties['Statics'];
-		delete properties['Extend'];
-
-		_extends.push(properties);
-		Mutators['Extend'].call(this, _extends);
-	}
-
-	//扩展也需要定义构造函数，默认执行父类的构造函数
-	// Create a sub Class based on `Class`.
-	function extend() {
-		Mutators['Extend'].call(this, Array.prototype.slice.call(arguments));
-		return this;
-	}
-
-	function classify(cls) {
-		cls.extend = extend;
-		return cls;
-	}
-
-	// Mutators define special properties.
-	var Mutators = {
-
-		'Inherit' : function (parent) {
-			var that = this;
-			var proto = createProto(parent.prototype);
-
-			// Enforce the constructor to be what we expect.
-			proto.constructor = this;
+		load:function(constructor_, properties){
 			
+			if(!g.is.Function(constructor_)) {
+				this.props=constructor_||{};
+				this.constr=this.props.constructor == Object ? this.Empty : this.props.constructor;
+			}else {
+				this.constr=constructor_;
+				this.props=properties||{};
+			}
+	
+			if (this.props.constructor != Object)
+				delete this.props.constructor;
 			
-			if (this.prototype.__name__)
-				proto.__name__ = this.prototype.__name__ || 'Empty';
-
-			this.prototype = proto;
-
-			// Set a convenience property in case the parent's prototype is
-			// needed later.
-			this.Super = parent.prototype;
+			this.parent = this.props.Inherit || (Object.keys(this.constr.prototype).length ? this.constr : false) || this.Empty;
+	
+			this.name = this.props.Name || this.constr.name;
+			
+			this.extends = this.props.Extend || [];
+			this.extends = this.extends.constructor == Array ? this.extends : [this.extends];
+			
+			this.statics = this.props.Statics;
+			
+			delete this.props.Inherit;
+			delete this.props.Name;
+			delete this.props.Extend;
+			
+			this.extends.push(this.props);
+			
 		},
-
-		'Extend' : function (items) {
-			var proto = this.prototype,
-			item;
+		makeConstructor_ : function () {
+			Class.prototype.__name__ = this.name;
+			var obj=this.constructorCallback();
+			function Class() {
+				switch(arguments.length){
+					case 0:
+					obj.call(this);
+					break;
+					case 1:
+					obj.call(this, arguments[0]);
+					break;
+					case 2:
+					obj.call(this, arguments[0], arguments[1]);
+					break;
+					case 3:
+					obj.call(this, arguments[0], arguments[1], arguments[2]);
+					break;
+					case 4:
+					obj.call(this, arguments[0], arguments[1], arguments[2], arguments[3]);
+					break;
+					case 5:
+					obj.call(this, arguments[0], arguments[1], arguments[2], arguments[3], arguments[4]);
+					break;
+				}
+			}
+			this.Constructor=Class;
+		},
+		makeConstructor:function(){
+			
+			if (this.parent !== this.Empty && this.parent != this.constr)
+				this.Constructor = makeConstructor(this.name, this.constructorCallback());
+			else
+				this.Constructor =  this.constr;
+		},
+		constructorCallback:function(){
+			var constructor_=this.constr;
+			var parent=this.parent;
+			return function () {
+				g.utils.call(this, arguments, parent);
+				if (parent != constructor_)
+					g.utils.call(this, arguments, constructor_);
+			}
+		},
+		
+		inherit:function(){
+			if(this.parent != this.Constructor && this.parent != this.Empty){
+				var proto = createProto(this.parent.prototype);
+				proto.constructor = this.Constructor;
+				if ( this.Constructor.prototype.__name__)
+					proto.__name__ =  this.Constructor.prototype.__name__ || 'Empty';
+				this.Constructor.prototype = proto;
+				this.Constructor.Super = this.parent.prototype;
+			}
+		},
+		
+		extend:function(){
+			var proto = this.Constructor.prototype,item;
 			var blacklist=proto.__blacklist__||[];
 			var extendlist=proto.__extendlist__||[];
-			while (items.length) {
-				item = items.shift();
+			while (this.extends.length) {
+				item = this.extends.shift();
 				item = item && item.prototype || item || {};
 				if(item.__blacklist__) blacklist.concat(item.__blacklist__);
 				if(item.__extendlist__) extendlist.concat(item.__extendlist__);
 				mix(proto, item, blacklist,extendlist);
-				
 			}
 		},
-
-		'Statics' : function (staticProperties) {
-			mix(this, staticProperties, staticProperties && staticProperties.__blacklist__);
-		}
+		
+		static:function(){
+			if (this.Constructor != this.parent && this.parent != this.Empty)
+				mix(this.Constructor, this.parent, this.parent && this.parent.__blacklist__, this.parent && this.parent.__extendlist__);
+			mix(this.Constructor, this.statics, this.statics && this.statics.__blacklist__, this.statics && this.statics.__extendlist__);
+		},
+		
+		classify:function(cls){
+			cls=cls||this.Constructor;
+			cls.extend = function(){ 
+				ClassFactory.prototype.extend.call({Constructor:this,extends:Array.prototype.slice.call(arguments)});
+				return this;
+			};
+			return cls;
+		},
+		
+		create:function(){
+			this.load(arguments[0],arguments[1]);
+			this.mode==1?this.makeConstructor():this.makeConstructor_();
+			this.inherit();
+			this.extend();
+			this.static();
+			this.classify();
+			var newClass=this.Constructor;
+			this.clean();
+			return newClass;
+		},
+		
+		clean:function(){
+			this.constr=null;
+			this.Constructor=null;
+			this.parent=null;
+			this.props=null;
+			this.extends=null;
+			this.statics=null;
+			this.name=null;
+			this.Empty=function Empty(){};
+		},
+	};
+	
+	function makeConstructor(name, obj) {
+		window._tmp_obj_ = obj;
+		window.eval('window._tmp_constructor_=(function(obj){' +
+			'return function ' + name + '(){\n obj.apply(this,arguments);}' +
+			'})(window._tmp_obj_)');
+		var constructor = window._tmp_constructor_;
+		delete window._tmp_constructor_;
+		delete window._tmp_constructor_;
+		delete window._tmp_obj_;
+		return constructor;
 	}
 
 	// Shared empty constructor function to aid in prototype-chain creation.
@@ -135,25 +171,7 @@ define(['g', '_/utils'], function (g) {
 		return new Ctor();
 	};
 
-	function makeConstructor(name, obj) {
-		window._tmp_obj_ = obj;
-		window.eval('window._tmp_constructor_=(function(obj){' +
-			'return function ' + name + '(){\n obj.apply(this,arguments);}' +
-			'})(window._tmp_obj_)');
-		var constructor = window._tmp_constructor_;
-		delete window._tmp_constructor_;
-		delete window._tmp_constructor_;
-		delete window._tmp_obj_;
-		return constructor;
-	}
-
-	function makeConstructor_(name, obj) {
-		Constructor.prototype.__name__ = name;
-		function Constructor() {
-			obj.apply(this, arguments);
-		}
-		return Constructor;
-	}
+	
 
 	function mix(target, obj, blacklist, extendlist) {
 		if (obj)
@@ -175,14 +193,14 @@ define(['g', '_/utils'], function (g) {
 	}
 	
 	
-	var toString = Object.prototype.toString;
+	var cf=new ClassFactory(1);
 
-	var isFunction = function (val) {
-		return toString.call(val) === '[object Function]';
-	};
-
-	g.Class = Class;
-
-	return Class;
+	g.Class = function(){
+		return cf.create(arguments[0],arguments[1]);
+	}
+	
+	g.Class.Factory=g.Class(ClassFactory);
+	
+	return g.Class;
 
 });
