@@ -52,8 +52,6 @@ function (g, Class, Events, aspect, attribute) {
 			return function(){
 				var configs;
 				if(g.is.object(arguments[0])) configs=arguments[0];
-				else if(g.is.object(arguments[1])) configs=arguments[1];
-				
 				
 					construct.call(this,configs);
 					
