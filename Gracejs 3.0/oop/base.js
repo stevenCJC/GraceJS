@@ -8,6 +8,7 @@ function (g, Class, Events, aspect, attribute) {
 	var BaseFactory=Class(function BaseFactory(){},{
 		Inherit:ClassFactory,
 		extend:function(){
+			BaseFactory.Super.extend.call(this);
 			this.extends.push(Events);
 			this.extends.push(aspect);
 			this.extends.push(attribute);
@@ -23,66 +24,75 @@ function (g, Class, Events, aspect, attribute) {
 					this.destroy = function () {};
 				}
 			});
-			
-			BaseFactory.Super.extend.call(this);
+		},
+		toExtend:function(){
+			BaseFactory.Super.toExtend.call(this);
 			this.Constructor.prototype.__blacklist__=['__type__'];
 			this.Constructor.prototype.__extendlist__=['Attrs'];
 		},
-		constructorCallback:function constructor__(){
-			var constr=this.constr, parent=this.parent, props=this.props;
+		makeConstructor_ : function () {
+			if (this.parent !== this.Empty && this.parent != this.constr){
+				Base.prototype.__name__ = this.name;
+				var obj=this.constructorCallback();
+				function Base() {
+					g.utils.call(this,arguments,obj);
+				}
+				this.Constructor=Class;
+			}else this.Constructor =  this.constr;
+		},
+		constructorCallback:function (){
+			var constr=this.constr, 
+				parent=this.parent, 
+				props=this.props; 
 			
-			implement(constr,parent,props);
+			this.implement(constr,parent,props);
+			
+			var construct=BaseFactory.prototype.construct;
 			
 			return function(){
-				
 				var configs;
 				if(g.is.object(arguments[0])) configs=arguments[0];
 				else if(g.is.object(arguments[1])) configs=arguments[1];
 				
-				if(!this._attrsInited) 
-					construct.call(this,constr,parent,configs);
+				
+					construct.call(this,configs);
+					
 				if(parent)
 					g.utils.call(this, arguments, parent);
+					
 				if (parent != constr)
 					g.utils.call(this, arguments, constr);
 			};
 		},
+		
+		construct:function(configs){
+			//init attrs
+			if(!this._attrsInited) 
+				this.attrInit(configs||{});
+			//BaseFactory.prototype.attrConstruct.call(this,configs);
+		},
+		
+		implement:function(){
+			this.attrImplement();
+		},
+		
+		attrImplement:function(){
+			var opts_parent;
+			if(this.parent)
+				opts_parent=this.parent.prototype.Attrs;
+				
+			if(!opts_parent) return;
+			this.props.Attrs=this.props.Attrs||{};
+			
+			if(opts_parent)
+				for(var x in opts_parent)
+					this.props.Attrs[x]=opts_parent[x];
+		},
+		
 	});
 	
 
 	
-	function construct(constr,parent,configs){
-		
-		Mutator.Attrs.construct.call(this,constr,parent,configs);
-		
-	}
-	
-	function implement(constr,parent,props){
-		
-		Mutator.Attrs.implement.call(this,constr,parent,props);
-		
-	}
-	
-	var Mutator={
-		Attrs:{
-			implement:function(constr,parent,props){
-				var opts_parent;
-				console.log(arguments);
-				if(parent)
-					opts_parent=parent.prototype.Attrs;
-					
-				if(!opts_parent) return;
-				props.Attrs=props.Attrs||{};
-				
-				if(opts_parent)
-					for(var x in opts_parent)
-						props.Attrs[x]=opts_parent[x];
-			},
-			construct:function(constr,parent,configs){
-				this.attrInit(configs||{});
-			},
-		},
-	}
 	
 	var bf=new BaseFactory(1);
 	

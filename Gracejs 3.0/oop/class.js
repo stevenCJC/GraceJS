@@ -22,9 +22,32 @@ define(['g', '_/utils','_/is'], function (g) {
 				delete this.props.constructor;
 			
 			this.parent = this.props.Inherit || (Object.keys(this.constr.prototype).length ? this.constr : false) || this.Empty;
-	
+			
+			if(this.props.Inherit&&this.constr.prototype) this.superInherit=true;
+			
 			this.name = this.props.Name || this.constr.name;
 			
+			
+			
+		},
+		
+		inherit:function(){
+			if(this.parent != this.Constructor && this.parent != this.Empty){
+				var proto = createProto(this.parent.prototype);
+				proto.constructor = this.Constructor;
+				
+				// 展平构造器的原型链的元素
+				if(this.superInherit) {
+					//var constrProto=findAllProto(this.Constructor);
+				}
+								
+				if ( this.Constructor.prototype.__name__)
+					proto.__name__ =  this.Constructor.prototype.__name__ || 'Empty';
+				this.Constructor.prototype = proto;
+				this.Constructor.Super = this.parent.prototype;
+			}
+		},
+		extend:function(){
 			this.extends = this.props.Extend || [];
 			this.extends = this.extends.constructor == Array ? this.extends : [this.extends];
 			
@@ -35,64 +58,8 @@ define(['g', '_/utils','_/is'], function (g) {
 			delete this.props.Extend;
 			
 			this.extends.push(this.props);
-			
 		},
-		makeConstructor_ : function () {
-			Class.prototype.__name__ = this.name;
-			var obj=this.constructorCallback();
-			function Class() {
-				switch(arguments.length){
-					case 0:
-					obj.call(this);
-					break;
-					case 1:
-					obj.call(this, arguments[0]);
-					break;
-					case 2:
-					obj.call(this, arguments[0], arguments[1]);
-					break;
-					case 3:
-					obj.call(this, arguments[0], arguments[1], arguments[2]);
-					break;
-					case 4:
-					obj.call(this, arguments[0], arguments[1], arguments[2], arguments[3]);
-					break;
-					case 5:
-					obj.call(this, arguments[0], arguments[1], arguments[2], arguments[3], arguments[4]);
-					break;
-				}
-			}
-			this.Constructor=Class;
-		},
-		makeConstructor:function(){
-			
-			if (this.parent !== this.Empty && this.parent != this.constr)
-				this.Constructor = makeConstructor(this.name, this.constructorCallback());
-			else
-				this.Constructor =  this.constr;
-		},
-		constructorCallback:function(){
-			var constructor_=this.constr;
-			var parent=this.parent;
-			return function () {
-				g.utils.call(this, arguments, parent);
-				if (parent != constructor_)
-					g.utils.call(this, arguments, constructor_);
-			}
-		},
-		
-		inherit:function(){
-			if(this.parent != this.Constructor && this.parent != this.Empty){
-				var proto = createProto(this.parent.prototype);
-				proto.constructor = this.Constructor;
-				if ( this.Constructor.prototype.__name__)
-					proto.__name__ =  this.Constructor.prototype.__name__ || 'Empty';
-				this.Constructor.prototype = proto;
-				this.Constructor.Super = this.parent.prototype;
-			}
-		},
-		
-		extend:function(){
+		toExtend:function(){
 			var proto = this.Constructor.prototype,item;
 			var blacklist=proto.__blacklist__||[];
 			var extendlist=proto.__extendlist__||[];
@@ -125,6 +92,7 @@ define(['g', '_/utils','_/is'], function (g) {
 			this.mode==1?this.makeConstructor():this.makeConstructor_();
 			this.inherit();
 			this.extend();
+			this.toExtend();
 			this.static();
 			this.classify();
 			var newClass=this.Constructor;
@@ -142,6 +110,34 @@ define(['g', '_/utils','_/is'], function (g) {
 			this.name=null;
 			this.Empty=function Empty(){};
 		},
+		
+		makeConstructor_ : function () {
+			if (this.parent !== this.Empty && this.parent != this.constr){
+				Class.prototype.__name__ = this.name;
+				var obj=this.constructorCallback();
+				function Class() {
+					g.utils.call(this,arguments,obj);
+				}
+				this.Constructor=Class;
+			}else this.Constructor =  this.constr;
+		},
+		makeConstructor:function(){
+			
+			if (this.parent !== this.Empty && this.parent != this.constr)
+				this.Constructor = makeConstructor(this.name, this.constructorCallback());
+			else
+				this.Constructor =  this.constr;
+		},
+		constructorCallback:function(){
+			var constructor_=this.constr;
+			var parent=this.parent;
+			return function () {
+				g.utils.call(this, arguments, parent);
+				if (parent != constructor_)
+					g.utils.call(this, arguments, constructor_);
+			}
+		},
+		
 	};
 	
 	function makeConstructor(name, obj) {
@@ -155,7 +151,17 @@ define(['g', '_/utils','_/is'], function (g) {
 		delete window._tmp_obj_;
 		return constructor;
 	}
-
+	
+	function findAllProto(cons){
+		var child,protos=[cons.prototype];
+		child=cons.prototype.constructor;
+		while(child=(child.prototype.constructor||child.__proto__.constructor)&&child!=Object)
+			if(child.prototype) protos.push(child.prototype);
+		return protos;
+	}
+	
+	
+	
 	// Shared empty constructor function to aid in prototype-chain creation.
 	function Ctor() {}
 	// See: http://jsperf.com/object-create-vs-new-ctor
@@ -163,7 +169,7 @@ define(['g', '_/utils','_/is'], function (g) {
 	var createProto = Object.__proto__ ?
 	function (proto) {
 		return {
-			__proto__ : proto
+			__proto__ : proto//父类的原型链
 		};
 	}
 	 : function (proto) {
