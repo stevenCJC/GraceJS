@@ -1,4 +1,4 @@
-define(['ui/ui','BL/event/var/handlers','./var/fragementRE','./function/_insertFragments','_/is'], function (g,handlers,fragementRE,_insertFragments) {
+define(['ui/ui','./var/fragementRE','./function/_insertFragments','_/is'], function (g,fragementRE,_insertFragments) {
 
 	g.ui.extend({
 
@@ -9,7 +9,7 @@ define(['ui/ui','BL/event/var/handlers','./var/fragementRE','./function/_insertF
 			if (html === undefined)
 				return this[0].innerHTML;
 			for (var i = 0,len=this.length; i <len ; i++) {
-				$.clean(this[i], false, true);
+				g.clean(this[i], false, true);
 				this[i].innerHTML = html;
 			}
 			return this;
@@ -29,7 +29,7 @@ define(['ui/ui','BL/event/var/handlers','./var/fragementRE','./function/_insertF
 
 		
 		remove: function(selector) {
-			var elems = $(this).filter(selector);
+			var elems = g.q(this).filter(selector);
 			if (elems == undefined)
 				return this;
 			for (var i = 0,len=elems.length; i <len ; i++) {
@@ -52,10 +52,10 @@ define(['ui/ui','BL/event/var/handlers','./var/fragementRE','./function/_insertF
 			for (i = 0; i < this.length; i++) {
 				
 				if (element.length && typeof element != "string") {
-					cloned = clone?g.q(element).clone(1):g.(element);
+					cloned = clone?g.q(element).clone(1):g.q(element);
 					_insertFragments(cloned,this[i],insert);
 				} else {
-					var obj =fragementRE.test(element)?$(element):undefined;
+					var obj =fragementRE.test(element)?g.q(element):undefined;
 					if (obj == undefined || obj.length == 0) {
 						obj = document.createTextNode(element);
 					}
@@ -72,12 +72,12 @@ define(['ui/ui','BL/event/var/handlers','./var/fragementRE','./function/_insertF
 		},
 		
 		appendTo:function(selector){
-			$(selector).append(this,false,false);
+			g.q(selector).append(this,false,false);
 			return this;
 		},
 		
 		prependTo:function(selector){
-			$(selector).append(this, true, false);
+			g.q(selector).append(this, true, false);
 			return this;
 		},
 		
@@ -88,7 +88,7 @@ define(['ui/ui','BL/event/var/handlers','./var/fragementRE','./function/_insertF
 		beforeTo: function(target, after) {
 			if (this.length == 0)
 				return this;
-			var targets = $(target);
+			var targets = g.q(target);
 			if (!targets||!targets.parent().length)
 				return this;
 			for(var j=0,l=targets.length;j<l;j++){
@@ -106,17 +106,17 @@ define(['ui/ui','BL/event/var/handlers','./var/fragementRE','./function/_insertF
 		},
 		
 		before: function(content) {
-			var obj=$(content);
+			var obj=g.q(content);
 			if((!obj||!obj.length)&&typeof content == 'string')
-				obj =$(document.createTextNode(content))
+				obj =g.q(document.createTextNode(content))
 			obj.beforeTo(this);
 			return this;
 		},
 		
 	   after: function(content) {
-			var obj=$(content);
+			var obj=g.q(content);
 			if((!obj||!obj.length)&&typeof content == 'string')
-				obj =$(document.createTextNode(content))
+				obj =g.q(document.createTextNode(content))
 			obj.beforeTo(this,true);
 		},
 
@@ -127,7 +127,7 @@ define(['ui/ui','BL/event/var/handlers','./var/fragementRE','./function/_insertF
 				return this;
 			var elems = [],el,id,oid,els;
 			for (var i = 0,len=this.length; i < len; i++) {
-				el=$(this[i].cloneNode(deep));
+				el=g.q(this[i].cloneNode(deep));
 				if(deep){
 					if(el.attr('[_id]')){
 						clone(el[0]);
@@ -146,10 +146,10 @@ define(['ui/ui','BL/event/var/handlers','./var/fragementRE','./function/_insertF
 			
 			return g.q(elems);
 			function clone(elems){
-				if(handlers[oid])handlers[id]=$.clone(handlers[oid])
+				//if(handlers[oid])handlers[id]=$.clone(handlers[oid])
 			}
 		},
 
 	});
-	return $;
+	return g;
 });

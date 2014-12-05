@@ -61,7 +61,7 @@ define(['g', '_/utils','_/is'], function (g) {
 		},
 		toExtend:function(){
 			var proto = this.Constructor.prototype,item;
-			var blacklist=proto.__blacklist__||[];
+			var blacklist=/*proto.__blacklist__||*/[];
 			var extendlist=proto.__extendlist__||[];
 			while (this.extends.length) {
 				item = this.extends.shift();
@@ -81,7 +81,7 @@ define(['g', '_/utils','_/is'], function (g) {
 		classify:function(cls){
 			cls=cls||this.Constructor;
 			cls.extend = function(){ 
-				ClassFactory.prototype.extend.call({Constructor:this,extends:Array.prototype.slice.call(arguments)});
+				ClassFactory.prototype.extend.call({props:this,extends:Array.prototype.slice.call(arguments)});
 				return this;
 			};
 			return cls;
@@ -186,7 +186,7 @@ define(['g', '_/utils','_/is'], function (g) {
 					continue;
 				if (obj.hasOwnProperty(p)) {
 					// 在 iPhone 1 代等设备的 Safari 中，prototype 也会被枚举出来，需排除
-					if (p !== 'prototype' && p != 'constructor' && p != '__name__'&& p != '__blacklist__'&& p != '__extendlist__') {
+					if (p !== 'Super' &&p !== 'prototype' && p != 'constructor' && p != '__name__'&& p != '__blacklist__'&& p != '__extendlist__') {
 						if (extendlist && extendlist.indexOf(p) > -1){
 							if(obj[p]&&typeof obj[p] == 'object'){
 								target[p]=target[p]||{};

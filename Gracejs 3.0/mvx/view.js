@@ -1,15 +1,14 @@
-define(['g', 'oop/base','./common/css','_/utils','_/is'],
-function (g, Base, Css) {
+define(['g', './base', './Events', './aspect', './attribute','_/utils','_/is'],
+function (g, Base, Events, aspect, attribute) {
 
 	
 	
-	var BaseFactory=g.Base.Factory;
+	var ClassFactory=g.Class.Factory;
 	
-	var WidgetFactory=g.Class(function WidgetFactory(){},{
+	var WidgetFactory=Base(function BaseFactory(){},{
 		Inherit:BaseFactory,
 		extend:function(){
 			WidgetFactory.Super.extend.call(this);
-			this.extends.push(Css);
 			this.extends.push({ 
 				__type__ : 'WIDGET', 
 				destroy : function () { 
@@ -26,7 +25,7 @@ function (g, Base, Css) {
 		}, 
 		toExtend:function(){
 			WidgetFactory.Super.toExtend.call(this);
-			this.Constructor.prototype.__blacklist__=['__type__'];
+			//this.Constructor.prototype.__blacklist__=['__type__'];
 			//this.Constructor.prototype.__extendlist__=['options'];
 		},
 		makeConstructor_ : function () { 
@@ -43,7 +42,6 @@ function (g, Base, Css) {
 		
 		construct:function(configs){ 
 			WidgetFactory.Super.construct.call(this,configs);
-			this._cssInit();
 			
 		}, 
 		

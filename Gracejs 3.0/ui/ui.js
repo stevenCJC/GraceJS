@@ -1,4 +1,4 @@
-define(['g','BL/dom/function/_selector'], function(g,_selector) {
+define(['g','ui/function/_selector','_/is'], function(g,_selector) {
 	
 	g.q = function (s,w){
 		return new Core(s,w);
@@ -42,14 +42,14 @@ define(['g','BL/dom/function/_selector'], function(g,_selector) {
 			return this;
 		} else if (toSelect instanceof Core && what == undefined) {
 			return toSelect;
-		} else if ($.isFunction(toSelect)) {
+		} else if (g.is.Function(toSelect)) {
 		//////////////
-			return $(document).ready(toSelect);
-		} else if ($.isArray(toSelect) || toSelect.length != undefined&&!$.isString(toSelect)) { //Passing in an array or object
+			return g.q(document).ready(toSelect);
+		} else if (g.is.array(toSelect) || toSelect.length != undefined&&!g.is.string(toSelect)) { //Passing in an array or object
 			for (var i = 0; i < toSelect.length; i++)
                     this[this.length++] = toSelect[i];
             return this;
-		} else if ($.isObject(toSelect) && $.isObject(what)) { //var tmp=$("span");  $("p").find(tmp);
+		} else if (g.is.object(toSelect) && g.is.object(what)) { //var tmp=$("span");  $("p").find(tmp);
 			if (toSelect.length == undefined) {
 				if (toSelect.parentNode == what)
 					this[this.length++] = toSelect;
@@ -59,7 +59,7 @@ define(['g','BL/dom/function/_selector'], function(g,_selector) {
 						this[this.length++] = toSelect[i];
 			}
 			return this;
-		} else if ($.isObject(toSelect) && what == undefined) { //Single object
+		} else if (g.is.object(toSelect) && what == undefined) { //Single object
 			if (toSelect.nodeType)
 				this[this.length++] = toSelect;
 			return this;

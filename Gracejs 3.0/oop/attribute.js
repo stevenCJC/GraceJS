@@ -2,7 +2,8 @@ define(['g','_/is'], function (g) {
 
 	var attribute = {
 		
-		attrInit:function(configs){
+		_attrInit:function(configs){
+			if(this._attrsInited) return ;
 			this.attrs={};
 			for(var x in this.Attrs) this.attrs[x] = this.Attrs[x];
 			for(var x in configs) {

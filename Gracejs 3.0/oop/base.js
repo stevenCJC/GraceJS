@@ -47,7 +47,7 @@ function (g, Class, Events, aspect, attribute) {
 			
 			this.implement(constr,parent,props);
 			
-			var construct=BaseFactory.prototype.construct;
+			var construct=this.construct;
 			
 			return function(){
 				var configs;
@@ -65,8 +65,7 @@ function (g, Class, Events, aspect, attribute) {
 		
 		construct:function(configs){
 			//init attrs
-			if(!this._attrsInited) 
-				this.attrInit(configs||{});
+			this._attrInit(configs||{});
 			//BaseFactory.prototype.attrConstruct.call(this,configs);
 		},
 		
