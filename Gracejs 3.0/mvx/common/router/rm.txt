@@ -2,15 +2,22 @@
 	router机制的设计
 	
 	1、router可被订阅，
+	
+	
 	2、#router:key=value&key2=value2/router1:1,false,somestring/view:122231
+	
+	#router={sdsfd:ssss}&
+	
+	
 	2.1、添加和更改将会触发全局性的router信息发布，删除不触发
 	2.2、订阅者的相关router关联的状态改变事件也可以影响location的hash
 	2.3、可主动触发router事件，对location的hash进行影响
 	2.4、router定义
-		router : {
-			'view':function(id){ };
-		}
+		Router : {
+			'view':function(data){ };
+		},
 	2.5、router触发
+		
 		$.event.trigger('router:view','122231'); 
 		//此方法会导致location.hash的改变，界面状态与location.hash同步
 	

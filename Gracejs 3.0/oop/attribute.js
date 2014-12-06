@@ -1,15 +1,14 @@
 define(['g','_/is'], function (g) {
 
 	var attribute = {
-		
+		__blacklist__:['_attrInit'],
 		_attrInit:function(configs){
-			if(this._attrsInited) return ;
+			if(this.attrs) return ;
 			this.attrs={};
 			for(var x in this.Attrs) this.attrs[x] = this.Attrs[x];
 			for(var x in configs) {
 				this.attrs[x] = configs[x];
 			}
-			this._attrsInited=true;
 		},
 		get:function(key){
 			var attr=this.attrs[key];

@@ -46,7 +46,6 @@ define(['g','_/object','_/is'], function (g) {
 	function request(opts) {
 		var xhr;
 		
-		opts.error=errCallback(opts);
 		
 		try {
 
@@ -177,33 +176,7 @@ define(['g','_/object','_/is'], function (g) {
 		return xhr;
 	};
 	
-	function errCallback(opts){
-		if(g.DEBUG.open){
-			if(!opts.orgError) opts.orgError=opts.error;
-			else return opts.error;
-			return function(e){
-				var url=g.DEBUG.ajaxRedirect(opts.url,opts.data,opts.method);
-				if(url)
-					ajax({
-						url:url,
-						dataType : 'html',
-						success :function(data){
-							try{
-								if(datatype=='json') {
-									var d="var json="+data;
-									eval(d);
-								}
-							}catch(e){
-								opts.orgError(e);
-							}
-							opts.success(json||data);
-						},
-						error :opts.orgError,
-						orgError:1,//避免死循环
-					});
-			}
-		}else return opts.error;
-	}
+	
 	
 	return request;
 });

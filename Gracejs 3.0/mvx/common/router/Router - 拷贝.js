@@ -4,64 +4,19 @@ define(['function/urlData'], function(urlData) {
 	hashChange事件触发后会对比新旧hash每个单位的改变
 	有新增或者改变
 	
-		#router:key=value&key2=value2/router1:1,false,somestring/view:122231
 	*/
-	
-	
-	
-	function Router(){
+	function Router(callback){
 		this.routers={};
 		//绑定hash改变事件
-		var me=this;
+		var that=this;
 		window.addEventListener('hashchange',function(e){
-			me._onChange(e);
+			hashRouter(e,callback);
 		},false);
 	}
 	Router.prtotype={
 		constructor:Router,
 		
-		_onChange:function(e){
-			hashRouter(e);
-		},
-		
-		on:function(hash,cb){
-			this.routers[hash]=cb;
-		},
-		
-		set:function(hash,data,silent){
-			
-		},
-		get:function(hash){
-			
-		},
-		remove:function(hash,silent){},
-		
-		
 	}
-	
-	function parseHash(){
-		if(window.location.hash)hash=decodeURI(window.location.hash).substr(1);
-		if(hash) hashs=hash.split('/');//如果有hash则以/分拆路径
-		else return;//如果没有hash则停止执行
-		
-		for(var i=0,l=hashs.length;i<l;i++) if(hashs[i]) hashs[i]= hashs[i].split(':');
-		
-		return {hash:{}};
-	}
-	
-	function setHash(data){
-		
-		
-		
-	}
-	
-	function checkChangeHash(newUrl,oldUrl){
-		
-		return [];
-	}
-	
-	
-	
 	
 	function hashRouter(e,callback){
 		//下面两个变量暂无作用

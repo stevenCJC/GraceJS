@@ -1,97 +1,62 @@
-define(["jquery",'underscore','utils/tips','utils/msg'],
-function($,_,tips,msg) {
-	window.TPL=window.TPL||{};
+define(['g','_/is','template/tpl'], function (g) {
 	
-	$.loadTPL = function(tplName,options){
-		
-		if(typeof options=='function'){
-			options={
-				onCompile:options,
-				tips:false,
-				tplName:tplName,
-				onRrequest:null,
-				onLoad:null,
-				//onError:null,
-				html:false,
-			};
-		}else if(typeof options=='object'){
-			options=$.extend({
-				tips:false,
-				tplName:tplName,
-				onRrequest:null,
-				onLoad:null,
-				onCompile:null,
-				html:false,
-			},options||{});
-		}
+	var tpl={
+		__blacklist__:['_tplInit'],
+		_tplInit:function(){
 			
-		if(options.html){
-			if(window.TPL[tplName]){
-				setTimeout(function(){
-					options.onCompile(window.TPL[tplName],options);
-				},1);
-			}else{
+			var me=this;
+			
+			if(this.Template){
 				
-				if(options.tips){
-					if(options.tips.constructor==String) tips.show(options.tips);
-					else tips.show('加载中...');
+				for(var x in this.Template) {
+					(function(x, tpl){
+						me['t_'+x]=function(ok,err){
+							if(g.is.Function(ok)){
+								var func=ok;
+								ok=function(tpl){
+									return func.call(me,tpl);
+								};
+							}
+							if(g.is.string(tpl)){
+								if(!ok) 
+									return g.template.load(tpl)();
+								else if(!g.is.Function(ok)) return g.template.load(tpl)(ok);
+								else g.template.load(tpl,ok,err);
+							}else if(g.is.Function(tpl)) {
+								if(!ok) return tpl();
+								else if(!g.is.Function(ok)) return tpl(ok);
+								else setTimeout(function(){ ok(tpl); },0);
+							}							
+						};
+					})(x, this.Template[x]);
+					
+					
 				}
-				if(options.onRrequest)options.onRrequest(options);
-				$.ajax({
-					url:options.html,
-					type:'get',
-					success:function(tplData){
-						
-						tplData=importTpl(tplData);
-						
-						
-						if(options.onLoad){
-							var ol=options.onLoad(tplData,options);
-							if(ol)tplData=ol;
-						}
-						window.TPL[tplName]=_.template(tplData);
-						options.onCompile(window.TPL[tplName],options);
-						if(options.tips) tips.hide();
-					},
-					error:function(e){
-						msg.say({text:"文件：'"+options.html+"' 加载失败。"})
-					},
-				});
+				
 			}
-		}else if(window.TPL[tplName]){
-			setTimeout(function(){
-				options.onCompile(window.TPL[tplName],options);
-			},1);
-		}else msg.say({text:"没有加载资源："+tplName});
-		
-	
-	
-		
-		
-	}
-	
-	//嵌套模板
-	function importTpl(tplData){
-		if(!tplData)return;
-		
-		return tplData.replace(/\<\%\@import\s*?[\'\"].+?[\'\"]\s*?\%\>/ig,function(it){
-			var tpldata;
-			var url=it.replace(/\<\%\@import\s*?[\'\"]|[\'\"]\s*?\%\>/ig,'').replace(/\~/,window.info.assets);
 			
-			$.ajax({
-				url:url,
-				type:'get',
-				async:false,
-				success: function(data){
-					tpldata=importTpl(data);
+		},
+		
+		loadTpl:function(html,ok,err){
+			
+				if(!ok) 
+					return g.template.load(tpl)();
+				else if(!g.is.Function(ok)) return g.template.load(tpl)(ok);
+				else {
+					if(g.is.Function(ok)){
+						var func=ok;
+						ok=function(tpl){
+							return func.call(me,tpl);
+						};
+					}
+					g.template.load(tpl,ok,err);
 				}
-			});
-			return tpldata;
-		});
-	}
-
-
+		},
+		
+		
+	};
 	
+	
+	
+	return tpl;
 });
-
-

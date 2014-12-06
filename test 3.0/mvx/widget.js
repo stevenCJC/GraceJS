@@ -25,12 +25,16 @@ require(['g','mvx/widget'],function(g){
 		},
 	});
 	
-	var cat=g.Widget(function Cat(){
+	var cat=g.Widget(function Cat(){ 
 		console.log(this.Attrs);
 		this.miao();
 		this.eat();
 	},{
 		Inherit:animal,
+		Template:{
+			widget:function(data){return data.length},
+			some:'widget_.html',
+		},
 		Attrs:{
 			weight:60,
 			height:30,
@@ -57,6 +61,41 @@ require(['g','mvx/widget'],function(g){
 	console.log(c.get('ww'));
 	c.set({ww:3});
 	console.log(c.get('ww'));
+	
+	console.log(c.t_some({miao:c.get('ww')}));
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	

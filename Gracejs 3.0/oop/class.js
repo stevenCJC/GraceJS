@@ -61,13 +61,13 @@ define(['g', '_/utils','_/is'], function (g) {
 		},
 		toExtend:function(){
 			var proto = this.Constructor.prototype,item;
-			var blacklist=/*proto.__blacklist__||*/[];
+			var blacklist=proto.__blacklist__||[];
 			var extendlist=proto.__extendlist__||[];
 			while (this.extends.length) {
 				item = this.extends.shift();
 				item = item && item.prototype || item || {};
-				if(item.__blacklist__) blacklist.concat(item.__blacklist__);
-				if(item.__extendlist__) extendlist.concat(item.__extendlist__);
+				if(item.__blacklist__) blacklist=blacklist.concat(item.__blacklist__);
+				if(item.__extendlist__) extendlist=extendlist.concat(item.__extendlist__);
 				mix(proto, item, blacklist,extendlist);
 			}
 		},

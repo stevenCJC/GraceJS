@@ -5,13 +5,16 @@ function (g, Class, Events, aspect, attribute) {
 	
 	var ClassFactory=g.Class.Factory;
 	
-	var BaseFactory=Class(function BaseFactory(){},{
+	var BaseFactory=Class(function BaseFactory(){
+			this.extendOptions=['Attrs'];
+		},{
 		Inherit:ClassFactory,
 		extend:function(){
 			BaseFactory.Super.extend.call(this);
 			this.extends.push(Events);
 			this.extends.push(aspect);
 			this.extends.push(attribute);
+			
 			this.extends.push({
 				__type__ : 'BASE',
 				destroy : function () {
@@ -65,26 +68,25 @@ function (g, Class, Events, aspect, attribute) {
 		
 		construct:function(configs){
 			//init attrs
-			this._attrInit(configs||{});
+			attribute._attrInit.call(this,configs||{});
 			//BaseFactory.prototype.attrConstruct.call(this,configs);
 		},
 		
 		implement:function(){
-			this.attrImplement();
+			if(this.parent){
+				var imps=this.extendOptions,_parent;
+				
+				for(var i=0;i<imps.length;i++){
+					_parent=this.parent.prototype[imps[i]];
+					if(!_parent) continue;
+					this.props[imps[i]]=this.props[imps[i]]||{};
+					for(var x in _parent)
+						this.props[imps[i]][x]=_parent[x];
+				}
+			}
 		},
 		
-		attrImplement:function(){
-			var opts_parent;
-			if(this.parent)
-				opts_parent=this.parent.prototype.Attrs;
-				
-			if(!opts_parent) return;
-			this.props.Attrs=this.props.Attrs||{};
-			
-			if(opts_parent)
-				for(var x in opts_parent)
-					this.props.Attrs[x]=opts_parent[x];
-		},
+		
 		
 	});
 	

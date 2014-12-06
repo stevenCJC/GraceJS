@@ -1,10 +1,15 @@
-define([], function() {
-	function template(text,moduleName,settings) {
-		var	slice = Array.prototype.slice;
+define(['g','_/utils'], function(g) {
+	var	slice = Array.prototype.slice;
 	
+	g.template=function(text,sid) {
+		
+		sid=sid||g.utils.parsesid(text);
+		
+		if(g.template._tpls[sid]) return g.template._tpls[sid];
+		
 		var noMatch = /(.)^/;
 		var escaper = /\\|'|\r|\n|\t|\u2028|\u2029/g;
-		var templateSettings_ = {
+		var settings = {
 			evaluate: /<%([\s\S]+?)%>/g,
 			interpolate: /<%=([\s\S]+?)%>/g,
 			escape: /<%-([\s\S]+?)%>/g
@@ -19,8 +24,7 @@ define([], function() {
 			'\u2029': 'u2029'
 		};
 		var render;
-		settings = defaults({}, settings, templateSettings_);
-	
+		
 		var matcher = new RegExp([(settings.escape || noMatch).source, (settings.interpolate || noMatch).source, (settings.evaluate || noMatch).source].join('|') + '|$', 'g');
 	
 		var index = 0;
@@ -44,29 +48,31 @@ define([], function() {
 			index = offset + match.length;
 			return match;
 		});
-		source += "';\n";
-	
-		// If a variable is not specified, place data values in local scope.
-		if (!settings.variable) source = 'with(obj||{}){\n' + source + '}\n';
-	
-		source = "var __t,__p='',__j=Array.prototype.join," + "print=function(){__p+=__j.call(arguments,'');};\n" + source + "return __p;\n function _escape(string) {if (string == null) return ''; return ('' + string).replace(new RegExp('[' + _.keys(entityMap.escape).join('') + ']', 'g'), function(match) {return {'&': '&amp;','<': '&lt;', '>': '&gt;', '\"': '&quot;', '\\'': '&#x27;','/': '&#x2F;'}[match]; });};";
-	
-		return 'define("'+moduleName+'",[],function(' + (settings.variable || 'obj') + '){\n' + source + '})';
-	
-		function defaults(obj) {
-			slice.call(arguments, 1).forEach(
-			function(source) {
-				if (source) {
-					for (var prop in source) {
-						if (obj[prop] == null) obj[prop] = source[prop];
-					}
-				}
-			});
-			return obj;
-		};
 		
+		source += "';\n";
+		
+		// If a variable is not specified, place data values in local scope.
+		source = 'with(obj||{}){\n' + source + '}\n';
 	
+		source = "var __t,__p='',__j=Array.prototype.join," +
+		  "print=function(){__p+=__j.call(arguments,'');};\n" +
+		  source + "return __p;\n";
+		
+		try {
+		  render = new Function('obj', source);
+		} catch (e) {
+		  e.source = source;
+		  throw e;
+		}
+		
+		g.template._tpls[sid]=render;
+		
+		render._sid_=sid;
+		
+		return render;
+		
 	};
+	g.template._tpls={};
 	
-	return template;
+	return g.template;
 });

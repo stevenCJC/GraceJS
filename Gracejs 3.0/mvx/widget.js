@@ -1,17 +1,20 @@
-define(['g', 'oop/base','./common/css','_/utils','_/is'],
-function (g, Base, Css) {
+define(['g', 'oop/base','./common/css','./common/mediator','./common/tpl','_/utils','_/is'],
+function (g, Base, Css, mediator, tpl) {
 
 	
 	
 	var BaseFactory=g.Base.Factory;
 	
-	var WidgetFactory=g.Class(function WidgetFactory(){},{
+	var WidgetFactory=g.Class(function WidgetFactory(){
+			this.extendOptions.push('Subscribe');
+		},{
 		Inherit:BaseFactory,
 		extend:function(){
 			WidgetFactory.Super.extend.call(this);
 			this.extends.push(Css);
+			this.extends.push(mediator);
+			this.extends.push(tpl);
 			this.extends.push({ 
-				__type__ : 'WIDGET', 
 				destroy : function () { 
 					this.el=null; 
 					this.off(); 
@@ -25,9 +28,11 @@ function (g, Base, Css) {
 			}); 
 		}, 
 		toExtend:function(){
+			
 			WidgetFactory.Super.toExtend.call(this);
-			this.Constructor.prototype.__blacklist__=['__type__'];
-			//this.Constructor.prototype.__extendlist__=['options'];
+			this.Constructor.prototype.__type__='WIDGET';
+			this.Constructor.prototype.__extendlist__=['options','Subscribe'];
+			
 		},
 		makeConstructor_ : function () { 
 			if (this.parent !== this.Empty && this.parent != this.constr){ 
@@ -43,14 +48,13 @@ function (g, Base, Css) {
 		
 		construct:function(configs){ 
 			WidgetFactory.Super.construct.call(this,configs);
-			this._cssInit();
-			
+			if(this._sid) return;
+			this._sid='widget_sid_'+g.utils.sid('widget');
+			Css._cssInit.call(this);
+			mediator._mediatorInit.call(this);
+			tpl._tplInit.call(this);
 		}, 
 		
-		implement:function(){ 
-			WidgetFactory.Super.implement.call(this);
-			
-		},
 		
 		
 	});

@@ -248,7 +248,7 @@ function binl2b64(binarray)
 }
 
 	function md5(s,options){
-		if(options.type||options.key){
+		if(options&&(options.type||options.key)){
 			if(options.type=='hex')
 				if(options.key) return binl2hex(core_hmac_md5(key, data));
 				else return binl2hex(core_md5(str2binl(s), s.length * chrsz));

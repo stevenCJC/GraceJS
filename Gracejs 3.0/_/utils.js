@@ -1,4 +1,4 @@
-define(['g','./function/md5','./var/_ids'], function(g ,md5 ,_ids) {
+define(['g','./function/md5','./function/parsesid','./var/_ids'], function(g ,md5, parsesid, _ids) {
 	
 	var utils={
 		sid:function(ns){
@@ -6,6 +6,7 @@ define(['g','./function/md5','./var/_ids'], function(g ,md5 ,_ids) {
 			else _ids[ns]++;
 			return _ids[ns];
 		},
+		parsesid:parsesid,
 		md5 :　md5,
 		call : function( context, args, func ){
 			context=context||this;

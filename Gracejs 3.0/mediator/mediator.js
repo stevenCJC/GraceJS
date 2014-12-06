@@ -1,4 +1,4 @@
-define([], function() {
+define(['g','oop/class'], function(g) {
 	function Mediator(){
 		this.channels={};
 	}

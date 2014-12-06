@@ -30,7 +30,9 @@ define(['g','_/array'], function(g) {
 		toArray:function(){
 			return this.slice();
 		},
-		
+		toString:function(){
+			
+		},
 	};
 	
 	for(var x in g.array) (function(x,func){
