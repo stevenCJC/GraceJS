@@ -1,5 +1,12 @@
 define(['g','_/array'], function(g) {
 	
+	/*
+		
+		以数据为中心，实现简单的数据检索，数据事件绑定
+		
+	*/
+	
+	
 	
 	function ArrayModel(data){
 		for(var i=0,l=data.length;i<l;i++) this[i]=data[i];

@@ -26,6 +26,20 @@ define(['g'], function(g) {
 	
 	g=g.namespace('user/list');
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	*/
 	//开放给开发者的 编程接口 
 	

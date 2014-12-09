@@ -1,19 +1,8 @@
-define(['g','./event_dom','./event_router','./event_storage','oop/events'], function(g,event_dom,event_router,event_storage,events) {
+define(['g'], function(g) {
 
-	
-	
-	
-	var event={
-		__blacklist__:['_eventInit'],
-		_eventInit:function(){
-			if(this.Event){
-				
-			}
-		},
+	var event_dom={
 		
-		on:function(path){
-			
-		},
+		on:function(){},
 		
 		off:function(){},
 		
@@ -21,27 +10,12 @@ define(['g','./event_dom','./event_router','./event_storage','oop/events'], func
 		
 		trigger:function(){},
 		
-		
-		
-	};
-	
-	function getType(key){
-		
-		return ;
 	}
+
+	return event_dom;
 	
-	return event;
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
+
 	
 	//事件函数绑定执行
 	function bind(that,path){

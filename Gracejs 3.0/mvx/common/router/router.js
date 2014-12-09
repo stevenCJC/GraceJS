@@ -14,13 +14,14 @@ define(['function/urlData'], function(urlData) {
 		//绑定hash改变事件
 		var me=this;
 		window.addEventListener('hashchange',function(e){
-			me._onChange(e);
+			me.listen(e);
 		},false);
 	}
 	Router.prtotype={
 		constructor:Router,
 		
-		_onChange:function(e){
+		
+		listen:function(){
 			hashRouter(e);
 		},
 		
@@ -31,9 +32,11 @@ define(['function/urlData'], function(urlData) {
 		set:function(hash,data,silent){
 			
 		},
+		
 		get:function(hash){
 			
 		},
+		
 		remove:function(hash,silent){},
 		
 		
@@ -58,6 +61,7 @@ define(['function/urlData'], function(urlData) {
 	function checkChangeHash(newUrl,oldUrl){
 		
 		return [];
+		
 	}
 	
 	

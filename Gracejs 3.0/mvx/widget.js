@@ -14,6 +14,7 @@ function (g, Base, Css, mediator, tpl) {
 			this.extends.push(Css);
 			this.extends.push(mediator);
 			this.extends.push(tpl);
+			//引入Model
 			this.extends.push({ 
 				destroy : function () { 
 					this.el=null; 
