@@ -1,4 +1,7 @@
 define(['g','oop/class'], function(g) {
+	
+	//需要支持命名空间
+	
 	function Mediator(){
 		this.channels={};
 	}

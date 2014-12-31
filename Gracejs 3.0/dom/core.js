@@ -1,4 +1,4 @@
-define(['g','ui/function/_selector','_/is'], function(g,_selector) {
+define(['g','dom/function/_selector','_/is'], function(g,_selector) {
 	
 	g.q = function (s,w){
 		return new Core(s,w);

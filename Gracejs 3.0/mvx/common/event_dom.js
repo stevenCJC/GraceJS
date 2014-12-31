@@ -1,5 +1,10 @@
 define(['g'], function(g) {
-
+	
+	
+	// 事件数据存储在widget上；
+	// 
+	
+	
 	var event_dom={
 		
 		on:function(){},

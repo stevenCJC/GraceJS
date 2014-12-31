@@ -1,81 +1,75 @@
-define(['g','./event_dom','./event_router','./event_storage','oop/events'], function(g,event_dom,event_router,event_storage,events) {
-
-	
+define(['g','oop/Event','_/utils','mediator/main'], function(g,Event) {
 	
 	
 	var event={
 		__blacklist__:['_eventInit'],
 		_eventInit:function(){
+			/*
+				自动带上命名空间
+				
+				'someEvent':''
+				'click body@.tr.data-item-id':''
+				'click .tr.data-item-id':''
+				'keydown .tr.data-item-id':''
+				'Router:alert':''
+				'LS:UID':'',
+				
+			*/
+			
+			
 			if(this.Event){
 				
 			}
-		},
-		
-		on:function(path){
 			
 		},
 		
-		off:function(){},
 		
-		once:function(){},
 		
-		trigger:function(){},
+		on:function(path,cb){
+			path=g.u.trim(path);
+			if(!path) return;
+			var ev;
+			var index=path.search(/\W/);
+			if(index==-1){
+				
+			}else{
+				ev=path.substr(0, index-1);
+				switch(ev.toLowerCase()){
+					case 'ls':
+					case 'localstorage':
+					
+					break;
+					case 'ss':
+					case 'sessionstorage':
+					
+					break;
+					case 'r':
+					case 'router':
+					//路由跟信息中心结合的情况
+					g.sub(path.substr(index+1),cb,this);
+					
+					break;
+					default:
+					
+					break;
+				}
+			}
+			
+		},
 		
+		off:function(){
+			
+		},
+		
+		trigger:function(){
+			
+		},
 		
 		
 	};
 	
-	function getType(key){
-		
-		return ;
-	}
+	
 	
 	return event;
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	//事件函数绑定执行
-	function bind(that,path){
-		var ev=that.BEHAVIOR.Event;
-		
-		var handle=ev[path];
-		
-		path=fixPath(path,that);
-		
-		var index=path.indexOf(' ');
-		
-		if(index>-1){
-			if(handle.constructor==String)handle=that[handle];
-			else handle=function($el,e){handle.call(that,$el,e)};
-			var etype=path.substr(0,index);
-			var dom=path.substr(index+1).split('@');//
-			//如果dom事件有委托
-			if(dom.length==2)
-				$(dom[0]).on(etype,dom[1],function(e){
-					handle($(this),e);
-				});
-			else if(dom.length==1)//如果dom事件没有委托
-				$(dom[0]).on(etype,function(e){
-					handle($(this),e);
-				});
-		}else{
-			if(handle.constructor==String)handle=that[handle];
-			that.event=that.event||{};
-			that.event[path]=handle;
-		}
-		
-	}
-	
 
-	
-	return _behavior;
 });

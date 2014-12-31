@@ -1,4 +1,4 @@
-define(['ui/ui','_/is','./clean'], function (g) {
+define(['dom/core','_/is','./clean'], function (g) {
 
 	
 	

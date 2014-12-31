@@ -1,4 +1,4 @@
-define(['g','_/SDD','mediator/main'], function(g) {
+define(['g','oop/Event','_/SDD'], function(g,Event) {
 	/*
 	localhost#view!1,2,3/tab!noteAll
 	hashChange事件触发后会对比新旧hash每个单位的改变
@@ -11,11 +11,12 @@ define(['g','_/SDD','mediator/main'], function(g) {
 		
 	*/
 	
-	
+	// 跟全局中介合并
 	
 	function Router(){
 		//绑定hash改变事件
 		var me=this;
+		this.handles=new Event();
 		window.addEventListener('hashchange',function(e){
 			me.listen(e);
 		},false);
@@ -33,29 +34,55 @@ define(['g','_/SDD','mediator/main'], function(g) {
 		listen:function(e){
 			var diff=hashDiff(parseHash(e.newURL),parseHash(e.oldURL));
 			for(var i=0;i<diff.length;i++){
-				g.pub(diff[i].name,diff[i].newValue);
+				this.handles.trigger(diff[i].name,diff[i]);
 			}
+			
 		},
 		
+		
+		// 路由的事件空间跟全局中介结合则部分方法变得无用
+		on:function(name,cb,context){
+			this.handles.on(name,cb,context);
+		},
+		
+		off:function(name){
+			this.handles.off(name);
+		},
+		
+		once:function(name,cb,context){
+			this.handles.once(name,cb,context);
+		},
+		
+		trigger:function(name,newData,context){
+			var hash=parseHash();
+			var names=name.split(/\,| /g);
+			while(name=names.pop()){
+				this.handles.trigger(name,{name:x,newValue:newData,oldValue:hash[name]},context);
+			}
+			this.set(names.join(','),newData,true);
+		},
 		
 		set:function(name,data,silent){
 			if(!name) throw 'can not set value without a router name.';
 			var url=window.location;
 			var index=url.indexOf('#');
 			var loc=url.substr(0,index);
-			var hash=parseHash();
+			var hash=parseHash(),tmp;
 			if(name.constructor==String){
 				var names=name.split(/\,| /g);
 				while(name=names.pop()){
+					tmp=hash[name];
 					hash[name]=data;
-					silent&&g.pub(name,data);
+					silent&&this.handles.trigger(name,{name:x,newValue:data,oldValue:tmp});
 				}
 			}else if(name.constructor==Object){
 				for(var x in name){
+					tmp=hash[x];
 					hash[x]=name[x];
-					silent&&g.pub(x,name[x]);
+					silent&&this.handles.trigger(x,{name:x,newValue:name[x],oldValue:tmp});
 				}
 			}
+			
 			window.history.replaceState(null, null,loc+hash);
 		},
 		
@@ -65,15 +92,16 @@ define(['g','_/SDD','mediator/main'], function(g) {
 			return hash[name];
 		},
 		
-		remove:function(name){
+		remove:function(name,silent){
 			var url=window.location;
 			var index=url.indexOf('#');
 			var loc=url.substr(0,index);
 			var hash=parseHash();
-			var names=name.split(/\,| /g);
+			var names=name.split(/\,| /g),tmp;
 			while(name=names.pop()){
+				tmp=hash[name];
 				delete hash[name];
-				silent&&g.pub(name,undefined);
+				silent&&this.handles.trigger(name,{name:name,newValue:undefined,oldValue:tmp});
 			}
 			window.history.replaceState(null, null,loc+hash);
 		},

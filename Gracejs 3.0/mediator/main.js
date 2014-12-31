@@ -1,14 +1,20 @@
-define(['g','./Mediator'], function(g,Mediator) {
+define(['g','./Mediator_ns'], function(g,Mediator_ns) {
 	
-	var _mediator=new Mediator();
+	var _mediator=new Mediator_ns();
 	
-	g.sub=function(c,cb){
-		_mediator.subscribe(c,cb);
-	};
-	g.pub=function(c,data){
-		_mediator.publish(c,data);
+	g.pub=function(c,data,context){
+		_mediator.publish(c,data,context);
 	};
 	
+	g.sub=function(c,cb,context){
+		_mediator.subscribe(c,cb,context);
+	};
+	g.unsub=function(c){
+		_mediator.unsubscribe(c);
+	};
+	g.once=function(c){
+		_mediator.once(c);
+	};
 	
 });
 

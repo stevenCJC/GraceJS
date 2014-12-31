@@ -1,4 +1,4 @@
-define(['ui/ui','./var/fragementRE','./function/_insertFragments','_/is'], function (g,fragementRE,_insertFragments) {
+define(['dom/core','./var/fragementRE','./function/_insertFragments','_/is'], function (g,fragementRE,_insertFragments) {
 
 	g.ui.extend({
 

@@ -1,4 +1,4 @@
-define(['ui/ui','./function/_bind','./function/_delegate','./function/_unbind','./function/_undelegate','./function/remove','./function/add','./function/makeEvent'], function (g,_bind,_delegate,_unbind,_undelegate,remove,add,makeEvent) {
+define(['dom/core','./function/_bind','./function/_delegate','./function/_unbind','./function/_undelegate','./function/remove','./function/add','./function/makeEvent'], function (g,_bind,_delegate,_unbind,_undelegate,remove,add,makeEvent) {
 	
 	g.ui.fn.on = function(event, selector, callback) {
 		return selector === undefined || $.isFunction(selector) ? _bind(this,event, selector) : _delegate(this,selector, event, callback);
@@ -32,6 +32,7 @@ define(['ui/ui','./function/_bind','./function/_delegate','./function/_unbind','
 	};
 	
 	var eventtrigger=["click","keydown","keyup","keypress","submit","load","resize","change","select","error"];
+	
 	for(var i=0,len=eventtrigger.length;i<len;i++)
 		(function(i){
 			g.q.fn[eventtrigger[i]]=function(cb){

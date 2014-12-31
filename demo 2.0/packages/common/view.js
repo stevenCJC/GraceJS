@@ -21,12 +21,22 @@ require(['grace'],function(G){
 			//各种类型的事件绑定，外部可通过trigger触发事件，
 			Event:{
 				'click body@{id}':'alert',
-				loadIndex:'loadIndex',
+				'loadIndex':'loadIndex',
+				'Router:haha':'router_',
+				'LS:uid':'alertUser',
+			},
+			Subscribe:{
+				
 			},
 			//控制器可绑定事件，但不能直接更改状态
 			State:{
 				open:1,
 			},
+			
+			router_:function(newData,e){
+				
+			},
+			
 			//销毁自身，回收内存
 			Destroy:function(){
 				

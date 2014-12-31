@@ -1,6 +1,10 @@
 define(['g','./function/md5','./function/parsesid','./var/_ids'], function(g ,md5, parsesid, _ids) {
 	
 	var utils={
+		trim:function(str){
+			if(str) return str.replace(/(^\s*)|(\s*$)/g,'');
+			else return str;
+		},
 		sid:function(ns){
 			if(!_ids[ns])_ids[ns]=1;
 			else _ids[ns]++;

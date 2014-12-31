@@ -44,9 +44,29 @@ define(["g" , './var/_models' ,'ajax/request', './common/dataset/DS','_/string']
 			error:function(e){},
 			before:function(setting){},
 		});
+		
+		
+		view.bind('list',model.getList);
+		
+		View.Event{
+			'list:before':function(param){
+				
+			},
+			'list:done':function(data){
+				
+			},
+			'list:error':function(e){
+				
+			},
+			'list.item.ActivityCode:change':function(){},
+		}
+		view.trigger('list:fetch',{});
+		
+		model.getList.fetch();
+		
+		
+		model.getList.done(function(){}).error(function(){}).fetch({});
 			
-			
-1			
 	*/
 	
 	

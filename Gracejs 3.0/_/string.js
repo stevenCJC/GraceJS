@@ -7,6 +7,8 @@ define(['g','_/is'], function(g) {
 		},
 		
 		
+		parse:function(){},
+		
 	}
 	
 		

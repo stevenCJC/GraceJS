@@ -1,5 +1,5 @@
-define(['g', './Class', './Events', './aspect', './attribute','_/utils','_/is'],
-function (g, Class, Events, aspect, attribute) {
+define(['g', './Class', './Event', './aspect', './attribute','_/utils','_/is'],
+function (g, Class, Event, aspect, attribute) {
 
 	
 	
@@ -11,7 +11,7 @@ function (g, Class, Events, aspect, attribute) {
 		Inherit:ClassFactory,
 		extend:function(){
 			BaseFactory.Super.extend.call(this);
-			this.extends.push(Events);
+			this.extends.push(Event);
 			this.extends.push(aspect);
 			this.extends.push(attribute);
 			

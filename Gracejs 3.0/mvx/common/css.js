@@ -1,4 +1,4 @@
-define(['g','_/is','ui/ui','ui/cud'], function (g) {
+define(['g','_/is','dom/core','dom/cud'], function (g) {
 	
 	var css={
 		__blacklist__:['_cssInit'],

@@ -13,7 +13,7 @@ define(['function/urlData'], function(urlData) {
 			hashRouter(e,callback);
 		},false);
 	}
-	Router.prtotype={
+	Router.prototype={
 		constructor:Router,
 	}
 	

@@ -1,4 +1,4 @@
-define(['ui/ui'], function (g) {
+define(['dom/core'], function (g) {
 
 	g.ui.extend({
 

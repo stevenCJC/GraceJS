@@ -1,5 +1,7 @@
 define(['g','_/is','mediator/main'], function (g) {
 	
+	
+	
 	var mediator={
 		__blacklist__:['_mediatorInit'],
 		_mediatorInit:function(){
