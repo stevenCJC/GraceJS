@@ -65,7 +65,7 @@ define(['g','_/SDD','mediator/main'], function(g) {
 			return hash[name];
 		},
 		
-		remove:function(name){
+		remove:function(name,silent){
 			var url=window.location;
 			var index=url.indexOf('#');
 			var loc=url.substr(0,index);
