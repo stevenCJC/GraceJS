@@ -3,7 +3,10 @@ define(['g','./function/deepClone'], function(g,deepClone) {
 	// Delegates to **ECMAScript 5**'s native `Object.keys`
 	var object={
 		
-		each:function(){},
+		each:function(obj,cb){
+			if(typeof obj=='object')
+				for(var x in obj)	cb(obj[x],x,obj);
+		},
 		
 		keys : Object.keys,
 		

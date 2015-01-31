@@ -2,7 +2,16 @@ define(['g','dom/function/_selector','_/is'], function(g,_selector) {
 	
 	g.q = function (s,w){
 		return new Core(s,w);
-	}
+	};
+	g.q.contains = document.documentElement.contains ?
+	    function(parent, node) {
+	      return parent !== node && parent.contains(node)
+	    } :
+	    function(parent, node) {
+	      while (node && (node = node.parentNode))
+	        if (node === parent) return true
+	      return false
+	    };
 	
 	g.ui={};
 	g.ui.fn = Core.prototype = {

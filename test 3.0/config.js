@@ -1,6 +1,8 @@
 // JavaScript Document
 var require = { 
-	baseUrl:'F:/GraceJS/Gracejs 3.0',
+	//baseUrl:'F:/GraceJS/Gracejs 3.0',
+	baseUrl:'D:/graceJS/Gracejs 3.0',
+	
 	waitSeconds:6000,
 	//baseUrl:'/src',
 	paths: {

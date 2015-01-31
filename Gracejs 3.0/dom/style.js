@@ -1,6 +1,6 @@
-define(['$','BL/_/main'], function ($) {
+define(['dom/core','BL/_/main'], function (g) {
 
-	$.extend({
+	g.ui.extend({
 
 		
 		css: function(attribute, value, obj) {

@@ -1,6 +1,6 @@
-define(['$','./function/unique','./function/siblings','./function/_shimNodes','BL/_/main'], function ($,unique,siblings,_shimNodes) {
+define(['dom/core','./function/unique','./function/siblings','./function/_shimNodes','BL/_/main'], function (g,unique,siblings,_shimNodes) {
 
-	$.extend({
+	g.ui.extend({
 
 		setupOld: function(params) {
 			if (params == undefined)
