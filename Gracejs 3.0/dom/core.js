@@ -1,4 +1,4 @@
-define(['g','dom/function/_selector','_/is'], function(g,_selector) {
+define(['g','dom/function/_selector','_/is','_/object'], function(g,_selector) {
 	
 	g.q = function (s,w){
 		return new Core(s,w);
@@ -26,8 +26,49 @@ define(['g','dom/function/_selector','_/is'], function(g,_selector) {
 		slice: [].slice,
 	};
 	
-	g.ui.extend=function(obj){
-		for(var x in obj) g.ui.fn[x]=obj[x];
+		
+	// extend(name,classFunction)	//开发插件的时候比较有用的扩展方式,直接支持对子方法的调用模式
+	// extend(name,{				//基于name的命名空间下，对子方法的调用模式，使用第三方插件、定义接口的时候比较有用
+	// 	main:function(){},
+	//	name1:function(){},
+	//	name2:function(){},
+	//});
+	// extend(obj)					//基本扩展方式
+	g.ui.extend=function(name,obj){
+		if(arguments.length==1&&name.constructor==Object)
+			for(var x in name) g.ui.fn[x]=name[x];
+		else if(arguments.length==2){
+			if(obj.constructor==Object) {
+				g.ui.fn[name]=function(action, options){
+					if(action&&action.constructor==String&&obj[action]){
+						
+						obj[action].apply(this,arguments.slice(1));
+							
+					}else{
+						
+						obj[name].apply(this,arguments);
+						
+					}
+				};
+			}else if(obj.constructor==Function){
+				g.ui.fn[name]=function(action, options){
+					if(action&&action.constructor==String&&obj[action]){
+						
+						obj[action].apply(this,arguments.slice(1));
+							
+					}else{
+						var wdg,p;
+						this.each(function(){
+							wdg=new obj(this,action);
+							p=g.q(this).closest('[_]').attr('_');
+							//////////////////////////////////// 插入相应组件对象的使用组件数组里面
+						});
+						obj[name].apply(this,arguments);
+						
+					}
+				};
+			}
+		}
 	};
 	
 	g.ui.fn.each=function(cb){
