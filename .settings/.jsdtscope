@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="Gracejs 3.0/template/|Gracejs 1.0/source/function/|Gracejs 3.0/_/|Gracejs 2.0/mediator/|Gracejs 2.0/debug/|Gracejs 3.0/|Gracejs 3.0/dom/event/|Gracejs 1.0/source/BL/Blink/dom/var/|Gracejs 1.0/source/BL/Blink/_/|Gracejs 1.0/source/oop/widget/behavior/|Gracejs 2.0/oop/package/function/|Gracejs 2.0/var/|Gracejs 3.0/dom/|Gracejs 2.0/model/var/|Gracejs 2.0/oop/widget/behavior/|Gracejs 1.0/source/var/|Gracejs 2.0/oop/widget/|demo 3.0/plugs/libs/|demo 2.0/libs/|Gracejs 3.0/mvx/common/dataset/|Gracejs 2.0/BL/_/|Gracejs 2.0/dataset/storage/|Gracejs 3.0/mvx/common/router/|Gracejs 1.0/source/BL/Blink/event/function/|Gracejs 2.0/function/|Gracejs 3.0/mediator/|Gracejs 1.0/Test/|test 3.0/|Gracejs 1.0/source/BL/Blink/dom/function/|Gracejs 2.0/|Gracejs 2.0/BL/dom/|Gracejs 3.0/dom/event/var/|Gracejs 2.0/oop/widget/behavior/event/|Gracejs 1.0/source/view/|demo 3.0/widgets/login/|Gracejs 1.0/source/|Gracejs 1.0/source/BL/Blink/event/var/|Gracejs 2.0/oop/package/class/|Gracejs 1.0/source/TD/|demo 3.0/plugs/treeBtn/|Gracejs 1.0/Test/libs/|test 3.0/mvx/common/|Gracejs 2.0/BL/event/|demo 3.0/widgets/common/|Gracejs 2.0/oop/app/|Gracejs 3.0/_/var/|Gracejs 1.0/source/oop/widget/function/|Gracejs 2.0/oop/|Gracejs 1.0/source/BL/Blink/event/|Gracejs 1.0/source/BL/Blink/var/|Gracejs 2.0/BL/|Gracejs 1.0/source/oop/widget/behavior/event/|demo 2.0/packages/ncuser/|Gracejs 2.0/BL/_/var/|Gracejs 1.0/source/BL/Blink/function/|Gracejs 1.0/source/BL/Blink/dom/|Gracejs 3.0/storage/|demo 3.0/plugs/|Gracejs 3.0/_/function/|Gracejs 2.0/TD/|built/|Gracejs 3.0/var/|Gracejs 1.0/source/BL/Blink/_/template/|Gracejs 2.0/BL/_/extend/|Gracejs 3.0/function/|Gracejs 1.0/source/oop/widget/behavior/init/|Gracejs 3.0/dom/var/|Gracejs 3.0/storage/indexedDB/|Gracejs 1.0/source/dataset/storage/sqlite/|Gracejs 2.0/oop/package/class/function/|Gracejs 2.0/BL/event/function/|Gracejs 3.0/oop/|Gracejs 3.0/mvx/common/dataset/function/|Gracejs 2.0/BL/function/|demo 2.0/utils/|Gracejs 2.0/wrap/|Gracejs 2.0/oop/package/class/var/|Gracejs 3.0/dom/function/|Gracejs 2.0/oop/var/|aralejs/|Gracejs 3.0/wrap/|Gracejs 3.0/ajax/|Gracejs 2.0/BL/dom/var/|Gracejs 2.0/BL/dom/function/|test 3.0/oop/|Gracejs 2.0/oop/widget/behavior/init/|Gracejs 1.0/source/BL/Blink/|Gracejs 2.0/router/|Gracejs 1.0/source/dataset/|demo 3.0/modules/ncChat/|Gracejs 1.0/source/BL/Blink/ajax/|demo 3.0/utils/|Gracejs 1.0/source/dataset/storage/indexedDB/|test 3.0/mvx/|demo 3.0/utils/libs/|Gracejs 2.0/dataset/storage/sqlite/|Gracejs 2.0/dataset/storage/indexedDB/|Gracejs 3.0/dom/event/function/|Gracejs 3.0/mvx/|Gracejs 1.0/source/model/|Gracejs 2.0/BL/event/var/|Gracejs 2.0/TD/var/|demo 2.0/|Gracejs 1.0/source/BL/Blink/_/var/|Gracejs 2.0/BL/prototype/|Gracejs 2.0/BL/ajax/|Gracejs 1.0/source/view/var/|Gracejs 3.0/namespace/|Gracejs 3.0/namespace/var/|Gracejs 3.0/storage/sqlite/|Gracejs 1.0/source/dataset/storage/|Gracejs 1.0/source/BL/Blink/prototype/|Gracejs 1.0/source/wrap/|Gracejs 1.0/Test/utils/|demo 3.0/|Gracejs 1.0/Test/packages/object/|Gracejs 2.0/oop/package/|demo 2.0/packages/common/|Gracejs 2.0/oop/package/class/behavior/|Gracejs 2.0/oop/widget/function/|Gracejs 3.0/mvx/var/|Gracejs 1.0/Test/packages/model/|Gracejs 1.0/source/model/var/|Gracejs 3.0/mvx/common/|Gracejs 1.0/source/oop/widget/|Gracejs 1.0/source/mediator/|Gracejs 2.0/BL/var/|Gracejs 1.0/Test/packages/controller/|Gracejs 3.0/template/compliler/|Gracejs 2.0/view/|Gracejs 2.0/oop/package/var/|Gracejs 1.0/source/TD/var/|Gracejs 2.0/BL/_/template/|Gracejs 1.0/source/BL/Blink/_/extend/|Gracejs 1.0/source/debug/|demo 3.0/modules/|Gracejs 2.0/model/|Gracejs 2.0/view/var/|Gracejs 2.0/dataset/|Gracejs 1.0/source/router/|Gracejs 1.0/Test/packages/view/" kind="src" path=""/>
+	<classpathentry kind="src" path="aralejs"/>
+	<classpathentry kind="src" path="built"/>
+	<classpathentry excluding="libs/|packages/ncuser/|utils/|packages/common/" kind="src" path="demo 2.0"/>
+	<classpathentry kind="src" path="demo 2.0/libs"/>
+	<classpathentry kind="src" path="demo 2.0/packages/common"/>
+	<classpathentry kind="src" path="demo 2.0/packages/ncuser"/>
+	<classpathentry kind="src" path="demo 2.0/utils"/>
+	<classpathentry excluding="plugs/libs/|widgets/login/|plugs/treeBtn/|widgets/common/|plugs/|modules/ncChat/|utils/|utils/libs/|modules/" kind="src" path="demo 3.0"/>
+	<classpathentry excluding="ncChat/" kind="src" path="demo 3.0/modules"/>
+	<classpathentry kind="src" path="demo 3.0/modules/ncChat"/>
+	<classpathentry excluding="libs/|treeBtn/" kind="src" path="demo 3.0/plugs"/>
+	<classpathentry kind="src" path="demo 3.0/plugs/libs"/>
+	<classpathentry kind="src" path="demo 3.0/plugs/treeBtn"/>
+	<classpathentry excluding="libs/" kind="src" path="demo 3.0/utils"/>
+	<classpathentry kind="src" path="demo 3.0/utils/libs"/>
+	<classpathentry kind="src" path="demo 3.0/widgets/common"/>
+	<classpathentry kind="src" path="demo 3.0/widgets/login"/>
+	<classpathentry excluding="function/|BL/Blink/dom/var/|BL/Blink/_/|oop/widget/behavior/|var/|BL/Blink/event/function/|BL/Blink/dom/function/|view/|BL/Blink/event/var/|TD/|oop/widget/function/|BL/Blink/event/|BL/Blink/var/|oop/widget/behavior/event/|BL/Blink/function/|BL/Blink/dom/|BL/Blink/_/template/|oop/widget/behavior/init/|dataset/storage/sqlite/|BL/Blink/|dataset/|BL/Blink/ajax/|dataset/storage/indexedDB/|model/|BL/Blink/_/var/|view/var/|dataset/storage/|BL/Blink/prototype/|wrap/|model/var/|oop/widget/|mediator/|TD/var/|BL/Blink/_/extend/|debug/|router/" kind="src" path="Gracejs 1.0/source"/>
+	<classpathentry excluding="dom/var/|_/|event/function/|dom/function/|event/var/|event/|var/|function/|dom/|_/template/|ajax/|_/var/|prototype/|_/extend/" kind="src" path="Gracejs 1.0/source/BL/Blink"/>
+	<classpathentry excluding="template/|var/|extend/" kind="src" path="Gracejs 1.0/source/BL/Blink/_"/>
+	<classpathentry kind="src" path="Gracejs 1.0/source/BL/Blink/_/extend"/>
+	<classpathentry kind="src" path="Gracejs 1.0/source/BL/Blink/_/template"/>
+	<classpathentry kind="src" path="Gracejs 1.0/source/BL/Blink/_/var"/>
+	<classpathentry kind="src" path="Gracejs 1.0/source/BL/Blink/ajax"/>
+	<classpathentry excluding="var/|function/" kind="src" path="Gracejs 1.0/source/BL/Blink/dom"/>
+	<classpathentry kind="src" path="Gracejs 1.0/source/BL/Blink/dom/function"/>
+	<classpathentry kind="src" path="Gracejs 1.0/source/BL/Blink/dom/var"/>
+	<classpathentry excluding="function/|var/" kind="src" path="Gracejs 1.0/source/BL/Blink/event"/>
+	<classpathentry kind="src" path="Gracejs 1.0/source/BL/Blink/event/function"/>
+	<classpathentry kind="src" path="Gracejs 1.0/source/BL/Blink/event/var"/>
+	<classpathentry kind="src" path="Gracejs 1.0/source/BL/Blink/function"/>
+	<classpathentry kind="src" path="Gracejs 1.0/source/BL/Blink/prototype"/>
+	<classpathentry kind="src" path="Gracejs 1.0/source/BL/Blink/var"/>
+	<classpathentry excluding="storage/sqlite/|storage/indexedDB/|storage/" kind="src" path="Gracejs 1.0/source/dataset"/>
+	<classpathentry excluding="sqlite/|indexedDB/" kind="src" path="Gracejs 1.0/source/dataset/storage"/>
+	<classpathentry kind="src" path="Gracejs 1.0/source/dataset/storage/indexedDB"/>
+	<classpathentry kind="src" path="Gracejs 1.0/source/dataset/storage/sqlite"/>
+	<classpathentry kind="src" path="Gracejs 1.0/source/debug"/>
+	<classpathentry kind="src" path="Gracejs 1.0/source/function"/>
+	<classpathentry kind="src" path="Gracejs 1.0/source/mediator"/>
+	<classpathentry excluding="var/" kind="src" path="Gracejs 1.0/source/model"/>
+	<classpathentry kind="src" path="Gracejs 1.0/source/model/var"/>
+	<classpathentry excluding="behavior/|function/|behavior/event/|behavior/init/" kind="src" path="Gracejs 1.0/source/oop/widget"/>
+	<classpathentry excluding="event/|init/" kind="src" path="Gracejs 1.0/source/oop/widget/behavior"/>
+	<classpathentry kind="src" path="Gracejs 1.0/source/oop/widget/behavior/event"/>
+	<classpathentry kind="src" path="Gracejs 1.0/source/oop/widget/behavior/init"/>
+	<classpathentry kind="src" path="Gracejs 1.0/source/oop/widget/function"/>
+	<classpathentry kind="src" path="Gracejs 1.0/source/router"/>
+	<classpathentry excluding="var/" kind="src" path="Gracejs 1.0/source/TD"/>
+	<classpathentry kind="src" path="Gracejs 1.0/source/TD/var"/>
+	<classpathentry kind="src" path="Gracejs 1.0/source/var"/>
+	<classpathentry excluding="var/" kind="src" path="Gracejs 1.0/source/view"/>
+	<classpathentry kind="src" path="Gracejs 1.0/source/view/var"/>
+	<classpathentry kind="src" path="Gracejs 1.0/source/wrap"/>
+	<classpathentry excluding="libs/|utils/|packages/object/|packages/model/|packages/controller/|packages/view/" kind="src" path="Gracejs 1.0/Test"/>
+	<classpathentry kind="src" path="Gracejs 1.0/Test/libs"/>
+	<classpathentry kind="src" path="Gracejs 1.0/Test/packages/controller"/>
+	<classpathentry kind="src" path="Gracejs 1.0/Test/packages/model"/>
+	<classpathentry kind="src" path="Gracejs 1.0/Test/packages/object"/>
+	<classpathentry kind="src" path="Gracejs 1.0/Test/packages/view"/>
+	<classpathentry kind="src" path="Gracejs 1.0/Test/utils"/>
+	<classpathentry excluding="mediator/|debug/|oop/package/function/|var/|model/var/|oop/widget/behavior/|oop/widget/|BL/_/|dataset/storage/|function/|BL/dom/|oop/widget/behavior/event/|oop/package/class/|BL/event/|oop/app/|oop/|BL/|BL/_/var/|TD/|BL/_/extend/|oop/package/class/function/|BL/event/function/|BL/function/|wrap/|oop/package/class/var/|oop/var/|BL/dom/var/|BL/dom/function/|oop/widget/behavior/init/|router/|dataset/storage/sqlite/|dataset/storage/indexedDB/|BL/event/var/|TD/var/|BL/prototype/|BL/ajax/|oop/package/|oop/package/class/behavior/|oop/widget/function/|BL/var/|view/|oop/package/var/|BL/_/template/|model/|view/var/|dataset/" kind="src" path="Gracejs 2.0"/>
+	<classpathentry excluding="_/|dom/|event/|_/var/|_/extend/|event/function/|function/|dom/var/|dom/function/|event/var/|prototype/|ajax/|var/|_/template/" kind="src" path="Gracejs 2.0/BL"/>
+	<classpathentry excluding="var/|extend/|template/" kind="src" path="Gracejs 2.0/BL/_"/>
+	<classpathentry kind="src" path="Gracejs 2.0/BL/_/extend"/>
+	<classpathentry kind="src" path="Gracejs 2.0/BL/_/template"/>
+	<classpathentry kind="src" path="Gracejs 2.0/BL/_/var"/>
+	<classpathentry kind="src" path="Gracejs 2.0/BL/ajax"/>
+	<classpathentry excluding="var/|function/" kind="src" path="Gracejs 2.0/BL/dom"/>
+	<classpathentry kind="src" path="Gracejs 2.0/BL/dom/function"/>
+	<classpathentry kind="src" path="Gracejs 2.0/BL/dom/var"/>
+	<classpathentry excluding="function/|var/" kind="src" path="Gracejs 2.0/BL/event"/>
+	<classpathentry kind="src" path="Gracejs 2.0/BL/event/function"/>
+	<classpathentry kind="src" path="Gracejs 2.0/BL/event/var"/>
+	<classpathentry kind="src" path="Gracejs 2.0/BL/function"/>
+	<classpathentry kind="src" path="Gracejs 2.0/BL/prototype"/>
+	<classpathentry kind="src" path="Gracejs 2.0/BL/var"/>
+	<classpathentry excluding="storage/|storage/sqlite/|storage/indexedDB/" kind="src" path="Gracejs 2.0/dataset"/>
+	<classpathentry excluding="sqlite/|indexedDB/" kind="src" path="Gracejs 2.0/dataset/storage"/>
+	<classpathentry kind="src" path="Gracejs 2.0/dataset/storage/indexedDB"/>
+	<classpathentry kind="src" path="Gracejs 2.0/dataset/storage/sqlite"/>
+	<classpathentry kind="src" path="Gracejs 2.0/debug"/>
+	<classpathentry kind="src" path="Gracejs 2.0/function"/>
+	<classpathentry kind="src" path="Gracejs 2.0/mediator"/>
+	<classpathentry excluding="var/" kind="src" path="Gracejs 2.0/model"/>
+	<classpathentry kind="src" path="Gracejs 2.0/model/var"/>
+	<classpathentry excluding="package/function/|widget/behavior/|widget/|widget/behavior/event/|package/class/|app/|package/class/function/|package/class/var/|var/|widget/behavior/init/|package/|package/class/behavior/|widget/function/|package/var/" kind="src" path="Gracejs 2.0/oop"/>
+	<classpathentry kind="src" path="Gracejs 2.0/oop/app"/>
+	<classpathentry excluding="function/|class/|class/function/|class/var/|class/behavior/|var/" kind="src" path="Gracejs 2.0/oop/package"/>
+	<classpathentry excluding="function/|var/|behavior/" kind="src" path="Gracejs 2.0/oop/package/class"/>
+	<classpathentry kind="src" path="Gracejs 2.0/oop/package/class/behavior"/>
+	<classpathentry kind="src" path="Gracejs 2.0/oop/package/class/function"/>
+	<classpathentry kind="src" path="Gracejs 2.0/oop/package/class/var"/>
+	<classpathentry kind="src" path="Gracejs 2.0/oop/package/function"/>
+	<classpathentry kind="src" path="Gracejs 2.0/oop/package/var"/>
+	<classpathentry kind="src" path="Gracejs 2.0/oop/var"/>
+	<classpathentry excluding="behavior/|behavior/event/|behavior/init/|function/" kind="src" path="Gracejs 2.0/oop/widget"/>
+	<classpathentry excluding="event/|init/" kind="src" path="Gracejs 2.0/oop/widget/behavior"/>
+	<classpathentry kind="src" path="Gracejs 2.0/oop/widget/behavior/event"/>
+	<classpathentry kind="src" path="Gracejs 2.0/oop/widget/behavior/init"/>
+	<classpathentry kind="src" path="Gracejs 2.0/oop/widget/function"/>
+	<classpathentry kind="src" path="Gracejs 2.0/router"/>
+	<classpathentry excluding="var/" kind="src" path="Gracejs 2.0/TD"/>
+	<classpathentry kind="src" path="Gracejs 2.0/TD/var"/>
+	<classpathentry kind="src" path="Gracejs 2.0/var"/>
+	<classpathentry excluding="var/" kind="src" path="Gracejs 2.0/view"/>
+	<classpathentry kind="src" path="Gracejs 2.0/view/var"/>
+	<classpathentry kind="src" path="Gracejs 2.0/wrap"/>
+	<classpathentry excluding="template/|_/|dom/event/|dom/|mvx/common/dataset/|mvx/common/router/|mediator/|dom/event/var/|_/var/|storage/|_/function/|var/|function/|dom/var/|storage/indexedDB/|oop/|mvx/common/dataset/function/|dom/function/|wrap/|ajax/|dom/event/function/|mvx/|namespace/|namespace/var/|storage/sqlite/|mvx/var/|mvx/common/|template/compliler/" kind="src" path="Gracejs 3.0"/>
+	<classpathentry excluding="var/|function/" kind="src" path="Gracejs 3.0/_"/>
+	<classpathentry kind="src" path="Gracejs 3.0/_/function"/>
+	<classpathentry kind="src" path="Gracejs 3.0/_/var"/>
+	<classpathentry kind="src" path="Gracejs 3.0/ajax"/>
+	<classpathentry excluding="event/|event/var/|var/|function/|event/function/" kind="src" path="Gracejs 3.0/dom"/>
+	<classpathentry excluding="var/|function/" kind="src" path="Gracejs 3.0/dom/event"/>
+	<classpathentry kind="src" path="Gracejs 3.0/dom/event/function"/>
+	<classpathentry kind="src" path="Gracejs 3.0/dom/event/var"/>
+	<classpathentry kind="src" path="Gracejs 3.0/dom/function"/>
+	<classpathentry kind="src" path="Gracejs 3.0/dom/var"/>
+	<classpathentry kind="src" path="Gracejs 3.0/function"/>
+	<classpathentry kind="src" path="Gracejs 3.0/mediator"/>
+	<classpathentry excluding="common/dataset/|common/router/|common/dataset/function/|var/|common/" kind="src" path="Gracejs 3.0/mvx"/>
+	<classpathentry excluding="dataset/|router/|dataset/function/" kind="src" path="Gracejs 3.0/mvx/common"/>
+	<classpathentry excluding="function/" kind="src" path="Gracejs 3.0/mvx/common/dataset"/>
+	<classpathentry kind="src" path="Gracejs 3.0/mvx/common/dataset/function"/>
+	<classpathentry kind="src" path="Gracejs 3.0/mvx/common/router"/>
+	<classpathentry kind="src" path="Gracejs 3.0/mvx/var"/>
+	<classpathentry excluding="var/" kind="src" path="Gracejs 3.0/namespace"/>
+	<classpathentry kind="src" path="Gracejs 3.0/namespace/var"/>
+	<classpathentry kind="src" path="Gracejs 3.0/oop"/>
+	<classpathentry excluding="indexedDB/|sqlite/" kind="src" path="Gracejs 3.0/storage"/>
+	<classpathentry kind="src" path="Gracejs 3.0/storage/indexedDB"/>
+	<classpathentry kind="src" path="Gracejs 3.0/storage/sqlite"/>
+	<classpathentry excluding="compliler/" kind="src" path="Gracejs 3.0/template"/>
+	<classpathentry kind="src" path="Gracejs 3.0/template/compliler"/>
+	<classpathentry kind="src" path="Gracejs 3.0/var"/>
+	<classpathentry kind="src" path="Gracejs 3.0/wrap"/>
+	<classpathentry excluding="mvx/common/|oop/|mvx/" kind="src" path="test 3.0"/>
+	<classpathentry excluding="common/" kind="src" path="test 3.0/mvx"/>
+	<classpathentry kind="src" path="test 3.0/mvx/common"/>
+	<classpathentry kind="src" path="test 3.0/oop"/>
+	<classpathentry kind="con" path="org.eclipse.wst.jsdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path=""/>
+</classpath>

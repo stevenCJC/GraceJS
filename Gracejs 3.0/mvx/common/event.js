@@ -1,4 +1,4 @@
-define(['g','oop/Event','_/utils','mediator/main','dom/event','storage/localstorage','storage/sessionstorage'], function(g,Event) {
+define(['g','dom/event','oop/Event','_/utils','mediator/main','storage/localstorage','storage/sessionstorage'], function(g,Event) {
 	
 	
 	var event={
@@ -18,6 +18,8 @@ define(['g','oop/Event','_/utils','mediator/main','dom/event','storage/localstor
 			*/
 			
 			
+			
+			
 		},
 		
 		
@@ -27,7 +29,7 @@ define(['g','oop/Event','_/utils','mediator/main','dom/event','storage/localstor
 			if(!path) return;
 			var me=this;
 			var type;
-			var index=path.search(/\W/);
+			var index=path.search(/\:|\s/);
 			var t=path.substr(i,1);
 			var target=path.substr(index+1);//
 			if(index==-1){
@@ -38,11 +40,11 @@ define(['g','oop/Event','_/utils','mediator/main','dom/event','storage/localstor
 				switch(type.toLowerCase()){
 					case 'ls':
 					case 'localstorage':
-					g.LS.on(target,cb);
+					g.LS.bind(target,cb);
 					break;
 					case 'ss':
 					case 'sessionstorage':
-					g.SS.on(target,cb);
+					g.SS.bind(target,cb);
 					break;
 					case 'r':
 					case 'router':
@@ -59,7 +61,7 @@ define(['g','oop/Event','_/utils','mediator/main','dom/event','storage/localstor
 							delegate=target[0];
 							target=target[1];
 						}
-						
+						type=type.replace(/\,/g,'.'+this._sid+',');
 						if(delegate)
 							g.q(delegate).on(type,target,function(e){
 								cb.call(me,e,$(this));

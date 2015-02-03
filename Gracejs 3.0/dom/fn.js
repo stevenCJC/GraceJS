@@ -12,7 +12,9 @@ define(['dom/core'], function (g) {
 		
 		is:function(selector){
 			return !!selector&&this.filter(selector).length>0;
-		}
+		},
+		
+		
 
 	});
 	return $;

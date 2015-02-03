@@ -14,7 +14,7 @@ define(["BL/main", 'dataset/DS'], function ($, DS) {
 
 				if (beforeSend)
 					beforeSend(xhr);
-
+				
 				if (options.onSend)
 					options.onSend(xhr);
 
