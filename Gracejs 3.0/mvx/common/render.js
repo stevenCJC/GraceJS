@@ -1,7 +1,7 @@
 // JavaScript Document
 /*
 		`
-		
+		this.use();
 	
 	
 	{
