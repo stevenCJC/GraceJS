@@ -32,6 +32,12 @@ function (g, Base, Css, mediator, tpl) {
 			this.Constructor.prototype.__type__='WIDGET';
 			this.Constructor.prototype.__extendlist__=['options','Subscribe'];
 			
+			//	截取参数
+			//	var propo=this.Constructor.prototype,key;
+			//  for(var i=0; i < _extends.length; i++){
+			//		_extends[i].Options = _extends[i].Extended.call(_extends[i]);
+			//	}
+			
 		},
 		makeConstructor_ : function () { 
 			if (this.parent !== this.Empty && this.parent != this.constr){ 
@@ -54,7 +60,7 @@ function (g, Base, Css, mediator, tpl) {
 			tpl._tplInit.call(this);
 			
 			//  for(var i=0; i < _extends.length; i++){
-			//		_extends[i].onInit();
+			//		_extends[i].Init.call(this,_extends[i].Options);
 			//		_extends[i].beforeExtend();
 			//	}
 			

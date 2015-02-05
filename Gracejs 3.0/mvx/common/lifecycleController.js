@@ -1,8 +1,12 @@
 define(['g','_/is','dom/core'], function (g) {
 	
 	var css={
-		__blacklist__:['_lifecycleInit'],
-		_lifecycleInit:function(){
+		
+		Keys:['Init','Render','Destroy'],
+		
+		BeforeExtend:function(){},
+				
+		Init:function(){
 			
 			
 			
