@@ -4,13 +4,12 @@ define(['g','_/is','dom/core'], function (g) {
 		
 		Keys:['Init','Render','Destroy'],
 		
-		BeforeExtend:function(){},
-				
-		Init:function(){
-			
-			
-			
-		},
+		//构建期
+		onBeforeExtend:function(){},
+		onExtend:function(){},
+		//实例化期
+		onInit:function(){ },
+		onDestroy:function(){},
 		
 		init:function(){
 			
