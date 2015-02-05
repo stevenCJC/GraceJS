@@ -50,23 +50,6 @@ define(['g','dom/function/_selector','_/is','_/object'], function(g,_selector) {
 						
 					}
 				};
-			}else if(obj.constructor==Function){
-				g.ui.fn[name]=function(action, options){
-					if(action&&action.constructor==String&&obj[action]){
-						
-						obj[action].apply(this,arguments.slice(1));
-							
-					}else{
-						var wdg,p;
-						this.each(function(){
-							wdg=new obj(this,action);
-							p=g.q(this).closest('[_]').attr('_');
-							//////////////////////////////////// 插入相应组件对象的使用组件数组里面
-						});
-						obj[name].apply(this,arguments);
-						
-					}
-				};
 			}
 		}
 	};
