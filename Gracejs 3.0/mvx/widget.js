@@ -1,7 +1,7 @@
 define(['g', 'oop/base','./common/css','./common/mediator','./common/tpl','_/utils','_/is'],
 function (g, Base, Css, mediator, tpl) {
 
-	
+	var _extends=[Css,mediator,tpl];
 	
 	var BaseFactory=g.Base.Factory;
 	
@@ -11,9 +11,7 @@ function (g, Base, Css, mediator, tpl) {
 		Inherit:BaseFactory,
 		extend:function(){
 			WidgetFactory.Super.extend.call(this);
-			this.extends.push(Css);
-			this.extends.push(mediator);
-			this.extends.push(tpl);
+			this.extends=this.extends.concat(_extends);
 			//引入Model
 			this.extends.push({ 
 				destroy : function () { 
@@ -54,6 +52,12 @@ function (g, Base, Css, mediator, tpl) {
 			Css._cssInit.call(this);
 			mediator._mediatorInit.call(this);
 			tpl._tplInit.call(this);
+			
+			//  for(var i=0; i < _extends.length; i++){
+			//		_extends[i].onInit();
+			//		_extends[i].beforeExtend();
+			//	}
+			
 		}, 
 		
 		
