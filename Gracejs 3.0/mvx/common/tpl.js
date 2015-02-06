@@ -1,8 +1,7 @@
 define(['g','_/is','template/tpl'], function (g) {
 	
 	var tpl={
-		__blacklist__:['_tplInit'],
-		_tplInit:function(){
+		__onInstantiate:function(){
 			
 			var me=this;
 			

@@ -47,7 +47,7 @@ define(['g', '_/utils','_/is'], function (g) {
 				this.Constructor.Super = this.parent.prototype;
 			}
 		},
-		extend:function(){
+		stack:function(){
 			this.extends = this.props.Extend || [];
 			this.extends = this.extends.constructor == Array ? this.extends : [this.extends];
 			
@@ -59,12 +59,13 @@ define(['g', '_/utils','_/is'], function (g) {
 			
 			this.extends.push(this.props);
 		},
-		toExtend:function(){
+		extend:function(){
+			var i=0;
 			var proto = this.Constructor.prototype,item;
 			var blacklist=proto.__blacklist__||[];
 			var extendlist=proto.__extendlist__||[];
-			while (this.extends.length) {
-				item = this.extends.shift();
+			while (this.extends[i]) {
+				item = this.extends[i++];
 				item = item && item.prototype || item || {};
 				if(item.__blacklist__) blacklist=blacklist.concat(item.__blacklist__);
 				if(item.__extendlist__) extendlist=extendlist.concat(item.__extendlist__);
@@ -91,8 +92,8 @@ define(['g', '_/utils','_/is'], function (g) {
 			this.load(arguments[0],arguments[1]);
 			this.mode==1?this.makeConstructor():this.makeConstructor_();
 			this.inherit();
+			this.stack();
 			this.extend();
-			this.toExtend();
 			this.static();
 			this.classify();
 			var newClass=this.Constructor;
@@ -114,9 +115,9 @@ define(['g', '_/utils','_/is'], function (g) {
 		makeConstructor_ : function () {
 			if (this.parent !== this.Empty && this.parent != this.constr){
 				Class.prototype.__name__ = this.name;
-				var obj=this.constructorCallback();
+				var func=this.constructorCallback();
 				function Class() {
-					g.utils.call(this,arguments,obj);
+					g.utils.call(func, arguments, this);
 				}
 				this.Constructor=Class;
 			}else this.Constructor =  this.constr;
@@ -132,9 +133,9 @@ define(['g', '_/utils','_/is'], function (g) {
 			var constructor_=this.constr;
 			var parent=this.parent;
 			return function () {
-				g.utils.call(this, arguments, parent);
+				g.utils.call(parent, arguments, this);
 				if (parent != constructor_)
-					g.utils.call(this, arguments, constructor_);
+					g.utils.call(constructor_, arguments, this);
 			}
 		},
 		

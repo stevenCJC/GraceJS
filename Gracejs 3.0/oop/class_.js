@@ -34,9 +34,9 @@ define(['g', '_/utils'], function (g) {
 		var constructor__;
 		if (parent !== Empty)
 			constructor__ =makeConstructor(name, constructorMaker ? constructorMaker(constructor_,parent,properties): function () {
-					g.utils.call(this, arguments, parent);
+					g.utils.call( parent, arguments, this);
 					if (parent != constructor_)
-						g.utils.call(this, arguments, constructor_);
+						g.utils.call( constructor_, arguments, this);
 				});
 		else
 			constructor__ =  constructorMaker ? makeConstructor(name,constructorMaker(constructor_,null,properties)): constructor_;

@@ -1,8 +1,7 @@
 define(['g','_/is','dom/core','dom/cud'], function (g) {
 	
 	var css={
-		__blacklist__:['_cssInit'],
-		_cssInit:function(){
+		__onInstantiate:function(){
 			if(this.Css){
 				if(g.is.array(this.Css)) 
 					for (var i=0,l=this.Css.length;i<l;i++)

@@ -7,8 +7,8 @@ function (g, Base, Events, aspect, attribute) {
 	
 	var WidgetFactory=Base(function BaseFactory(){},{
 		Inherit:BaseFactory,
-		extend:function(){
-			WidgetFactory.Super.extend.call(this);
+		stack:function(){
+			WidgetFactory.Super.stack.call(this);
 			this.extends.push({ 
 				__type__ : 'WIDGET', 
 				destroy : function () { 
@@ -23,17 +23,17 @@ function (g, Base, Events, aspect, attribute) {
 				} 
 			}); 
 		}, 
-		toExtend:function(){
-			WidgetFactory.Super.toExtend.call(this);
+		extend:function(){
+			WidgetFactory.Super.extend.call(this);
 			//this.Constructor.prototype.__blacklist__=['__type__'];
 			//this.Constructor.prototype.__extendlist__=['options'];
 		},
 		makeConstructor_ : function () { 
 			if (this.parent !== this.Empty && this.parent != this.constr){ 
 				Widget.prototype.__name__ = this.name; 
-				var obj=this.constructorCallback(); 
+				var func=this.constructorCallback(); 
 				function Widget() { 
-					g.utils.call(this,arguments,obj); 
+					g.utils.call(func,arguments,this); 
 				} 
 				this.Constructor=Class; 
 			}else this.Constructor =  this.constr; 

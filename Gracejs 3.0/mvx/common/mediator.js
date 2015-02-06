@@ -3,8 +3,7 @@ define(['g','_/is','mediator/main'], function (g) {
 	
 	
 	var mediator={
-		__blacklist__:['_mediatorInit'],
-		_mediatorInit:function(){
+		__onInstantiate:function(){
 			
 			if(this.Subscribe){
 				

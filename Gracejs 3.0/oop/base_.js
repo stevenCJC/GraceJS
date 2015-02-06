@@ -21,16 +21,16 @@ define(['g', './Class', './Events', './aspect', './attribute','_/utils','_/is'],
 				
 				if(parent){
 					if(parent.prototype&&parent.prototype.__type__=='BASE')
-						g.utils.call(this, arguments, parent);
+						g.utils.call(parent, arguments, this);
 					else {
 						construct.call(this,constr,parent,configs);
-						g.utils.call(this, arguments, parent);
+						g.utils.call(parent, arguments, this);
 					}
 				}else {
 					construct.call(this,constr,parent,configs);
 				}
 				if (parent != constr)
-					g.utils.call(this, arguments, constr);
+					g.utils.call(constr, arguments, this);
 			};
 		}
 		

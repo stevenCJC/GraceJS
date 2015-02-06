@@ -12,26 +12,48 @@ define(['g','./function/md5','./function/parsesid','./var/_ids'], function(g ,md
 		},
 		parsesid:parsesid,
 		md5 :　md5,
+		New : function( construct, args ){
+			switch(args.length){
+				case 0:
+				return new construct();
+				break;
+				case 1:
+				return new construct(args[0]);
+				break;
+				case 2:
+				return new construct(args[0],args[1]);
+				break;
+				case 3:
+				return new construct(args[0],args[1],args[2]);
+				break;
+				case 4:
+				return new construct(args[0],args[1],args[2],args[3]);
+				break;
+				case 5:
+				return new construct(args[0],args[1],args[2],args[3],args[4]);
+				break;
+			}
+		},
 		call : function( context, args, func ){
 			context=context||this;
 			switch(args.length){
 				case 0:
-				func.call(context);
+				return func.call(context);
 				break;
 				case 1:
-				func.call(context,args[0]);
+				return func.call(context,args[0]);
 				break;
 				case 2:
-				func.call(context,args[0],args[1]);
+				return func.call(context,args[0],args[1]);
 				break;
 				case 3:
-				func.call(context,args[0],args[1],args[2]);
+				return func.call(context,args[0],args[1],args[2]);
 				break;
 				case 4:
-				func.call(context,args[0],args[1],args[2],args[3]);
+				return func.call(context,args[0],args[1],args[2],args[3]);
 				break;
 				case 5:
-				func.call(context,args[0],args[1],args[2],args[3],args[4]);
+				return func.call(context,args[0],args[1],args[2],args[3],args[4]);
 				break;
 			}
 		},

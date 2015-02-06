@@ -9,9 +9,9 @@ function (g, Base, Css, mediator, tpl) {
 			this.extendOptions.push('Subscribe');
 		},{
 		Inherit:BaseFactory,
-		extend:function(){
-			WidgetFactory.Super.extend.call(this);
-			this.extends=this.extends.concat(_extends);
+		stack:function(){
+			WidgetFactory.Super.stack.call(this);
+			this.extends=this.extends.concat(_extends); 
 			//引入Model
 			this.extends.push({ 
 				destroy : function () { 
@@ -26,27 +26,30 @@ function (g, Base, Css, mediator, tpl) {
 				} 
 			}); 
 		}, 
-		toExtend:function(){
+		extend:function(){
 			
-			WidgetFactory.Super.toExtend.call(this);
-			this.Constructor.prototype.__type__='WIDGET';
-			this.Constructor.prototype.__extendlist__=['options','Subscribe'];
+			this.Constructor.prototype.__blacklist__=['__onCreate','__onInstantiate','__onDestroy'];
 			
-			//	截取参数
-			//	var propo=this.Constructor.prototype,key;
-			//  for(var i=0; i < _extends.length; i++){
-			//		_extends[i].Options = _extends[i].Extended.call(_extends[i]);
-			//	}
+			WidgetFactory.Super.extend.call(this);
+			
+			this.Constructor.prototype.__type__='WIDGET'; 
+			this.Constructor.prototype.__extendlist__=['options','Subscribe']; 
+			
+			var i=0;
+			while(_extends[i++])
+				if(_extends[i-1].__onCreate) 
+					_extends[i-1].__onCreate.call(this,_extends);
+			
 			
 		},
 		makeConstructor_ : function () { 
 			if (this.parent !== this.Empty && this.parent != this.constr){ 
 				Widget.prototype.__name__ = this.name; 
-				var obj=this.constructorCallback(); 
+				var func=this.constructorCallback(); 
 				function Widget() { 
-					g.utils.call(this,arguments,obj); 
+					g.utils.call(func,arguments,this); 
 				} 
-				this.Constructor=Class; 
+				this.Constructor=Widget; 
 			}else this.Constructor =  this.constr; 
 		}, 
 		
@@ -54,15 +57,12 @@ function (g, Base, Css, mediator, tpl) {
 		construct:function(configs){ 
 			WidgetFactory.Super.construct.call(this,configs);
 			if(this._sid) return;
-			this._sid='widget_sid_'+g.utils.sid('widget');
-			Css._cssInit.call(this);
-			mediator._mediatorInit.call(this);
-			tpl._tplInit.call(this);
+			this._sid='widget_'+g.utils.sid('widget');
 			
-			//  for(var i=0; i < _extends.length; i++){
-			//		_extends[i].Init.call(this,_extends[i].Options);
-			//		_extends[i].beforeExtend();
-			//	}
+			var i=0;
+			while(_extends[i++])
+				if(_extends[i-1].__onInstantiate) 
+					_extends[i-1].__onInstantiate.call(this);
 			
 		}, 
 		

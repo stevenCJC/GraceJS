@@ -9,8 +9,8 @@ function (g, Class, Event, aspect, attribute) {
 			this.extendOptions=['Attrs'];
 		},{
 		Inherit:ClassFactory,
-		extend:function(){
-			BaseFactory.Super.extend.call(this);
+		stack:function(){
+			BaseFactory.Super.stack.call(this);
 			this.extends.push(Event);
 			this.extends.push(aspect);
 			this.extends.push(attribute);
@@ -28,19 +28,19 @@ function (g, Class, Event, aspect, attribute) {
 				}
 			});
 		},
-		toExtend:function(){
-			BaseFactory.Super.toExtend.call(this);
+		extend:function(){
+			BaseFactory.Super.extend.call(this);
 			this.Constructor.prototype.__blacklist__=['__type__'];
 			this.Constructor.prototype.__extendlist__=['Attrs'];
 		},
 		makeConstructor_ : function () {
 			if (this.parent !== this.Empty && this.parent != this.constr){
 				Base.prototype.__name__ = this.name;
-				var obj=this.constructorCallback();
+				var func=this.constructorCallback();
 				function Base() {
-					g.utils.call(this,arguments,obj);
+					g.utils.call(func,arguments,this);
 				}
-				this.Constructor=Class;
+				this.Constructor=Base;
 			}else this.Constructor =  this.constr;
 		},
 		constructorCallback:function (){
@@ -59,10 +59,10 @@ function (g, Class, Event, aspect, attribute) {
 					construct.call(this,configs);
 					
 				if(parent)
-					g.utils.call(this, arguments, parent);
+					g.utils.call(parent, arguments, this);
 					
 				if (parent != constr)
-					g.utils.call(this, arguments, constr);
+					g.utils.call(constr, arguments, this);
 			};
 		},
 		

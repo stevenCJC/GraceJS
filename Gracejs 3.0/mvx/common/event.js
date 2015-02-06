@@ -2,8 +2,7 @@ define(['g','dom/event','oop/Event','_/utils','mediator/main','storage/localstor
 	
 	
 	var event={
-		__blacklist__:['_eventInit'],
-		_eventInit:function(){
+		__onInstantiate:function(){
 			/*
 				自动带上命名空间
 				
