@@ -58,7 +58,7 @@ function (g, Base, Css, mediator, tpl) {
 			WidgetFactory.Super.construct.call(this,configs);
 			if(this._sid) return;
 			this._sid='widget_'+g.utils.sid('widget');
-			
+			g.Widget._widgets[g.Widget._widgets]=this;
 			var i=0;
 			while(_extends[i++])
 				if(_extends[i-1].__onInstantiate) 
@@ -79,5 +79,8 @@ function (g, Base, Css, mediator, tpl) {
 		return wf.create(arguments[0],arguments[1]);
 	};
 	g.Widget.Factory=WidgetFactory;
+	
+	g.Widget._widgets={};
+	
 	return g.Base;
 });

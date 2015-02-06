@@ -11,12 +11,12 @@ define(['g','_/is','dom/core','dom/','_/utils'], function (g) {
 			delete this.Constructor.prototype.Render;
 			this.Constructor.prototype.render=function(){
 				
-				if(this._rendered) console.warn(this.__name__+' rendered again.',this);
+				if(this._rendered) console.error(this.__name__+' rendered again.',this);
 				
 				var html=g.u.call(render,arguments,this);
 				
 				g.q(html).attr('WidgetID',this._sid);
-				
+				this.$elem = g.q(html);
 				this._rendered=true;
 				
 				return html;
@@ -27,7 +27,7 @@ define(['g','_/is','dom/core','dom/','_/utils'], function (g) {
 			delete this.Constructor.prototype.Init;
 			this.Constructor.prototype.init=function(){
 				if(this._inited) console.warn(this.__name__+' inited again.',this);
-				var i=this._widgets.length;
+				var i=0;
 				while(this._widgets[i++])
 					if(this._widgets[i-1].init) 
 						this._widgets[i-1].init.call(this);
@@ -39,15 +39,23 @@ define(['g','_/is','dom/core','dom/','_/utils'], function (g) {
 			var destroy=this.Constructor.prototype.Destroy||function(){};
 			delete this.Constructor.prototype.Destroy;
 			this.Constructor.prototype.destroy=function(){
-				var i=0;
-				while(this._widgets[i++])
-					if(this._widgets[i-1].destroy) 
-						this._widgets[i-1].destroy.call(this);
+				
+				this.$elem.pop();
+				
+				var i=this._widgets.length-1;
+				while(this._widgets[i--])
+					if(this._widgets[i+1].destroy) 
+						this._widgets[i+1].destroy.call(this);
+						
 				destroy.call(this);
+				
 				i=0;
-				while(this._widgets[i++])
-					if(this._widgets[i-1].destroy) 
-						this._widgets[i-1].destroy.call(this);
+				while(_extends[i++])
+					if(_extends[i-1].__onDestroy) 
+						_extends[i-1].__onDestroy.call(this);
+						
+				delete g.Widget._widgets[this._sid];
+				
 			};
 			
 			
@@ -58,7 +66,11 @@ define(['g','_/is','dom/core','dom/','_/utils'], function (g) {
 		__onInstantiate:function(){
 			
 		},
-		__onDestroy:function(){},
+		__onDestroy:function(){
+			
+			this._widgets=null;	
+			
+		},
 		
 		
 		//function

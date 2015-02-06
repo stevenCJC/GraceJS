@@ -39,7 +39,13 @@ define(['dom/core','./var/fragementRE','./function/_insertFragments','_/is'], fu
 			return this;
 		},
 		
-
+		pop:function(selector){
+			var elems = g.q(this).filter(selector);
+			for (var i = 0,len=elems.length; i <len ; i++) {
+				elems[i].parentNode.removeChild(elems[i]);
+			}
+			return elems;
+		},
 
 		
 		append: function(element, insert, clone) {
