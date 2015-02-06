@@ -1,17 +1,11 @@
 define(['g','_/is','_/object'], function(g,_selector) {
 	
 	
+	// 编写dom插件，从组件外部插入
+	
+	g.ui.wedgit=function(name,options){ //不需要render和构造函数，自动set $elem, 需要判断init时机
 		
-	// extend(name,classFunction)	//开发插件的时候比较有用的扩展方式,直接支持对子方法的调用模式
-	// extend(name,{				//基于name的命名空间下，对子方法的调用模式，使用第三方插件、定义接口的时候比较有用
-	// 	main:function(){},
-	//	name1:function(){},
-	//	name2:function(){},
-	//});
-	// extend(obj)					//基本扩展方式
-	g.ui.wedgit=function(name,wedgit){
-		
-		g.ui.fn[name]=function(action, options){
+		g.ui.fn[name]=function(action, options){ 
 			if(action&&action.constructor==String&&obj[action]){
 				
 				obj[action].apply(this,arguments.slice(1));
