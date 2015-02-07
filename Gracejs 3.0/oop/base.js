@@ -34,14 +34,20 @@ function (g, Class, Event, aspect, attribute) {
 			this.Constructor.prototype.__extendlist__=['Attrs'];
 		},
 		makeConstructor_ : function () {
-			if (this.parent !== this.Empty && this.parent != this.constr){
+			//if (this.parent !== this.Empty && this.parent != this.constr){
 				Base.prototype.__name__ = this.name;
 				var func=this.constructorCallback();
 				function Base() {
 					g.utils.call(func,arguments,this);
 				}
 				this.Constructor=Base;
-			}else this.Constructor =  this.constr;
+			//}else this.Constructor =  this.constr;
+		},
+		makeConstructor:function(){
+			
+			//if (this.parent !== this.Empty && this.parent != this.constr)
+				this.Constructor = makeConstructor(this.name, this.constructorCallback());
+			//else this.Constructor =  this.constr;
 		},
 		constructorCallback:function (){
 			var constr=this.constr, 
@@ -91,7 +97,17 @@ function (g, Class, Event, aspect, attribute) {
 	});
 	
 
-	
+	function makeConstructor(name, obj) {
+		window._tmp_obj_ = obj;
+		window.eval('window._tmp_constructor_=(function(obj){' +
+			'return function ' + name + '(){\n obj.apply(this,arguments);}' +
+			'})(window._tmp_obj_)');
+		var constructor = window._tmp_constructor_;
+		delete window._tmp_constructor_;
+		delete window._tmp_constructor_;
+		delete window._tmp_obj_;
+		return constructor;
+	}
 	
 	var bf=new BaseFactory(1);
 	

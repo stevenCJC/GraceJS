@@ -1,4 +1,4 @@
-define(['g','_/is','dom/core','dom/','_/utils'], function (g) {
+define(['g','_/is','dom/core','dom/query','_/utils'], function (g) {
 	
 	var css={
 		
@@ -29,7 +29,7 @@ define(['g','_/is','dom/core','dom/','_/utils'], function (g) {
 			delete this.Constructor.prototype.Init;
 			this.Constructor.prototype.init=function(){
 				//支持自定义初始化时机
-				if(this._inited) return;//console.warn(this.__name__+' inited again.',this);
+				if(this._inited) return; //console.warn(this.__name__+' inited again.',this);
 				
 				init.call(this);	//初始化顺序问题？
 				

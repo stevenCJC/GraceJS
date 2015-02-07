@@ -1,4 +1,4 @@
-define(['dom/core','./function/unique','./function/siblings','./function/_shimNodes','BL/_/main'], function (g,unique,siblings,_shimNodes) {
+define(['dom/core','./function/unique','./function/siblings','./function/_shimNodes'], function (g,unique,siblings,_shimNodes) {
 
 	g.ui.extend({
 
@@ -137,5 +137,5 @@ define(['dom/core','./function/unique','./function/siblings','./function/_shimNo
 		
 
 	});
-	return $;
+	return g;
 });

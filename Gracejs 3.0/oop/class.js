@@ -82,7 +82,7 @@ define(['g', '_/utils','_/is'], function (g) {
 		classify:function(cls){
 			cls=cls||this.Constructor;
 			cls.extend = function(){ 
-				ClassFactory.prototype.extend.call({props:this,extends:Array.prototype.slice.call(arguments)});
+				ClassFactory.prototype.extend.call({Constructor:this,extends:Array.prototype.slice.call(arguments)});
 				return this;
 			};
 			return cls;

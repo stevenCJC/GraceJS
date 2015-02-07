@@ -34,7 +34,7 @@ define(['g','./function/md5','./function/parsesid','./var/_ids'], function(g ,md
 				break;
 			}
 		},
-		call : function( context, args, func ){
+		call : function(func , args, context ){
 			context=context||this;
 			switch(args.length){
 				case 0:

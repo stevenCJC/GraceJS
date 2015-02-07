@@ -1,14 +1,16 @@
-define(['g', 'oop/base','./common/css','./common/mediator','./common/tpl','_/utils','_/is'],
-function (g, Base, Css, mediator, tpl) {
+define(['g', 'oop/base','./common/css','./common/mediator','./common/tpl','./common/LCC','_/utils','_/is'],
+function (g, Base, Css, mediator, tpl, LCC) {
 
-	var _extends=[Css,mediator,tpl];
+	var _extends=[Css,mediator,tpl,LCC];
 	
 	var BaseFactory=g.Base.Factory;
 	
 	var WidgetFactory=g.Class(function WidgetFactory(){
 			this.extendOptions.push('Subscribe');
 		},{
+			
 		Inherit:BaseFactory,
+		
 		stack:function(){
 			WidgetFactory.Super.stack.call(this);
 			this.extends=this.extends.concat(_extends); 
@@ -33,7 +35,7 @@ function (g, Base, Css, mediator, tpl) {
 			WidgetFactory.Super.extend.call(this);
 			
 			this.Constructor.prototype.__type__='WIDGET'; 
-			this.Constructor.prototype.__extendlist__=['options','Subscribe']; 
+			this.Constructor.prototype.__extendlist__=['Attrs','Subscribe']; 
 			
 			var i=0;
 			while(_extends[i++])
@@ -43,18 +45,18 @@ function (g, Base, Css, mediator, tpl) {
 			
 		},
 		makeConstructor_ : function () { 
-			if (this.parent !== this.Empty && this.parent != this.constr){ 
+			//if (this.parent !== this.Empty && this.parent != this.constr){ 
 				Widget.prototype.__name__ = this.name; 
 				var func=this.constructorCallback(); 
 				function Widget() { 
 					g.utils.call(func,arguments,this); 
 				} 
 				this.Constructor=Widget; 
-			}else this.Constructor =  this.constr; 
+			//}else this.Constructor =  this.constr; 
 		}, 
 		
 		
-		construct:function(configs){ 
+		construct:function(configs){ //?
 			WidgetFactory.Super.construct.call(this,configs);
 			if(this._sid) return;
 			this._sid='widget_'+g.utils.sid('widget');
