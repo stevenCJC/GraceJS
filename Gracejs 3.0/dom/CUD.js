@@ -9,9 +9,13 @@ define(['dom/core','./var/fragementRE','./function/_insertFragments','_/is'], fu
 			if (html === undefined)
 				return this[0].innerHTML;
 			for (var i = 0,len=this.length; i <len ; i++) {
-				g.clean(this[i], false, true);
-				this[i].innerHTML = html;
+				//g.clean(this[i], false, true);
+				this[i].innerHTML = null;
+				
 			}
+			
+			this.append(html);
+			
 			return this;
 		},
 
@@ -21,7 +25,7 @@ define(['dom/core','./var/fragementRE','./function/_insertFragments','_/is'], fu
 			if (text === undefined)
 				return this[0].textContent;
 			for (var i = 0,len=this.length; i <len ; i++) {
-				this[i].textContent = text;
+				this[i].innerText = text;
 			}
 			return this;
 		},
@@ -33,7 +37,7 @@ define(['dom/core','./var/fragementRE','./function/_insertFragments','_/is'], fu
 			if (elems == undefined)
 				return this;
 			for (var i = 0,len=elems.length; i <len ; i++) {
-				g.clean(elems[i], true, true);
+				//g.clean(elems[i], true, true);
 				elems[i].parentNode.removeChild(elems[i]);
 			}
 			return this;
@@ -58,8 +62,8 @@ define(['dom/core','./var/fragementRE','./function/_insertFragments','_/is'], fu
 			for (i = 0; i < this.length; i++) {
 				
 				if (element.length && typeof element != "string") {
-					cloned = clone?g.q(element).clone(1):g.q(element);
-					_insertFragments(cloned,this[i],insert);
+					//cloned = clone?g.q(element).clone(1):g.q(element);
+					_insertFragments(g.q(element),this[i],insert);
 				} else {
 					var obj =fragementRE.test(element)?g.q(element):undefined;
 					if (obj == undefined || obj.length == 0) {

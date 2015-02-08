@@ -1,5 +1,5 @@
 define(['dom/core','./function/unique','./function/siblings','./function/_shimNodes'], function (g,unique,siblings,_shimNodes) {
-
+	var $=g.q;
 	g.ui.extend({
 
 		setupOld: function(params) {

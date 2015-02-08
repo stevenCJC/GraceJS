@@ -1,4 +1,4 @@
-define(['g','_/is','dom/core','dom/query','_/utils'], function (g) {
+define(['g','_/is','dom/core','dom/query','_/utils','dom/data'], function (g) {
 	
 	var css={
 		
@@ -13,11 +13,13 @@ define(['g','_/is','dom/core','dom/query','_/utils'], function (g) {
 				
 				if(this._rendered) return this.$elem;//console.error(this.__name__+' rendered again.',this);
 				
-				var html=g.u.call(render,arguments,this);
+				var html=g.q(g.u.call(render,arguments,this));
 				
-				g.q(html).attr('WidgetID',this._sid);
+				html.attr('WidgetID',this._sid);
 				
-				this.$elem = g.q(html);
+				this.$elem = html;
+				
+				html[0].widggg=1;
 				
 				this._rendered=true;
 				
@@ -33,12 +35,13 @@ define(['g','_/is','dom/core','dom/query','_/utils'], function (g) {
 				
 				init.call(this);	//初始化顺序问题？
 				
-				var i=0;
-				
-				while(this._widgets[i++])
-					if(this._widgets[i-1].init) 
-						this._widgets[i-1].init.call(this);
-				
+				if(this._widgets&&this._widgets.length){
+					var i=0;
+					
+					while(this._widgets[i++])
+						if(this._widgets[i-1].init) 
+							this._widgets[i-1].init();
+				}
 				this._inited=true;
 			};
 			
@@ -47,13 +50,15 @@ define(['g','_/is','dom/core','dom/query','_/utils'], function (g) {
 			delete this.Constructor.prototype.Destroy;
 			this.Constructor.prototype.destroy=function(){
 				
-				this.$elem.pop();
+				this.$elem&&this.$elem.pop();
 				
-				var i=this._widgets.length-1;
-				while(this._widgets[i--])
-					if(this._widgets[i+1].destroy) 
-						this._widgets[i+1].destroy.call(this);
-						
+				if(this._widgets&&this._widgets.length){
+					var i=this._widgets.length-1;
+					while(this._widgets[i--])
+						if(this._widgets[i+1].destroy) 
+							this._widgets[i+1].destroy();
+				}
+				
 				destroy.call(this);
 				
 				i=0;
@@ -61,7 +66,7 @@ define(['g','_/is','dom/core','dom/query','_/utils'], function (g) {
 					if(_extends[i-1].__onDestroy) 
 						_extends[i-1].__onDestroy.call(this);
 						
-				this.$elem=null;
+				if(this.$elem) this.$elem=null;
 				delete g.Widget._widgets[this._sid];
 				
 			};
@@ -90,7 +95,7 @@ define(['g','_/is','dom/core','dom/query','_/utils'], function (g) {
 				this._widgets.push(widget);
 				return widget;
 			}else {
-				var w=g.u.New(widget,arguments);
+				var w=g.u.New(widget,Array.prototype.slice.call(arguments,1));
 				this._widgets.push(w);
 				return w;
 			}

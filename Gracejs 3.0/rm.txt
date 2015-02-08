@@ -3,7 +3,7 @@
 	剩余工作量
 	
 	1、dom event 事件存储机制
-	2、render + init + destroy 机制
+	//2、render + init + destroy 机制
 	3、model数据 对象
 	 3.1、数据事件绑定
 	4、表单数据

@@ -202,5 +202,5 @@ define(['dom/core','_/is','./clean'], function (g) {
 		
 
 	});
-	return $;
+	return g;
 });

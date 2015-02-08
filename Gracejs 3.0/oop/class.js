@@ -1,4 +1,4 @@
-define(['g', '_/utils','_/is'], function (g) {
+define(['g','./function/makeConstructor', '_/utils','_/is'], function (g, makeConstructor) {
 	
 	function ClassFactory(mode){
 		this.mode=mode;// 1 debug模式，2 快速模式
@@ -141,17 +141,6 @@ define(['g', '_/utils','_/is'], function (g) {
 		
 	};
 	
-	function makeConstructor(name, obj) {
-		window._tmp_obj_ = obj;
-		window.eval('window._tmp_constructor_=(function(obj){' +
-			'return function ' + name + '(){\n obj.apply(this,arguments);}' +
-			'})(window._tmp_obj_)');
-		var constructor = window._tmp_constructor_;
-		delete window._tmp_constructor_;
-		delete window._tmp_constructor_;
-		delete window._tmp_obj_;
-		return constructor;
-	}
 	
 	function findAllProto(cons){
 		var child,protos=[cons.prototype];

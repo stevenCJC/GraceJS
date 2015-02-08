@@ -1,4 +1,4 @@
-define(['g','_/is','dom/core','dom/cud'], function (g) {
+define(['g','_/is','dom/core','dom/CUD'], function (g) {
 	
 	var css={
 		__onInstantiate:function(){
