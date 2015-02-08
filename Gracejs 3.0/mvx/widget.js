@@ -15,7 +15,7 @@ function (g, Base, Css, mediator, tpl, LCC) {
 			WidgetFactory.Super.stack.call(this);
 			this.extends=this.extends.concat(_extends); 
 			//引入Model
-			this.extends.push({ 
+			this.extends.push({   
 				destroy : function () { 
 					this.el=null; 
 					this.off(); 
@@ -59,8 +59,8 @@ function (g, Base, Css, mediator, tpl, LCC) {
 		construct:function(configs){ //?
 			WidgetFactory.Super.construct.call(this,configs);
 			if(this._sid) return;
-			this._sid='widget_'+g.utils.sid('widget');
-			g.Widget._widgets[g.Widget._widgets]=this;
+			this._sid=g.utils.sid('widget');
+			g.Widget._widgets[this._sid]=this;
 			var i=0;
 			while(_extends[i++])
 				if(_extends[i-1].__onInstantiate) 

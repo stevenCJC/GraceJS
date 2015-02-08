@@ -15,7 +15,7 @@ define(['g','_/is','dom/core','dom/query','_/utils','dom/data'], function (g) {
 				
 				var html=g.q(g.u.call(render,arguments,this));
 				
-				html.attr('WidgetID',this._sid);
+				html.attr('_',this._sid);
 				
 				this.$elem = html;
 				

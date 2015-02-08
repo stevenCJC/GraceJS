@@ -8,13 +8,19 @@ define(['dom/core','./var/fragementRE','./function/_insertFragments','_/is'], fu
 				return this;
 			if (html === undefined)
 				return this[0].innerHTML;
-			for (var i = 0,len=this.length; i <len ; i++) {
-				//g.clean(this[i], false, true);
-				this[i].innerHTML = null;
-				
+			
+			if(typeof html=='string')
+				this.each(function(){
+					this.innerHTML=html;
+				});
+			else {
+				for (var i = 0,len=this.length; i <len ; i++) {
+					//g.clean(this[i], false, true);
+					this[i].innerHTML = null;
+				}
+				this.append(html);
 			}
 			
-			this.append(html);
 			
 			return this;
 		},
@@ -46,7 +52,8 @@ define(['dom/core','./var/fragementRE','./function/_insertFragments','_/is'], fu
 		pop:function(selector){
 			var elems = g.q(this).filter(selector);
 			for (var i = 0,len=elems.length; i <len ; i++) {
-				elems[i].parentNode.removeChild(elems[i]);
+				if(elems[i].parentNode)
+					elems[i].parentNode.removeChild(elems[i]);
 			}
 			return elems;
 		},
@@ -54,17 +61,21 @@ define(['dom/core','./var/fragementRE','./function/_insertFragments','_/is'], fu
 		
 		append: function(element, insert, clone) {
 			if(typeof clone=='undefined') clone=true;
+			
 			if (element && element.length != undefined && element.length === 0)
 				return this;
 			if (g.is.array(element) || g.is.object(element))
 				element = g.q(element);
 			var i,cloned;
+					
 			for (i = 0; i < this.length; i++) {
 				
-				if (element.length && typeof element != "string") {
-					//cloned = clone?g.q(element).clone(1):g.q(element);
-					_insertFragments(g.q(element),this[i],insert);
+				if (typeof element != "string") {
+					//第一个不克隆
+					cloned = i&&clone?g.q(element).clone(1):g.q(element);
+					_insertFragments(cloned,this[i],insert);
 				} else {
+					
 					var obj =fragementRE.test(element)?g.q(element):undefined;
 					if (obj == undefined || obj.length == 0) {
 						obj = document.createTextNode(element);
@@ -76,23 +87,25 @@ define(['dom/core','./var/fragementRE','./function/_insertFragments','_/is'], fu
 					} else {//非节点插入
 						insert ? this[i].insertBefore(obj, this[i].firstChild) : this[i].appendChild(obj);
 					}
+					
 				}
 			}
+			
 			return this;
 		},
 		
 		appendTo:function(selector){
-			g.q(selector).append(this,false,false);
+			g.q(selector).append(this,false);
 			return this;
 		},
 		
 		prependTo:function(selector){
-			g.q(selector).append(this, true, false);
+			g.q(selector).append(this, true);
 			return this;
 		},
 		
 		prepend: function(element) {
-			return this.append(element, true,true);
+			return this.append(element, true);
 		},
 		
 		beforeTo: function(target, after) {

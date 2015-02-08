@@ -125,6 +125,7 @@ var tee=[],ton=[],m=[],le=[],ca=[];
 				
 			},
 			Destroy:function(){
+				console.log(this.$elem.text());
 				this.$elem.text(null);
 			},
 			
@@ -150,8 +151,12 @@ console.time('init');
 		ca[i].init();
 console.timeEnd('init');
 
+console.time('init');
+	for(var i=0;i<1000;i++)
+		ca[i].destroy();
+console.timeEnd('init');
 
-
+	console.log(g.Widget._widgets);
 
 
 
