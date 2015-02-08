@@ -150,7 +150,7 @@ console.time('init');
 	for(var i=0;i<1000;i++)
 		ca[i].init();
 console.timeEnd('init');
-
+	console.log(g.Widget._widgets);
 console.time('init');
 	for(var i=0;i<1000;i++)
 		ca[i].destroy();
