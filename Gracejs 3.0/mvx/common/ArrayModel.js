@@ -1,4 +1,4 @@
-define(['g','_/array'], function(g) {
+define(['g','_/array'], function(g,array) {
 	
 	/*
 		
@@ -40,14 +40,18 @@ define(['g','_/array'], function(g) {
 		toString:function(){
 			
 		},
+		
+		clone:function(){},
+		
+		
 	};
 	
-	for(var x in g.array) (function(x,func){
-		ArrayModel.prototype[x]=function(){
-			if(arguments.length==1) return func(this,arguments[0]);
-			else return func(this);
-		};
-	})(x,g.array[x]);
+	for(var x in array) (function(x,func){
+			ArrayModel.prototype[x]=function(){
+				if(arguments.length==1) return func(this,arguments[0]);
+				else return func(this);
+			};
+		})(x,g.array[x]);
 		
 		
 	return ArrayModel;
