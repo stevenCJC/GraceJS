@@ -72,7 +72,7 @@ define(["g" , './var/_models' ,'ajax/request', './common/dataset/DS','_/string']
 	
 	
 	
-	g.Model.extend=function(opts){
+	g.DAO.extend=function(opts){
 		
 		var models={},d;
 		for(var x in opts){

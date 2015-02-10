@@ -23,10 +23,11 @@ define(['g','./function/deepClone'], function(g,deepClone) {
 		},
 		
 		extend : function(target) {
+			target=target||{};
 			var ukey,key;
 			var a= Array.prototype.slice.call(arguments, 1);
 			for(var i=0,l=a.length;i<l;i++)
-				for (key in a[i])
+				if(typeof a[i]=='object')for (key in a[i])
 					target[key] = a[i][key];
 			return target;
 		},
