@@ -8,7 +8,7 @@ function (g, Base, Css, mediator, tpl, LCC) {
 	var WidgetFactory=g.Class(function WidgetFactory(){
 			this.extendOptions.push('Subscribe');
 		},{
-			
+		
 		Inherit:BaseFactory,
 		
 		stack:function(){

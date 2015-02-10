@@ -13,7 +13,9 @@ define(['g','_/string'], function(g) {
 	
 	LocalStorage.prototype={
 		constructor:LocalStorage,
-		
+		unbind:function(key){
+			
+		},
 		bind: function(key, func) {
 			this.handles[key]=this.handles[key]||[];
 			this.handles[key].push(func);
@@ -31,7 +33,7 @@ define(['g','_/string'], function(g) {
 
 			}
 		},
-
+		trigger:function(){},
 		get: function(key) {
 			var tmp = window.localStorage[key];
 			return g.s.ifJson(tmp);
