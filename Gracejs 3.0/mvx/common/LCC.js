@@ -1,6 +1,6 @@
 define(['g','_/is','dom/core','dom/query','_/utils','dom/data'], function (g) {
 	
-	var css={
+	var lcc={
 		
 		//构建期
 		
@@ -106,7 +106,7 @@ define(['g','_/is','dom/core','dom/query','_/utils','dom/data'], function (g) {
 	
 	
 	
-	return css;
+	return lcc;
 });
 
 
